@@ -4,7 +4,25 @@ project(majorna VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(X11 "Enable X11 support" ON)
+option(WAYLAND "Enable Wayland support" OFF)
+option(IMLIB2 "Enable Imlib2 support" ON)
+option(OPENSSL "Enable OpenSSL support" ON)
+option(FRIBIDI "Enable Fribidi support" ON)
+option(XINERAMA "Enable Xinerama support" ON)
+option(LIBCONFIG "Enable Libconfig support" ON)
+option(XRESOURCES "Enable Xresources support" ON)
+option(REGEX "Enable Regex support" ON)
+option(FIFO "Enable FIFO support" ON)
+
 include_directories(include)
+
+if(APPLE)
+    include_directories(/usr/local/include)
+    link_directories(/usr/local/lib)
+    set(WAYLAND OFF) # not supported on macOS
+endif()
+
 set(PROJECT_SOURCE_FILES
         src/config/config.cpp
         src/draw/draw.cpp
@@ -41,17 +59,6 @@ set(PROJECT_DEPENDENCIES
 set(BUILD_ARGS
     -DVERSION="${PROJECT_VERSION}"
 )
-
-option(X11 "Enable X11 support" ON)
-option(WAYLAND "Enable Wayland support" OFF)
-option(IMLIB2 "Enable Imlib2 support" ON)
-option(OPENSSL "Enable OpenSSL support" ON)
-option(FRIBIDI "Enable Fribidi support" ON)
-option(XINERAMA "Enable Xinerama support" ON)
-option(LIBCONFIG "Enable Libconfig support" ON)
-option(XRESOURCES "Enable Xresources support" ON)
-option(REGEX "Enable Regex support" ON)
-option(FIFO "Enable FIFO support" ON)
 
 if(X11)
     pkg_check_modules(X11 REQUIRED x11)
