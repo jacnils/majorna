@@ -1,0 +1,77 @@
+#pragma once
+
+#include <x11/x11_libs.hpp>
+#include <options.hpp>
+
+#if XRESOURCES
+enum resource_type {
+    STRING = 0,
+    INTEGER = 1,
+    FLOAT = 2
+};
+
+typedef struct {
+    char *name;
+    enum resource_type type;
+    void *dst;
+} ResourcePref;
+
+inline ResourcePref cols[] = {
+    { "font",			             STRING,  &font },
+    { "color10",                     STRING,  &col_caretfg },
+    { "color0",                      STRING,  &col_caretbg },
+    { "color4",                      STRING,  &col_larrowfg },
+    { "color4",                      STRING,  &col_rarrowfg },
+    { "color10",                     STRING,  &col_itemnormfg },
+    { "color10",                     STRING,  &col_itemnormfg2 },
+    { "color10",                     STRING,  &col_itemnormprifg },
+    { "color10",                     STRING,  &col_inputfg },
+    { "color10",                     STRING,  &col_pretextfg },
+    { "color0",                      STRING,  &col_itemnormbg },
+    { "color0",                      STRING,  &col_itemnormbg2 },
+    { "color0",                      STRING,  &col_itemnormpribg },
+    { "color0",                      STRING,  &col_menu },
+    { "color0",                      STRING,  &col_larrowbg },
+    { "color0",                      STRING,  &col_rarrowbg },
+    { "color0",                      STRING,  &col_itemselfg },
+    { "color0",                      STRING,  &col_itemmarkedfg },
+    { "color0",                      STRING,  &col_itemselprifg },
+    { "color0",                      STRING,  &col_inputbg },
+    { "color0",                      STRING,  &col_pretextbg },
+    { "color12",                     STRING,  &col_promptbg },
+    { "color0",                      STRING,  &col_promptfg },
+    { "color7",                      STRING,  &col_capsbg },
+    { "color0",                      STRING,  &col_capsfg },
+    { "color6",                      STRING,  &col_itemselbg },
+    { "color6",                      STRING,  &col_itemmarkedbg },
+    { "color6",                      STRING,  &col_itemselpribg },
+    { "color6",                      STRING,  &col_border },
+    { "color0",                      STRING,  &col_numfg },
+    { "color5",                      STRING,  &col_numbg },
+    { "color0",                      STRING,  &col_modefg },
+    { "color11",                     STRING,  &col_modebg },
+    { "color2",                      STRING,  &col_hlnormbg },
+    { "color3",                      STRING,  &col_hlselbg },
+    { "color0",                      STRING,  &col_hlnormfg },
+    { "color0",                      STRING,  &col_hlselfg },
+    { "color0",                      STRING,  &col_sgr0 },
+    { "color1",                      STRING,  &col_sgr1 },
+    { "color2",                      STRING,  &col_sgr2 },
+    { "color3",                      STRING,  &col_sgr3 },
+    { "color4",                      STRING,  &col_sgr4 },
+    { "color5",                      STRING,  &col_sgr5 },
+    { "color6",                      STRING,  &col_sgr6 },
+    { "color7",                      STRING,  &col_sgr7 },
+    { "color8",                      STRING,  &col_sgr8 },
+    { "color9",                      STRING,  &col_sgr9 },
+    { "color10",                     STRING,  &col_sgr10 },
+    { "color11",                     STRING,  &col_sgr11 },
+    { "color12",                     STRING,  &col_sgr12 },
+    { "color13",                     STRING,  &col_sgr13 },
+    { "color14",                     STRING,  &col_sgr14 },
+    { "color15",                     STRING,  &col_sgr15 },
+};
+
+void load_xresources(void);
+void resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst);
+#endif

@@ -1,0 +1,373 @@
+/* majorna - fancy dynamic menu
+ * See LICENSE file for copyright and license details.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <unistd.h>
+#include <history.hpp>
+#include <macros.hpp>
+#include <majorna.hpp>
+#include <draw/draw.hpp>
+#include <options.hpp>
+#include <draw.hpp>
+#include <wl/wayland.hpp>
+#include <wl/init.hpp>
+#include <fifo.hpp>
+#include <argv.hpp>
+#include <stream.hpp>
+#include <img.hpp>
+#include <schemes.hpp>
+#include <x11/init.hpp>
+#include <x11/event.hpp>
+#include <x11/client.hpp>
+#include <match.hpp>
+#include <cctype>
+
+int is_selected(size_t index) {
+    for (int i = 0; i < sel_size; i++) {
+        if (sel_index[i] == index) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+void appenditem(struct item *item, struct item **list, struct item **last) {
+    if (*last)
+        (*last)->right = item;
+    else
+        *list = item;
+
+    item->left = *last;
+    item->right = NULL;
+    *last = item;
+}
+
+void recalculatenumbers() {
+    unsigned int numer = 0, denom = 0, selected = 0;
+    struct item *item;
+
+    if (matchend) {
+        numer++;
+
+        for (item = matchend; item && item->left; item = item->left)
+            numer++;
+    }
+
+    for (item = items; item && item->text; item++) {
+        denom++;
+    }
+
+    for (int i = 0; i < sel_size; i++) {
+        if (sel_index[i] == -1) {
+            break;
+        }
+
+        selected++;
+    }
+
+    if (selected) {
+        snprintf(tx.numbers, NUMBERSBUFSIZE, "%d/%d/%d", numer, denom, selected);
+    } else {
+        snprintf(tx.numbers, NUMBERSBUFSIZE, "%d/%d", numer, denom);
+    }
+}
+
+void calcoffsets() {
+    int i, offset;
+    int numberw = 0;
+    int modew = 0;
+    int larroww = 0;
+    int rarroww = 0;
+    int capsw = 0;
+
+    if (!hidematchcount) numberw = pango_numbers ? TEXTWM(tx.numbers) : TEXTW(tx.numbers);
+    if (!hidemode) modew = pango_mode ? TEXTWM(tx.modetext) : TEXTW(tx.modetext);
+    if (!hidelarrow) larroww = pango_leftarrow ? TEXTWM(leftarrow) : TEXTW(leftarrow);
+    if (!hiderarrow) rarroww = pango_rightarrow ? TEXTWM(rightarrow) : TEXTW(rightarrow);
+    if (!hidecaps) capsw = pango_caps ? TEXTWM(tx.capstext) : TEXTW(tx.capstext);
+
+    if (!strcmp(tx.capstext, "")) {
+        capsw = 0;
+    }
+
+    if (lines > 0) {
+        offset = lines * columns * sp.bh;
+        sp.maxlen = sp.mw - (sp.promptw + modew + numberw + capsw + menumarginh);
+    } else { /* no lines, therefore the size of items must be decreased to fit the menu elements */
+        offset = sp.mw - (sp.promptw + sp.inputw + larroww + rarroww + modew + numberw + capsw + menumarginh);
+        sp.maxlen = selecteditem ? sp.inputw : sp.mw - (sp.promptw + modew + numberw + capsw + (selecteditem ? larroww : 0) + (selecteditem ? rarroww : 0));
+    }
+
+    for (i = 0, nextitem = currentitem; nextitem; nextitem = nextitem->right) { // next page
+        nextitem->nsgrtext = get_text_n_sgr(nextitem);
+
+        if ((i += (lines > 0) ? sp.bh : MIN(TEXTWM(nextitem->nsgrtext) + (powerlineitems ? !lines ? 3 * sp.plw : 0 : 0), offset)) > offset)
+            break;
+    }
+
+    for (i = 0, previousitem = currentitem; previousitem && previousitem->left; previousitem = previousitem->left) { // previous page
+        previousitem->nsgrtext = get_text_n_sgr(previousitem);
+
+        if ((i += (lines > 0) ? sp.bh : MIN(TEXTWM(previousitem->left->nsgrtext) + (powerlineitems ? !lines ? 3 * sp.plw : 0 : 0), offset)) > offset)
+            break;
+    }
+}
+
+int max_textw() {
+    int len = 0;
+
+    for (struct item *item = items; item && item->text; item++)
+        len = MAX(TEXTW(item->text), len);
+
+    return len;
+}
+
+void cleanup() {
+    size_t i;
+
+#if IMAGE
+    cleanupimage();
+#endif
+
+    for (i = 0; i < hplength; ++i)
+        free(hpitems[i]);
+
+    draw_free(draw);
+
+#if X11
+    if (!protocol) {
+        cleanup_x11(dpy);
+    }
+#endif
+
+#if FIFO
+    remove(fifofile);
+#endif
+
+    free(sel_index);
+}
+
+char * cistrstr(const char *h, const char *n) {
+    size_t i;
+
+    if (!n[0])
+        return (char *)h;
+
+    for (; *h; ++h) {
+        for (i = 0; n[i] && tolower((unsigned char)n[i]) ==
+                tolower((unsigned char)h[i]); ++i);
+
+        if (n[i] == '\0')
+            return (char *)h;
+    }
+
+    return NULL;
+}
+
+void insert(const char *str, ssize_t n) {
+    if (strlen(tx.text) + n > sizeof tx.text - 1)
+        return;
+
+    static char l[BUFSIZ] = "";
+
+    if (requirematch) {
+        memcpy(l, tx.text, BUFSIZ);
+    }
+
+    // move existing text out of the way, insert new text, and update cursor
+    memmove(
+            &tx.text[sp.cursor + n],
+            &tx.text[sp.cursor],
+            sizeof tx.text - sp.cursor - MAX(n, 0)
+    );
+
+    if (n > 0 && str && n) {
+        memcpy(&tx.text[sp.cursor], str, n);
+    }
+
+    sp.cursor += n;
+    match();
+
+    if (!matches && requirematch) {
+        memcpy(tx.text, l, BUFSIZ);
+        sp.cursor -= n;
+        match();
+    }
+
+    // output on insertion
+    if (incremental) {
+        puts(tx.text);
+        fflush(stdout);
+    }
+}
+
+size_t nextrune(int inc) {
+    ssize_t rune;
+
+    // return location of next utf8 rune in the given direction (+1 or -1)
+    for (rune = sp.cursor + inc; rune + inc >= 0 && (tx.text[rune] & 0xc0) == 0x80; rune += inc)
+        ;
+
+    return rune;
+}
+
+void resizeclient() {
+#if WAYLAND
+    if (protocol) {
+        resizeclient_wl(&state);
+    } else {
+#if X11
+        resizeclient_x11();
+#endif
+    }
+#elif X11
+    resizeclient_x11();
+#endif
+}
+
+/* Width reserved for input when !lines is a fixed size of the menu width * inputwidth
+ * This is reasonable, but in rare cases may cause input text to overlap
+ * items.
+ */
+void get_width() {
+    sp.inputw = sp.mw * inputwidth;
+}
+
+void get_mh() {
+    int epad;
+
+    sp.mh = (lines + 1) * sp.bh;
+    sp.mh += 2 * menumarginv;
+
+    // subtract 1 line if there's nothing to draw on the top line
+    if ((hideprompt && hideinput && hidemode && hidematchcount && hidecaps) && lines) {
+        sp.mh -= sp.bh;
+    }
+
+    epad = 2 * menupaddingv;
+
+    // the majorna window should not exceed the screen resolution height
+    if (mo.output_height && !xpos && !ypos) {
+        sp.mh = MIN(sp.mh, mo.output_height - epad);
+
+        if (sp.mh == mo.output_height - epad) {
+            lines = ((mo.output_height - epad) / sp.bh);
+        }
+    }
+}
+
+void set_mode() {
+    if (!type) { // no typing allowed, require normal mode
+        sp.mode = 0;
+    }
+
+    // set default mode, must be done before the event loop or keybindings will not work
+    if (mode) {
+        sp.mode = 1;
+        sp.allowkeys = 1;
+
+        sp_strncpy(tx.modetext, instext, sizeof(tx.modetext));
+    } else {
+        sp.mode = 0;
+        sp.allowkeys = !sp.mode;
+
+        sp_strncpy(tx.modetext, normtext, sizeof(tx.modetext));
+    }
+
+    if (forceinsertmode) {
+        sp.mode = 1;
+        sp.allowkeys = 1;
+    }
+}
+
+void handle() {
+    if (!protocol) {
+#if X11
+        handle_x11();
+
+        if (!draw_font_create(draw, fonts, LENGTH(fonts))) {
+            die("no fonts could be loaded.");
+        }
+
+        load_history();
+#if IMAGE
+        store_image_vars();
+#endif
+
+        if (fast && !isatty(0)) {
+            if (grabkeyboard) {
+                grabkeyboard_x11();
+            }
+
+            readstdin();
+        } else {
+            readstdin();
+
+            if (grabkeyboard) {
+                grabkeyboard_x11();
+            }
+        }
+
+        set_mode();
+
+        init_appearance(); // init colorschemes by reading arrays
+
+        setupdisplay_x11(); // set up display and create window
+#if FIFO
+        init_fifo();
+#endif
+        eventloop_x11(); // function is a loop which checks X11 events and calls other functions accordingly
+#endif
+#if WAYLAND
+    } else {
+        load_history();
+#if IMAGE
+        store_image_vars();
+        setimageopts();
+#endif
+
+        // Disable some X11 only features
+        menupaddingv = menupaddingh = 0;
+        xpos = ypos = 0;
+        borderwidth = 0;
+        managed = 0;
+
+        draw = draw_create_wl(protocol);
+
+        if (!draw_font_create(draw, fonts, LENGTH(fonts))) {
+            die("no fonts could be loaded.");
+        }
+
+        readstdin();
+        set_mode();
+        init_appearance();
+
+#if FIFO
+        init_fifo();
+#endif
+
+        handle_wl();
+#endif
+    }
+}
+
+int main(int argc, char *argv[]) {
+    readargs(argc, argv);
+
+    /* pledge limits what programs can do, so here we specify what majorna should be allowed to do
+     * TODO: Test this on an actual OpenBSD operating system
+     */
+#ifdef __OpenBSD__
+    if (pledge("stdio rpath wpath cpath", NULL) == -1)
+        die("pledge");
+#endif
+
+    handle();
+
+    return 1;
+}

@@ -1,0 +1,39 @@
+/* See LICENSE file for copyright and license details. */
+
+#include <cstring>
+#include <cstdlib>
+#include <macros.hpp>
+#include <sort.hpp>
+#include <majorna.hpp>
+
+char** tokenize(char *source, const char *delim, int *llen) {
+    int listlength = 0, list_size = 0;
+    char **list = nullptr, *token;
+
+    token = strtok(source, delim);
+    while (token) {
+        if (listlength + 1 >= list_size) {
+            if (!(list = static_cast<char**>(realloc(list, (list_size += 8) * sizeof(*list)))))
+                die("majorna: unable to realloc %zu bytes\n", list_size * sizeof(*list));
+        }
+        if (!(list[listlength] = strdup(token)))
+            die("majorna: unable to strdup %zu bytes\n", strlen(token) + 1);
+        token = strtok(nullptr, delim);
+        listlength++;
+    }
+
+    *llen = listlength;
+    return list;
+}
+
+int arrayhas(char **list, int length, char *item) {
+    int i;
+
+    for (i = 0; i < length; i++) {
+        size_t len1 = strlen(list[i]);
+        size_t len2 = strlen(item);
+        if (!fstrncmp(list[i], item, len1 > len2 ? len2 : len1))
+            return 1;
+    }
+    return 0;
+}

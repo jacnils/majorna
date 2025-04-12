@@ -1,0 +1,40 @@
+#pragma once
+
+#include <cstddef>
+
+#ifndef MAX
+#define MAX(A, B)               ((A) > (B) ? (A) : (B))
+#endif
+#ifndef MIN
+#define MIN(A, B)               ((A) < (B) ? (A) : (B))
+#endif
+#ifndef BETWEEN
+#define BETWEEN(X, A, B)        ((A) <= (X) && (X) <= (B))
+#endif
+#ifndef INTERSECT
+#define INTERSECT(x,y,w,h,r)    (MAX(0, MIN((x)+(w),(r).x_org+(r).width)  - MAX((x),(r).x_org)) \
+        && MAX(0, MIN((y)+(h),(r).y_org+(r).height) - MAX((y),(r).y_org)))
+#endif
+#ifndef LENGTH
+#define LENGTH(X)               (sizeof X / sizeof X[0])
+#endif
+#ifndef TEXTW
+#define TEXTW(X)                (draw_font_getwidth(draw, (X), false) + sp.lrpad)
+#endif
+#ifndef TEXTWM
+#define TEXTWM(X)               (draw_font_getwidth(draw, (X), true) + sp.lrpad)
+#endif
+#ifndef NUMBERSMAXDIGITS
+#define NUMBERSMAXDIGITS        100
+#endif
+#ifndef NUMBERSBUFSIZE
+#define NUMBERSBUFSIZE          (NUMBERSMAXDIGITS * 2) + 1
+#endif
+#ifndef MAXITEMLENGTH
+#define MAXITEMLENGTH           1024
+#endif
+
+size_t sp_strncpy(char* dst, const char* src, size_t size);
+void die(const char *fmt, ...);
+void *ecalloc(size_t nmemb, size_t size);
+int msleep(long sec);
