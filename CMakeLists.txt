@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(X11 "Enable X11 support" ON)
-option(WAYLAND "Enable Wayland support" OFF)
+option(WAYLAND "Enable Wayland support" ON)
 option(IMLIB2 "Enable Imlib2 support" ON)
 option(OPENSSL "Enable OpenSSL support" ON)
 option(FRIBIDI "Enable Fribidi support" ON)

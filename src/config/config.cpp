@@ -131,15 +131,13 @@ int bind_init() {
 
             config_setting_lookup_string(conf, "argument", &dest);
 
-            for (int j = 0; j < LENGTH(al); j++) {
-                if (!strcmp(al[j].argument, strdup(dest))) {
+            if (strdup(dest)) {
 #if X11
-                    ckeys[i].arg = al[j].arg;
+                ckeys[i].arg.i = atoi(strdup(dest));
 #endif
 #if WAYLAND
-                    wl_ckeys[i].arg = al[j].arg;
+                wl_ckeys[i].arg.i = atoi(strdup(dest));
 #endif
-                }
             }
 
             config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
@@ -202,15 +200,13 @@ int bind_init() {
 
             config_setting_lookup_string(conf, "argument", &dest);
 
-            for (int j = 0; j < LENGTH(al); j++) {
-                if (!strcmp(al[j].argument, strdup(dest))) {
+            if (strdup(dest)) {
 #if X11
-                    cbuttons[i].arg = al[j].arg;
+                cbuttons[i].arg.i = atoi(strdup(dest));
 #endif
 #if WAYLAND
-                    wl_cbuttons[i].arg = al[j].arg;
+                wl_cbuttons[i].arg.i = atoi(strdup(dest));
 #endif
-                }
             }
 
             config_setting_lookup_int(conf, "ignoreglobalmouse", &sp.ignoreglobalmouse);
@@ -934,15 +930,13 @@ void conf_init(void) {
 
             config_setting_lookup_string(conf, "argument", &dest);
 
-            for (int j = 0; j < LENGTH(al); j++) {
-                if (!strcmp(al[j].argument, strdup(dest))) {
+            if (strdup(dest)) {
 #if X11
-                    ckeys[i].arg = al[j].arg;
+                ckeys[i].arg.i = atoi(strdup(dest));
 #endif
 #if WAYLAND
-                    wl_ckeys[i].arg = al[j].arg;
+                wl_ckeys[i].arg.i = atoi(strdup(dest));
 #endif
-                }
             }
 
             config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
@@ -1006,15 +1000,13 @@ void conf_init(void) {
 
             config_setting_lookup_string(conf, "argument", &dest);
 
-            for (int j = 0; j < LENGTH(al); j++) {
-                if (!strcmp(al[j].argument, strdup(dest))) {
+            if (strdup(dest)) {
 #if X11
-                    cbuttons[i].arg = al[j].arg;
+                cbuttons[i].arg.i = atoi(strdup(dest));
 #endif
 #if WAYLAND
-                    wl_cbuttons[i].arg = al[j].arg;
+                wl_cbuttons[i].arg.i = atoi(strdup(dest));
 #endif
-                }
             }
 
             config_setting_lookup_int(conf, "ignoreglobalmouse", &sp.ignoreglobalmouse);
@@ -1029,18 +1021,17 @@ void conf_init(void) {
     if (loadtheme) {
         theme_load();
     }
-
-    return;
 }
 
-void theme_load(void) {
-    char *xdg_conf;
-    char *theme = nullptr;
-    char *home = nullptr;
+void theme_load() {
+    char* xdg_conf;
+    char* theme = nullptr;
+    char* home = nullptr;
     const char *dest;
 
     // don't load configuration
-    if (!loadtheme) return;
+    if (!loadtheme)
+        return;
 
     // get path for configuration file
     if (!themefile || !strcmp(themefile, "nullptr")) {
@@ -1538,6 +1529,5 @@ void theme_load(void) {
 
     // we're done here
     config_destroy(&cfg);
-    return;
 }
 #endif

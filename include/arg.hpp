@@ -1,12 +1,12 @@
 #pragma once
 
-typedef union {
-    int i; // integer
-    unsigned int ui; // unsigned int
-    float f; // float
-    const void *v; // void
-    const char *c; // char
-} Arg;
+struct Arg {
+    int i{};
+    unsigned int ui{};
+    float f{};
+    const void *v{};
+    const char *c{};
+};
 
 /* declare keybind functions
  *
