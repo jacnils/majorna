@@ -4,13 +4,12 @@
 #include <schemes.hpp>
 #include <cstdio>
 #include <vector>
-#include <string>
 
 char sixd_to_8bit(int x) {
     return x == 0 ? 0 : 0x37 + 0x28 * x;
 }
 
-void init_appearance(void) {
+void init_appearance() {
     int i = 0;
     char cbuf[8];
 
@@ -53,43 +52,38 @@ void init_appearance(void) {
         alpha_capsbg = 255;
     }
 
-    textcolors.clear();
-
-    if (i == 0) {
-        textcolors.push_back("#000000");
-    }
     for (; i < 7; i++) {
         snprintf(cbuf, sizeof(cbuf), "#%02x%02x%02x",
                 !!(i & 1) * 0x7f,
                 !!(i & 2) * 0x7f,
                 !!(i & 4) * 0x7f);
-        textcolors.push_back(cbuf);
+        textcolors.emplace_back(cbuf);
     }
     if (i == 7) {
-        textcolors.push_back("#000000");
+        textcolors.emplace_back("#000000");
     }
     if (i == 8) {
-        textcolors.push_back("#333333");
+        textcolors.emplace_back("#333333");
     }
     for (; i < 16; i++) {
         snprintf(cbuf, sizeof(cbuf), "#%02x%02x%02x",
                 !!(i & 1) * 0xff,
                 !!(i & 2) * 0xff,
                 !!(i & 4) * 0xff);
-        textcolors.push_back(cbuf);
+        textcolors.emplace_back(cbuf);
     }
     for (; i < 6 * 6 * 6 + 16; i++) {
         snprintf(cbuf, sizeof(cbuf), "#%02x%02x%02x",
                 sixd_to_8bit(((i - 16) / 36) % 6),
                 sixd_to_8bit(((i - 16) / 6) % 6),
                 sixd_to_8bit(((i - 16)) % 6));
-        textcolors.push_back(cbuf);
+        textcolors.emplace_back(cbuf);
     }
     for (; i < 256; i++) {
         snprintf(cbuf, sizeof(cbuf), "#%02x%02x%02x",
                 0x08 + (i - 6 * 6 * 6 - 16) * 0x0a,
                 0x08 + (i - 6 * 6 * 6 - 16) * 0x0a,
                 0x08 + (i - 6 * 6 * 6 - 16) * 0x0a);
-        textcolors.push_back(cbuf);
+        textcolors.emplace_back(cbuf);
     }
 }

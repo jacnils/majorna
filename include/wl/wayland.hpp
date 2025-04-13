@@ -6,6 +6,7 @@
 #include <wayland-client-protocol.h>
 #include <xkbcommon/xkbcommon.h>
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
+#include <functional>
 
 struct output {
     struct state *state;
@@ -18,14 +19,14 @@ typedef struct {
     unsigned int mode;
     char *modifier;
     xkb_keysym_t keysym;
-    void (*func)(Arg *);
+    std::function<void(Arg&)> func;
     Arg arg;
 } WlKey;
 
 typedef struct {
     unsigned int click;
     unsigned int button;
-    void (*func)(Arg *arg);
+    std::function<void(Arg&)> func;
     Arg arg;
 } WlMouse;
 

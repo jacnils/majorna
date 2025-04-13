@@ -4,6 +4,7 @@
 #include <wl/wayland.hpp>
 #include <x11/key.hpp>
 #include <majorna.hpp>
+#include <functional>
 
 #if CONFIG
 #if X11
@@ -40,8 +41,8 @@ struct ArgList {
 };
 
 struct FuncList {
-    char* function{};
-    void (*func)(Arg*){};
+    std::string function{};
+    std::function<void(Arg&)> func{};
 };
 
 inline FuncList fl[] = {

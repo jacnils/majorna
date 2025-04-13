@@ -2,11 +2,12 @@
 
 #include <x11/x11_libs.hpp>
 #include <arg.hpp>
+#include <functional>
 
 typedef struct {
     unsigned int click;
     unsigned int button;
-    void (*func)(Arg *arg);
+    std::function<void(Arg&)> func;
     Arg arg;
 } Mouse;
 

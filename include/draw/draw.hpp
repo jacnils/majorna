@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <algorithm>
+#include <sstream>
 
 #ifndef LIMHAMN_PRIMITIVE_X11
 #ifndef LIMHAMN_PRIMITIVE_WAYLAND
@@ -138,9 +139,8 @@ struct WaylandWindow {
 #endif
 
 struct ImageManager {
-    void* img_data{};
+    uint8_t* data{};
     cairo_surface_t* img_surface{};
-    cairo_t* img_d{};
 };
 
 struct DrawProperties {
@@ -192,10 +192,18 @@ class DrawManager {
     cairo_surface_t* surface{};
     cairo_t* d{};
 
-    static void cairo_set_source_hex(cairo_t* cr, const char *col, int alpha) {
-        unsigned int hex;
+    static void cairo_set_source_hex(cairo_t* cr, const std::string& col, int alpha) {
+        if (col.empty() || col[0] != '#' || col.length() != 7) {
+            throw std::invalid_argument("Invalid color format. Expected format: #RRGGBB");
+        }
 
-        sscanf(col, "#%x", &hex);
+        unsigned int hex;
+        std::istringstream iss(col.substr(1));
+        iss >> std::hex >> hex;
+
+        if (iss.fail()) {
+            throw std::invalid_argument("Failed to parse color hex value");
+        }
 
         double r = ((hex >> 16) & 0xFF) / 255.0;
         double g = ((hex >> 8) & 0xFF) / 255.0;
@@ -282,20 +290,43 @@ public:
 #endif
     }
     void draw_image(void* data, const DrawPosition& coords) {
-        if (!data || !coords.x || !coords.y || Protocol::Unknown == this->protocol) {
-            throw std::invalid_argument("Invalid arguments to draw_image");
+        if (data == nullptr) {
+           throw std::invalid_argument("Image data cannot be null");
+        }
+        if (Protocol::Unknown == this->protocol) {
+            throw std::invalid_argument("Invalid protocol");
         }
 
-        this->img_manager.img_data = data;
+        this->img_manager = {};
+        this->img_manager.data = static_cast<uint8_t*>(data);
+
+        for (int i = 0; i < coords.w * coords.h; i++) {
+            uint8_t* px = &this->img_manager.data[i * 4];
+            const uint8_t r = px[0];
+            const uint8_t g = px[1];
+            const uint8_t b = px[2];
+            const uint8_t a = px[3];
+
+            px[0] = (r * a) / 255;
+            px[1] = (g * a) / 255;
+            px[2] = (b * a) / 255;
+            px[3] = a;
+        }
+
         this->img_manager.img_surface =
-            cairo_image_surface_create_for_data(static_cast<unsigned char*>(this->img_manager.img_data),
-                CAIRO_FORMAT_ARGB32, coords.w, coords.h, coords.w * 4);
+            cairo_image_surface_create_for_data(this->img_manager.data,
+                CAIRO_FORMAT_ARGB32,
+                coords.w,
+                coords.h,
+                coords.w * 4
+            );
 
         if (!this->img_manager.img_surface) {
             throw std::runtime_error("Failed to create image surface");
         }
 
         cairo_set_operator(this->d, CAIRO_OPERATOR_OVER);
+        cairo_set_source_hex(this->d, "#ffffff", 255);
 
         cairo_set_source_surface(this->d, this->img_manager.img_surface, coords.x, coords.y);
         cairo_mask_surface(this->d, this->img_manager.img_surface, coords.x, coords.y);
@@ -330,7 +361,7 @@ public:
         double hh = slash ? (direction ? 0 : h) : h / 2;
 
         cairo_t* cr = cairo_create(sf);
-        cairo_set_source_hex(cr, props.prev.c_str(), props.prev_alpha);
+        cairo_set_source_hex(cr, props.prev, props.prev_alpha);
         cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
 
         cairo_rectangle(cr, x, y, w, h);
@@ -341,7 +372,7 @@ public:
         cairo_line_to(cr, x, y + h);
         cairo_close_path(cr);
 
-        cairo_set_source_hex(cr, props.next.c_str(), props.next_alpha);
+        cairo_set_source_hex(cr, props.next, props.next_alpha);
         cairo_fill(cr);
 
         cairo_destroy(cr);
@@ -366,7 +397,7 @@ public:
 
         cairo_t *cr = cairo_create(sf);
 
-        cairo_set_source_hex(cr, props.prev.c_str(), props.prev_alpha);
+        cairo_set_source_hex(cr, props.prev, props.prev_alpha);
         cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
 
         cairo_rectangle(cr, pos.x, pos.y, pos.w, pos.h);
@@ -382,7 +413,7 @@ public:
         cairo_arc(cr, cx, cy, rad, start, end);
         cairo_close_path(cr);
 
-        cairo_set_source_hex(cr, props.next.c_str(), props.next_alpha);
+        cairo_set_source_hex(cr, props.next, props.next_alpha);
         cairo_fill(cr);
 
         cairo_destroy(cr);
@@ -471,9 +502,11 @@ public:
             throw std::runtime_error("FontManager not initialized");
         }
 
+        /*
         if (_text.empty()) {
             throw std::invalid_argument("Text cannot be empty");
         }
+        */
 
         if (!render) {
             w = ~w;
@@ -545,7 +578,7 @@ public:
 
         pango_layout_set_single_paragraph_mode(this->font.layout, true);
 
-        cairo_set_source_hex(this->d, props.foreground.c_str(), props.foreground_alpha);
+        cairo_set_source_hex(this->d, props.foreground, props.foreground_alpha);
         cairo_move_to(this->d, x, y + (h - this->font.get_height()) / 2);
 
         pango_cairo_update_layout(this->d, this->font.layout);

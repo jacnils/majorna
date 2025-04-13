@@ -66,147 +66,147 @@ void execute_fifo_cmd() {
         }
     } else if (!strcmp(fifot, "toggleinput")) {
         Arg arg;
-        toggleinput(&arg);
+        toggleinput(arg);
     } else if (!strcmp(fifot, "togglelarrow")) {
         Arg arg;
-        togglelarrow(&arg);
+        togglelarrow(arg);
     } else if (!strcmp(fifot, "togglerarrow")) {
         Arg arg;
-        togglerarrow(&arg);
+        togglerarrow(arg);
     } else if (!strcmp(fifot, "toggleitem")) {
         Arg arg;
-        toggleitem(&arg);
+        toggleitem(arg);
     } else if (!strcmp(fifot, "toggleprompt")) {
         Arg arg;
-        toggleprompt(&arg);
+        toggleprompt(arg);
     } else if (!strcmp(fifot, "togglecaps")) {
         Arg arg;
-        togglecaps(&arg);
+        togglecaps(arg);
     } else if (!strcmp(fifot, "togglepowerline")) {
         Arg arg;
-        togglepowerline(&arg);
+        togglepowerline(arg);
     } else if (!strcmp(fifot, "togglecaret")) {
         Arg arg;
-        togglecaret(&arg);
+        togglecaret(arg);
     } else if (!strcmp(fifot, "togglehighlight")) {
         Arg arg;
-        togglehighlight(&arg);
+        togglehighlight(arg);
     } else if (!strcmp(fifot, "togglematchcount")) {
         Arg arg;
-        togglematchcount(&arg);
+        togglematchcount(arg);
     } else if (!strcmp(fifot, "togglemode")) {
         Arg arg;
-        togglemode(&arg);
+        togglemode(arg);
     } else if (!strcmp(fifot, "toggleregex")) {
         Arg arg;
-        toggleregex(&arg);
+        toggleregex(arg);
     } else if (!strcmp(fifot, "togglefuzzy")) {
         Arg arg;
-        togglefuzzy(&arg);
+        togglefuzzy(arg);
     } else if (!strcmp(fifot, "toggleimg")) {
         Arg arg;
-        toggleimg(&arg);
+        toggleimg(arg);
     } else if (!strcmp(fifot, "toggleimgtype")) {
         Arg arg;
-        toggleimgtype(&arg);
+        toggleimgtype(arg);
     } else if (!strcmp(fifot, "screenshot")) {
         Arg arg;
-        screenshot(&arg);
+        screenshot(arg);
     } else if (!strcmp(fifot, "setprofile")) {
         Arg arg;
-        setprofile(&arg);
+        setprofile(arg);
     } else if (!strcmp(fifot, "setlines+")) {
         Arg arg;
         arg.i = 1;
-        setlines(&arg);
+        setlines(arg);
     } else if (!strcmp(fifot, "setlines-")) {
         Arg arg;
         arg.i = -1;
-        setlines(&arg);
+        setlines(arg);
     } else if (!strcmp(fifot, "setcolumns+")) {
         Arg arg;
         arg.i = 1;
-        setcolumns(&arg);
+        setcolumns(arg);
     } else if (!strcmp(fifot, "setcolumns-")) {
         Arg arg;
         arg.i = -1;
-        setcolumns(&arg);
+        setcolumns(arg);
     } else if (!strcmp(fifot, "setx+")) {
         Arg arg;
         arg.i = 1;
-        setx(&arg);
+        setx(arg);
     } else if (!strcmp(fifot, "setx-")) {
         Arg arg;
         arg.i = -1;
-        setx(&arg);
+        setx(arg);
     } else if (!strcmp(fifot, "sety+")) {
         Arg arg;
         arg.i = 1;
-        sety(&arg);
+        sety(arg);
     } else if (!strcmp(fifot, "sety-")) {
         Arg arg;
         arg.i = -1;
-        sety(&arg);
+        sety(arg);
     } else if (!strcmp(fifot, "setw+")) {
         Arg arg;
         arg.i = 1;
-        setw(&arg);
+        setw(arg);
     } else if (!strcmp(fifot, "setw-")) {
         Arg arg;
         arg.i = -1;
-        setw(&arg);
+        setw(arg);
     } else if (!strcmp(fifot, "moveup")) {
         Arg arg;
-        moveup(&arg);
+        moveup(arg);
     } else if (!strcmp(fifot, "movedown")) {
         Arg arg;
-        movedown(&arg);
+        movedown(arg);
     } else if (!strcmp(fifot, "moveleft")) {
         Arg arg;
-        moveleft(&arg);
+        moveleft(arg);
     } else if (!strcmp(fifot, "moveright")) {
         Arg arg;
-        moveright(&arg);
+        moveright(arg);
     } else if (!strcmp(fifot, "movestart")) {
         Arg arg;
-        movestart(&arg);
+        movestart(arg);
     } else if (!strcmp(fifot, "moveend")) {
         Arg arg;
-        moveend(&arg);
+        moveend(arg);
     } else if (!strcmp(fifot, "movenext")) {
         Arg arg;
-        movenext(&arg);
+        movenext(arg);
     } else if (!strcmp(fifot, "moveprev")) {
         Arg arg;
-        moveprev(&arg);
+        moveprev(arg);
     } else if (!strcmp(fifot, "viewhist")) {
         Arg arg;
-        viewhist(&arg);
+        viewhist(arg);
     } else if (!strcmp(fifot, "backspace")) {
         Arg arg;
-        backspace(&arg);
+        backspace(arg);
     } else if (!strcmp(fifot, "deleteword")) {
         Arg arg;
-        deleteword(&arg);
+        deleteword(arg);
     } else if (!strcmp(fifot, "moveword+")) {
         Arg arg;
         arg.i = +1;
-        moveword(&arg);
+        moveword(arg);
     } else if (!strcmp(fifot, "moveword-")) {
         Arg arg;
         arg.i = -1;
-        moveword(&arg);
+        moveword(arg);
     } else if (!strcmp(fifot, "movecursor+")) {
         Arg arg;
         arg.i = +1;
-        movecursor(&arg);
+        movecursor(arg);
     } else if (!strcmp(fifot, "movecursor-")) {
         Arg arg;
         arg.i = -1;
-        movecursor(&arg);
+        movecursor(arg);
     } else if (!strcmp(fifot, "clear")) {
         Arg arg;
-        clear(&arg);
+        clear(arg);
     } else if (!strcmp(fifot, "exit_0")) {
         exit(0);
     } else if (!strcmp(fifot, "exit_1")) {

@@ -2,12 +2,13 @@
 
 #include <x11/x11_libs.hpp>
 #include <arg.hpp> // only for the quit fptr
+#include <functional>
 
 typedef struct {
     unsigned int mode;
     unsigned int mod;
     KeySym keysym;
-    void (*func)(Arg *);
+    std::function <void(Arg&)> func;
     Arg arg;
 } Key;
 

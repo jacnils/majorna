@@ -7,10 +7,10 @@
 #include <history.hpp>
 #include <x11/clipboard.hpp>
 
-void moveleft(Arg *arg) {
+void moveleft(const Arg& arg) {
     struct item *tmpsel;
     int i, offscreen = 0;
-    int argu = arg->i ? arg->i : 1;
+    int argu = arg.i ? arg.i : 1;
 
     // If we cannot move left because !lines, moving left should move to the next item. Calling moveup() does this.
     if (!lines) {
@@ -46,10 +46,10 @@ void moveleft(Arg *arg) {
     }
 }
 
-void moveright(Arg *arg) {
+void moveright(const Arg& arg) {
     struct item *tmpsel;
     int i, offscreen = 0;
-    int argu = arg->i ? arg->i : 1;
+    int argu = arg.i ? arg.i : 1;
 
     if (!lines) { // If we cannot move right because !lines, moving right should move to the previous item. Calling down() does this.
         movedown(arg);
@@ -81,8 +81,8 @@ void moveright(Arg *arg) {
     drawmenu();
 }
 
-void movedown(Arg *arg) {
-    int argu = arg->i ? arg->i : 1;
+void movedown(const Arg& arg) {
+    int argu = arg.i ? arg.i : 1;
 
     for (int j = 0; j < argu; j++) {
         if (selecteditem && selecteditem->right && (selecteditem = selecteditem->right) == nextitem) {
@@ -94,8 +94,8 @@ void movedown(Arg *arg) {
     drawmenu();
 }
 
-void moveup(Arg *arg) {
-    int argu = arg->i ? arg->i : 1;
+void moveup(const Arg& arg) {
+    int argu = arg.i ? arg.i : 1;
 
     for (int j = 0; j < argu; j++) {
         if (selecteditem && selecteditem->left && (selecteditem = selecteditem->left)->right == currentitem) {
@@ -107,7 +107,7 @@ void moveup(Arg *arg) {
     drawmenu();
 }
 
-void complete(Arg *arg) {
+void complete(const Arg& arg) {
     int itc = 0;
     struct item *item;
 
@@ -132,7 +132,7 @@ void complete(Arg *arg) {
     drawmenu();
 }
 
-void movenext(Arg *arg) {
+void movenext(const Arg& arg) {
     if (!nextitem) {
         return;
     }
@@ -141,7 +141,7 @@ void movenext(Arg *arg) {
     drawmenu();
 }
 
-void moveprev(Arg *arg) {
+void moveprev(const Arg& arg) {
     if (!previousitem) {
         return;
     }
@@ -151,8 +151,8 @@ void moveprev(Arg *arg) {
     drawmenu();
 }
 
-void moveitem(Arg *arg) {
-    for (int i = 0; i < arg->i; i++) {
+void moveitem(const Arg& arg) {
+    for (int i = 0; i < arg.i; i++) {
         if (selecteditem && selecteditem->right && (selecteditem = selecteditem->right) == nextitem) {
             currentitem = nextitem;
             calcoffsets();
@@ -162,7 +162,7 @@ void moveitem(Arg *arg) {
     drawmenu();
 }
 
-void movestart(Arg *arg) {
+void movestart(const Arg& arg) {
     if (selecteditem == matches) {
         sp.cursor = 0;
         drawmenu();
@@ -174,7 +174,7 @@ void movestart(Arg *arg) {
     drawmenu();
 }
 
-void moveend(Arg *arg) {
+void moveend(const Arg& arg) {
     if (tx.text[sp.cursor] != '\0') {
         sp.cursor = strlen(tx.text);
         drawmenu();
@@ -195,21 +195,21 @@ void moveend(Arg *arg) {
     drawmenu();
 }
 
-void paste(Arg *arg) {
+void paste(const Arg& arg) {
 #if WAYLAND
     if (protocol) {
         paste_wl();
     } else {
 #if X11
-        paste_x11(arg->i);
+        paste_x11(arg.i);
 #endif
     }
 #elif X11
-    paste_x11(arg->i);
+    paste_x11(arg.i);
 #endif
 }
 
-void viewhist(Arg *arg) {
+void viewhist(const Arg& arg) {
     int i;
 
     if (histfile) {
@@ -227,7 +227,7 @@ void viewhist(Arg *arg) {
         } else {
             free(items);
             items = history_items;
-            history_items = NULL;
+            history_items = nullptr;
         }
     }
 
@@ -235,20 +235,20 @@ void viewhist(Arg *arg) {
     drawmenu();
 }
 
-void deleteword(Arg *arg) {
+void deleteword(const Arg& arg) {
     if (sp.cursor == 0) return;
 
     while (sp.cursor > 0 && strchr(worddelimiters, tx.text[nextrune(-1)])) {
-        insert(NULL, nextrune(-1) - sp.cursor);
+        insert(nullptr, nextrune(-1) - sp.cursor);
     } while (sp.cursor > 0 && !strchr(worddelimiters, tx.text[nextrune(-1)])) {
-        insert(NULL, nextrune(-1) - sp.cursor);
+        insert(nullptr, nextrune(-1) - sp.cursor);
     }
 
     drawmenu();
 }
 
-void moveword(Arg *arg) {
-    if (arg->i < 0) { // move sp.cursor to the start of the word
+void moveword(const Arg& arg) {
+    if (arg.i < 0) { // move sp.cursor to the start of the word
         while (sp.cursor > 0 && strchr(worddelimiters, tx.text[nextrune(-1)])) {
             sp.cursor = nextrune(-1);
         } while (sp.cursor > 0 && !strchr(worddelimiters, tx.text[nextrune(-1)])) {
@@ -265,8 +265,8 @@ void moveword(Arg *arg) {
     drawmenu();
 }
 
-void movecursor(Arg *arg) {
-    if (arg->i < 0) {
+void movecursor(const Arg& arg) {
+    if (arg.i < 0) {
         if (sp.cursor > 0) {
             sp.cursor = nextrune(-1);
         }
@@ -279,15 +279,15 @@ void movecursor(Arg *arg) {
     drawmenu();
 }
 
-void backspace(Arg *arg) {
+void backspace(const Arg& arg) {
     if (sp.cursor == 0)
         return;
 
-    insert(NULL, nextrune(-1) - sp.cursor);
+    insert(nullptr, nextrune(-1) - sp.cursor);
     drawmenu();
 }
 
-void markitem(Arg *arg) {
+void markitem(const Arg& arg) {
     if (!mark) return;
     if (selecteditem && is_selected(selecteditem->index)) {
         for (int i = 0; i < sel_size; i++) {
@@ -309,18 +309,18 @@ void markitem(Arg *arg) {
     }
 }
 
-void selectitem(Arg *arg) {
+void selectitem(const Arg& arg) {
     char *selection;
 
     // print index
-    if (printindex && selecteditem && arg->i) {
+    if (printindex && selecteditem && arg.i) {
         fprintf(stdout, "%d\n", selecteditem->index);
         cleanup();
         exit(0);
     }
 
     // selected item or input?
-    if (selecteditem && arg->i && !hideitem) {
+    if (selecteditem && arg.i && !hideitem) {
         selection = selecteditem->text;
     } else {
         selection = tx.text;
@@ -342,24 +342,24 @@ void selectitem(Arg *arg) {
     exit(0);
 }
 
-void navhistory(Arg *arg) {
-    navigatehistfile(arg->i);
+void navhistory(const Arg& arg) {
+    navigatehistfile(arg.i);
     drawmenu();
 }
 
-void restoresel(Arg *arg) {
+void restoresel(const Arg& arg) {
     tx.text[sp.cursor] = '\0';
     match();
     drawmenu();
 }
 
-void clear(Arg *arg) {
-    insert(NULL, 0 - sp.cursor);
+void clear(const Arg& arg) {
+    insert(nullptr, 0 - sp.cursor);
     drawmenu();
 }
 
-void clearins(Arg *arg) {
-    insert(NULL, 0 - sp.cursor);
+void clearins(const Arg& arg) {
+    insert(nullptr, 0 - sp.cursor);
 
     sp.mode = 1;
     sp.allowkeys = 0;
@@ -369,44 +369,44 @@ void clearins(Arg *arg) {
     drawmenu();
 }
 
-void quit(Arg *arg) {
+void quit(const Arg& arg) {
     cleanup();
     exit(0);
 }
 
-void setlineheight(Arg *arg) {
-    lineheight += arg->i;
+void setlineheight(const Arg& arg) {
+    lineheight += arg.i;
     sp.bh = std::max(draw.get_font_manager().get_height(), draw.get_font_manager().get_height() + 2 + lineheight);
 
     resizeclient();
     drawmenu();
 }
 
-void setimgsize(Arg *arg) {
+void setimgsize(const Arg& arg) {
 #if IMAGE
-    setimagesize(img.imagewidth + arg->i, img.imageheight + arg->i);
+    setimagesize(img.imagewidth + arg.i, img.imageheight + arg.i);
     drawmenu();
 #endif
 }
 
-void flipimg(Arg *arg) {
+void flipimg(const Arg& arg) {
 #if IMAGE
 
     if (!image) return;
 
-    img.flip = img.flip ? 0 : arg->i ? 1 : 2;
+    img.flip = img.flip ? 0 : arg.i ? 1 : 2;
 
     drawmenu();
 
 #endif
 }
 
-void setimgpos(Arg *arg) {
+void setimgpos(const Arg& arg) {
 #if IMAGE
     if (!image || hideimage) return;
 
     if (imageposition < 3) {
-        imageposition += arg->i;
+        imageposition += arg.i;
     } else {
         imageposition = 0;
     }
@@ -415,82 +415,82 @@ void setimgpos(Arg *arg) {
 #endif
 }
 
-void setimggaps(Arg *arg) {
+void setimggaps(const Arg& arg) {
 #if IMAGE
-    img.imagegaps += arg->i;
+    img.imagegaps += arg.i;
 
     if (img.imagegaps < 0)
         img.imagegaps = 0;
 
     // limitation to make sure we have a reasonable gap size
     if (img.imagegaps > (sp.mw - 2 * img.imagegaps) / 3)
-        img.imagegaps -= arg->i;
+        img.imagegaps -= arg.i;
 
     drawmenu();
 #endif
 }
 
-void toggleinput(Arg *arg) {
+void toggleinput(const Arg& arg) {
     hideinput = !hideinput;
     drawmenu();
 }
 
-void togglepretext(Arg *arg) {
+void togglepretext(const Arg& arg) {
     hidepretext = !hidepretext;
     drawmenu();
 }
 
-void togglelarrow(Arg *arg) {
+void togglelarrow(const Arg& arg) {
     hidelarrow = !hidelarrow;
     drawmenu();
 }
 
-void togglerarrow(Arg *arg) {
+void togglerarrow(const Arg& arg) {
     hiderarrow = !hiderarrow;
     drawmenu();
 }
 
-void toggleitem(Arg *arg) {
+void toggleitem(const Arg& arg) {
     hideitem = !hideitem;
     drawmenu();
 }
 
-void toggleprompt(Arg *arg) {
+void toggleprompt(const Arg& arg) {
     hideprompt = !hideprompt;
     drawmenu();
 }
 
-void togglecaps(Arg *arg) {
+void togglecaps(const Arg& arg) {
     hidecaps = !hidecaps;
     drawmenu();
 }
 
-void togglepowerline(Arg *arg) {
+void togglepowerline(const Arg& arg) {
     hidepowerline = !hidepowerline;
     drawmenu();
 }
 
-void togglecaret(Arg *arg) {
+void togglecaret(const Arg& arg) {
     hidecaret = !hidecaret;
     drawmenu();
 }
 
-void togglematchcount(Arg *arg) {
+void togglematchcount(const Arg& arg) {
     hidematchcount = !hidematchcount;
     drawmenu();
 }
 
-void togglemode(Arg *arg) {
+void togglemode(const Arg& arg) {
     hidemode = !hidemode;
     drawmenu();
 }
 
-void togglehighlight(Arg *arg) {
+void togglehighlight(const Arg& arg) {
     hidehighlight = !hidehighlight;
     drawmenu();
 }
 
-void toggleregex(Arg *arg) {
+void toggleregex(const Arg& arg) {
 #if REGEX
     regex = !regex;
 
@@ -500,14 +500,14 @@ void toggleregex(Arg *arg) {
 #endif
 }
 
-void togglefuzzy(Arg *arg) {
+void togglefuzzy(const Arg& arg) {
     fuzzy = !fuzzy;
 
     match();
     drawmenu();
 }
 
-void toggleimg(Arg *arg) {
+void toggleimg(const Arg& arg) {
 #if IMAGE
 
     hideimage = !hideimage;
@@ -517,13 +517,13 @@ void toggleimg(Arg *arg) {
 #endif
 }
 
-void toggleimgtype(Arg *arg) {
+void toggleimgtype(const Arg& arg) {
 #if IMAGE
     imagetype = !imagetype;
 #endif
 }
 
-void defaultimg(Arg *arg) {
+void defaultimg(const Arg& arg) {
 #if IMAGE
 
     if (hideimage || !image) return;
@@ -536,14 +536,14 @@ void defaultimg(Arg *arg) {
 #endif
 }
 
-void setlines(Arg *arg) {
+void setlines(const Arg& arg) {
     if (!overridelines || (hideprompt && hideinput && hidemode && hidematchcount && hidecaps)) return;
 
-    insert(NULL, 0 - sp.cursor);
+    insert(nullptr, 0 - sp.cursor);
     selecteditem = currentitem = matches;
 
-    if (lines + arg->i >= minlines) {
-        lines += arg->i;
+    if (lines + arg.i >= minlines) {
+        lines += arg.i;
     }
 
     if (lines < 0) {
@@ -559,10 +559,10 @@ void setlines(Arg *arg) {
     drawmenu();
 }
 
-void setcolumns(Arg *arg) {
+void setcolumns(const Arg& arg) {
     if (!overridecolumns || (hideprompt && hideinput && hidemode && hidematchcount && hidecaps)) return;
 
-    columns += arg->i;
+    columns += arg.i;
 
     if (columns < 1) {
         columns = 1;
@@ -577,35 +577,35 @@ void setcolumns(Arg *arg) {
     drawmenu();
 }
 
-void setx(Arg *arg) {
-    xpos += arg->i;
+void setx(const Arg& arg) {
+    xpos += arg.i;
 
     resizeclient();
     drawmenu();
 }
 
-void sety(Arg *arg) {
-    ypos += arg->i;
+void sety(const Arg& arg) {
+    ypos += arg.i;
 
     resizeclient();
     drawmenu();
 }
 
-void setw(Arg *arg) {
-    menuwidth += arg->i;
+void setw(const Arg& arg) {
+    menuwidth += arg.i;
 
     resizeclient();
     drawmenu();
 }
 
-void spawn(Arg *arg) {
-    if (!system(arg->c))
-        die("majorna: failed to execute command '%s'", arg->c);
+void spawn(const Arg& arg) {
+    if (!system(arg.c))
+        die("majorna: failed to execute command '%s'", arg.c);
     else
         exit(0);
 }
 
-void setprofile(Arg *arg) {
+void setprofile(const Arg& arg) {
     if (!system("command -v majorna_profile > /dev/null && majorna_profile --majorna-set-profile")) {
         die("majorna: failed to run profile menu\n");
     } else {
@@ -613,7 +613,7 @@ void setprofile(Arg *arg) {
     }
 }
 
-void switchmode(Arg *arg) {
+void switchmode(const Arg& arg) {
     if (forceinsertmode) {
         return;
     }
@@ -632,10 +632,10 @@ void switchmode(Arg *arg) {
  * The only difference is "selectitem" was replaced with "mouseitem" and tx.text output
  * was removed.
  */
-void outputhover(Arg *arg) {
+void outputhover(const Arg& arg) {
     char *selection;
 
-    if (printindex && mouseitem && arg->i) {
+    if (printindex && mouseitem && arg.i) {
         fprintf(stdout, "%d\n", mouseitem->index);
         cleanup();
         exit(0);
@@ -659,7 +659,7 @@ void outputhover(Arg *arg) {
     exit(0);
 }
 
-void selecthover(Arg *arg) {
+void selecthover(const Arg& arg) {
     if (selecteditem != mouseitem) {
         selecteditem = mouseitem;
     } else {
@@ -672,7 +672,7 @@ void selecthover(Arg *arg) {
     drawmenu();
 }
 
-void markhover(Arg *arg) {
+void markhover(const Arg& arg) {
     if (!mark) return;
     if (mouseitem && is_selected(mouseitem->index)) {
         for (int i = 0; i < sel_size; i++) {
@@ -696,10 +696,10 @@ void markhover(Arg *arg) {
     drawmenu();
 }
 
-void screenshot(Arg *arg) {
-    char *file = NULL;
-    char *home = NULL;
-    time_t time_ = time(NULL);
+void screenshot(const Arg& arg) {
+    char *file = nullptr;
+    char *home = nullptr;
+    time_t time_ = time(nullptr);
     struct tm t = *localtime(&time_);
 
     if (!screenshotfile) {
@@ -709,32 +709,32 @@ void screenshot(Arg *arg) {
         }
 
         if (!screenshotdir && !screenshotname) { // default
-            if (!(file = static_cast<char*>(malloc(snprintf(NULL, 0, "%s/%s-%02d-%02d-%02d%s", home, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
+            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s-%02d-%02d-%02d%s", home, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
             sprintf(file, "%s/%s-%02d-%02d-%02d%s", home, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png");
         } else if (!screenshotdir && screenshotname) { // no dir but name
-            if (!(file = static_cast<char*>(malloc(snprintf(NULL, 0, "%s/%s", home, screenshotname) + 1)))) {
+            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, screenshotname) + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
             sprintf(file, "%s/%s", home, screenshotname);
         } else if (screenshotdir && !screenshotname) { // dir but no name
-            if (!(file = static_cast<char*>(malloc(snprintf(NULL, 0, "%s/%s-%02d-%02d-%02d%s", screenshotdir, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
+            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s-%02d-%02d-%02d%s", screenshotdir, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
             sprintf(file, "%s/%s-%02d-%02d-%02d%s", screenshotdir, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png");
         } else { // dir and name
-            if (!(file = static_cast<char*>(malloc(snprintf(NULL, 0, "%s/%s", screenshotdir, screenshotname) + 1)))) {
+            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", screenshotdir, screenshotname) + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
             sprintf(file, "%s/%s", screenshotdir, screenshotname);
         }
     } else { // custom file
-        if (!(file = static_cast<char*>(malloc(snprintf(NULL, 0, "%s", screenshotfile) + 1)))) {
+        if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", screenshotfile) + 1)))) {
             die("majorna: failed to malloc screenshot file");
         }
 
@@ -742,4 +742,8 @@ void screenshot(Arg *arg) {
     }
 
     draw.save_screen(file);
+
+    if (file) {
+        free(file);
+    }
 }

@@ -131,7 +131,7 @@ void keypress_wl(struct state *state, enum wl_keyboard_key_state key_state, xkb_
     }
 
     if (xkb_keysym_to_lower(sym) == wlhkeys[0].keysym && !is_correct_modifier(state, wlhkeys[0].modifier) && wlhkeys[0].func) {
-        wlhkeys[0].func(&(wlhkeys[0].arg));
+        wlhkeys[0].func(wlhkeys[0].arg);
     }
 
     for (i = 0; i < LENGTH(wl_keys); i++) {
@@ -139,10 +139,10 @@ void keypress_wl(struct state *state, enum wl_keyboard_key_state key_state, xkb_
 
         if (xkb_keysym_to_lower(sym) == wl_keys[i].keysym && !is_correct_modifier(state, wl_keys[i].modifier) && wl_keys[i].func) {
             if ((wl_keys[i].mode && sp.mode) || wl_keys[i].mode == -1) {
-                wl_keys[i].func(&(wl_keys[i].arg));
+                wl_keys[i].func(wl_keys[i].arg);
                 return;
             } else if (!wl_keys[i].mode && !sp.mode) {
-                wl_keys[i].func(&(wl_keys[i].arg));
+                wl_keys[i].func(wl_keys[i].arg);
             }
         }
     }
@@ -152,10 +152,10 @@ void keypress_wl(struct state *state, enum wl_keyboard_key_state key_state, xkb_
 
         if (xkb_keysym_to_lower(sym) == wl_ckeys[i].keysym && !is_correct_modifier(state, wl_ckeys[i].modifier) && wl_ckeys[i].func) {
             if ((wl_ckeys[i].mode && sp.mode) || wl_ckeys[i].mode == -1) {
-                wl_ckeys[i].func(&(wl_ckeys[i].arg));
+                wl_ckeys[i].func(wl_ckeys[i].arg);
                 return;
             } else if (!wl_ckeys[i].mode && !sp.mode) {
-                wl_ckeys[i].func(&(wl_ckeys[i].arg));
+                wl_ckeys[i].func(wl_ckeys[i].arg);
             }
         }
     }
@@ -390,13 +390,13 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
     for (i = 0; i < LENGTH(wl_buttons); i++) {
         if (sp.ignoreglobalmouse) break;
         if ((click == wl_buttons[i].click || wl_buttons[i].click == ClickNone) && wl_buttons[i].func && wl_buttons[i].button == button)
-            wl_buttons[i].func(&wl_buttons[i].arg);
+            wl_buttons[i].func(wl_buttons[i].arg);
     }
 
     for (i = 0; i < LENGTH(wl_cbuttons); i++) {
         if (sp.ignoreconfmouse) break;
         if ((click == wl_cbuttons[i].click || wl_cbuttons[i].click == ClickNone) && wl_cbuttons[i].func && wl_cbuttons[i].button == button)
-            wl_cbuttons[i].func(&wl_cbuttons[i].arg);
+            wl_cbuttons[i].func(wl_cbuttons[i].arg);
     }
 }
 

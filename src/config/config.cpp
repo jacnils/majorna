@@ -119,7 +119,7 @@ int bind_init() {
             config_setting_lookup_string(conf, "function", &dest);
 
             for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function, strdup(dest))) {
+                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
 #if X11
                     ckeys[i].func = fl[j].func;
 #endif
@@ -188,7 +188,7 @@ int bind_init() {
             config_setting_lookup_string(conf, "function", &dest);
 
             for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function, strdup(dest))) {
+                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
 #if X11
                     cbuttons[i].func = fl[j].func;
 #endif
@@ -896,7 +896,7 @@ void conf_init() {
             config_setting_lookup_string(conf, "function", &dest);
 
             for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function, strdup(dest))) {
+                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
 #if X11
                     ckeys[i].func = fl[j].func;
 #endif
@@ -966,7 +966,7 @@ void conf_init() {
             config_setting_lookup_string(conf, "function", &dest);
 
             for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function, strdup(dest))) {
+                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
 #if X11
                     cbuttons[i].func = fl[j].func;
 #endif

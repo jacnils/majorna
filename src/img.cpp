@@ -95,6 +95,8 @@ void drawimage(void) {
             draw.draw_image(imlib_image_get_data(), {
                 .x = leftmargin + (img.imagewidth - width) / 2 + xta,
                 .y = wta + leftmargin,
+                .w = width,
+                .h = height,
             });
         } else if (imageposition == 1) { // bottom mode = 1
             if (height > width)
@@ -104,12 +106,16 @@ void drawimage(void) {
             draw.draw_image(imlib_image_get_data(), {
                 .x = leftmargin + (img.imagewidth - width) / 2 + xta,
                 .y = sp.mh - height - leftmargin,
+                .w = width,
+                .h = height,
             });
         } else if (imageposition == 2) { // center mode = 2
             //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (sp.mh - wta - height) / 2 + wta);
             draw.draw_image(imlib_image_get_data(), {
                 .x = leftmargin + (img.imagewidth - width) / 2 + xta,
                 .y = (sp.mh - wta - height) / 2 + wta,
+                .w = width,
+                .h = height,
             });
         } else { // top center
             int minh = MIN(height, sp.mh - sp.bh - leftmargin * 2);
@@ -117,6 +123,8 @@ void drawimage(void) {
             draw.draw_image(imlib_image_get_data(), {
                 .x = leftmargin + (img.imagewidth - width) / 2 + xta,
                 .y = (minh - height) / 2 + wta + leftmargin,
+                .w = width,
+                .h = height,
             });
         }
     }

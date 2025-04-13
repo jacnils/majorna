@@ -29,7 +29,7 @@ struct item {
     char *nsgrtext;
     char *image;
     char *ex;
-    struct item* left, *right;
+    item* left, *right;
     int hp;
     int index;
     double distance;

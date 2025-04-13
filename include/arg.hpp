@@ -12,76 +12,76 @@ struct Arg {
  *
  * movement
  */
-void moveup(Arg *arg);
-void movedown(Arg *arg);
-void moveleft(Arg *arg);
-void moveright(Arg *arg);
-void moveend(Arg *arg);
-void movestart(Arg *arg);
-void movenext(Arg *arg);
-void moveprev(Arg *arg);
-void moveitem(Arg *arg);
-void moveword(Arg *arg);
-void movecursor(Arg *arg);
+void moveup(const Arg& arg);
+void movedown(const Arg& arg);
+void moveleft(const Arg& arg);
+void moveright(const Arg& arg);
+void moveend(const Arg& arg);
+void movestart(const Arg& arg);
+void movenext(const Arg& arg);
+void moveprev(const Arg& arg);
+void moveitem(const Arg& arg);
+void moveword(const Arg& arg);
+void movecursor(const Arg& arg);
 
 /* input */
-void paste(Arg *arg);
-void restoresel(Arg *arg);
-void clear(Arg *arg);
-void clearins(Arg *arg);
-void deleteword(Arg *arg);
-void backspace(Arg *arg);
-void complete(Arg *arg);
+void paste(const Arg& arg);
+void restoresel(const Arg& arg);
+void clear(const Arg& arg);
+void clearins(const Arg& arg);
+void deleteword(const Arg& arg);
+void backspace(const Arg& arg);
+void complete(const Arg& arg);
 
 /* history */
-void viewhist(Arg *arg);
-void navhistory(Arg *arg);
+void viewhist(const Arg& arg);
+void navhistory(const Arg& arg);
 
 /* selection */
-void markitem(Arg *arg);
-void selectitem(Arg *arg);
+void markitem(const Arg& arg);
+void selectitem(const Arg& arg);
 
 /* image */
-void setimgsize(Arg *arg);
-void defaultimg(Arg *arg);
-void flipimg(Arg *arg);
-void setimgpos(Arg *arg);
-void setimggaps(Arg *arg);
+void setimgsize(const Arg& arg);
+void defaultimg(const Arg& arg);
+void flipimg(const Arg& arg);
+void setimgpos(const Arg& arg);
+void setimggaps(const Arg& arg);
 
 /* lines/columns */
-void setlines(Arg *arg);
-void setcolumns(Arg *arg);
+void setlines(const Arg& arg);
+void setcolumns(const Arg& arg);
 
 /* misc */
-void spawn(Arg *arg);
-void screenshot(Arg *arg);
-void switchmode(Arg *arg);
-void setprofile(Arg *arg);
-void setlineheight(Arg *arg);
-void setx(Arg *arg);
-void sety(Arg *arg);
-void setw(Arg *arg);
-void quit(Arg *arg);
+void spawn(const Arg& arg);
+void screenshot(const Arg& arg);
+void switchmode(const Arg& arg);
+void setprofile(const Arg& arg);
+void setlineheight(const Arg& arg);
+void setx(const Arg& arg);
+void sety(const Arg& arg);
+void setw(const Arg& arg);
+void quit(const Arg& arg);
 
 /* toggle */
-void toggleinput(Arg *arg);
-void togglepretext(Arg *arg);
-void togglelarrow(Arg *arg);
-void togglerarrow(Arg *arg);
-void toggleitem(Arg *arg);
-void toggleprompt(Arg *arg);
-void togglecaps(Arg *arg);
-void togglepowerline(Arg *arg);
-void togglecaret(Arg *arg);
-void togglematchcount(Arg *arg);
-void togglemode(Arg *arg);
-void togglehighlight(Arg *arg);
-void toggleregex(Arg *arg);
-void togglefuzzy(Arg *arg);
-void toggleimg(Arg *arg);
-void toggleimgtype(Arg *arg);
+void toggleinput(const Arg& arg);
+void togglepretext(const Arg& arg);
+void togglelarrow(const Arg& arg);
+void togglerarrow(const Arg& arg);
+void toggleitem(const Arg& arg);
+void toggleprompt(const Arg& arg);
+void togglecaps(const Arg& arg);
+void togglepowerline(const Arg& arg);
+void togglecaret(const Arg& arg);
+void togglematchcount(const Arg& arg);
+void togglemode(const Arg& arg);
+void togglehighlight(const Arg& arg);
+void toggleregex(const Arg& arg);
+void togglefuzzy(const Arg& arg);
+void toggleimg(const Arg& arg);
+void toggleimgtype(const Arg& arg);
 
 /* hover */
-void selecthover(Arg *arg);
-void outputhover(Arg *arg);
-void markhover(Arg *arg);
+void selecthover(const Arg& arg);
+void outputhover(const Arg& arg);
+void markhover(const Arg& arg);
