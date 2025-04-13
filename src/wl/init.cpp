@@ -9,13 +9,13 @@ void prepare_window_size_wl(void) {
     sp.sp = menupaddingh;
     sp.vp = (menuposition == 1) ? menupaddingv : - menupaddingv;
 
-    sp.bh = MAX(draw->font->h, draw->font->h + 2 + lineheight);
+    sp.bh = std::max(draw.get_font_manager().get_height(), draw.get_font_manager().get_height() + 2 + lineheight);
     lines = MAX(lines, 0);
 #if IMAGE
     img.setlines = lines;
 #endif
 
-    sp.lrpad = draw->font->h + textpadding;
+    sp.lrpad = draw.get_font_manager().get_height() + textpadding;
 
     return;
 }

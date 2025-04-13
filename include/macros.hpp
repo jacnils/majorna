@@ -19,10 +19,10 @@
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #endif
 #ifndef TEXTW
-#define TEXTW(X)                (draw_font_getwidth(draw, (X), false) + sp.lrpad)
+#define TEXTW(X)                (draw.get_text_width((X), false) + sp.lrpad)
 #endif
 #ifndef TEXTWM
-#define TEXTWM(X)               (draw_font_getwidth(draw, (X), true) + sp.lrpad)
+#define TEXTWM(X)               (draw.get_text_width((X), true) + sp.lrpad)
 #endif
 #ifndef NUMBERSMAXDIGITS
 #define NUMBERSMAXDIGITS        100

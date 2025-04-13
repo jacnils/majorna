@@ -8,16 +8,16 @@
 void open_xim(void) {
     XIM xim;
 
-    if ((xim = XOpenIM(dpy, NULL, NULL, NULL)) == NULL) {
+    if ((xim = XOpenIM(dpy, nullptr, nullptr, nullptr)) == nullptr) {
         XSetLocaleModifiers("@im=local");
-        if ((xim = XOpenIM(dpy, NULL, NULL, NULL)) == NULL) {
+        if ((xim = XOpenIM(dpy, nullptr, nullptr, nullptr)) == nullptr) {
             XSetLocaleModifiers("@im=");
-            if ((xim = XOpenIM(dpy, NULL, NULL, NULL)) == NULL)
+            if ((xim = XOpenIM(dpy, nullptr, nullptr, nullptr)) == nullptr)
                 std::cerr << "Warning: XOpenIM() failed, input devices may be affected.\n";
                 return;
         }
     }
 
     xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
-            XNClientWindow, win, XNFocusWindow, win, NULL);
+            XNClientWindow, win, XNFocusWindow, win, nullptr);
 }

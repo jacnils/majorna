@@ -376,7 +376,7 @@ void quit(Arg *arg) {
 
 void setlineheight(Arg *arg) {
     lineheight += arg->i;
-    sp.bh = MAX(draw->font->h, draw->font->h + 2 + lineheight);
+    sp.bh = std::max(draw.get_font_manager().get_height(), draw.get_font_manager().get_height() + 2 + lineheight);
 
     resizeclient();
     drawmenu();
@@ -741,5 +741,5 @@ void screenshot(Arg *arg) {
         sprintf(file, "%s", screenshotfile);
     }
 
-    draw_save_screen(draw, file);
+    draw.save_screen(file);
 }

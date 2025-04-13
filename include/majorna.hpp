@@ -125,7 +125,7 @@ inline item *nextitem;
 inline item *selecteditem;
 inline item *mouseitem;
 
-inline Draw_t *draw;
+inline DrawManager draw;
 
 inline int hplength = 0;
 inline char **hpitems = nullptr;

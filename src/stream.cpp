@@ -34,7 +34,7 @@ void readstdin() {
         if (!(items[i].text = strdup(buf)))
             die("majorna: cannot strdup %u bytes:", strlen(buf) + 1);
         items[i].hp = arrayhas(hpitems, hplength, items[i].text);
-        draw_font_getexts(draw->font, buf, strlen(buf), &tmpmax, nullptr, true);
+        const auto tmpmax = draw.get_font_manager().estimate_length(buf, true).first; // width
         if (tmpmax > sp.inputw) {
             sp.inputw = tmpmax;
         }

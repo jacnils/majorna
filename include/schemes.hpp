@@ -1,8 +1,10 @@
 #pragma once
 
 #include <options.hpp>
+#include <vector>
+#include <string>
 
-inline char *textcolors[] = {
+inline std::vector<std::string> textcolors{
     col_sgr0,
     col_sgr1,
     col_sgr2,
@@ -260,6 +262,4 @@ inline char *textcolors[] = {
     "#eeeeee",
 };
 
-inline char* txtcols[256];
 void init_appearance();
-char sixd_to_8bit(int x);

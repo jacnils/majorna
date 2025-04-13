@@ -1,6 +1,6 @@
 #if IMAGE
 
-#include <errno.h>
+#include <cerrno>
 #include <pwd.h>
 #include <Imlib2.h>
 #include <openssl/evp.h>
@@ -10,6 +10,7 @@
 #include <draw.hpp>
 #include <x11/init.hpp>
 #include <unistd.h>
+#include <filesystem>
 
 void setimagesize(int width, int height) {
     if (!image || hideimage || height < 5 || width < 5 || width > sp.mw - sp.bh) {
@@ -20,7 +21,7 @@ void setimagesize(int width, int height) {
     img.imagewidth = width;
 }
 
-void flipimage(void) {
+void flipimage() {
     switch (img.flip) {
         case 1: // horizontal
             imlib_image_flip_horizontal();
@@ -37,16 +38,16 @@ void flipimage(void) {
     }
 }
 
-void cleanupimage(void) {
+void cleanupimage() {
     if (image) { // free image using imlib2
         imlib_free_image();
-        image = NULL;
+        image = nullptr;
     }
 }
 
 void drawimage(void) {
     int width = 0, height = 0;
-    char *limg = NULL;
+    char *limg = nullptr;
 
     if (!lines || !columns || hideimage || !imagetype) return;
 
@@ -85,31 +86,45 @@ void drawimage(void) {
             resizetoimageheight(imlib_image_get_height());
         }
 
-        draw_set_img(draw, imlib_image_get_data(), width, height);
-
         // render image on X11
         if (!imageposition) { // top mode = 0
             if (height > width)
                 width = height;
 
-            draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, wta + leftmargin);
+            //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, wta + leftmargin);
+            draw.draw_image(imlib_image_get_data(), {
+                .x = leftmargin + (img.imagewidth - width) / 2 + xta,
+                .y = wta + leftmargin,
+            });
         } else if (imageposition == 1) { // bottom mode = 1
             if (height > width)
                 width = height;
 
-            draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, sp.mh - height - leftmargin);
+            //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, sp.mh - height - leftmargin);
+            draw.draw_image(imlib_image_get_data(), {
+                .x = leftmargin + (img.imagewidth - width) / 2 + xta,
+                .y = sp.mh - height - leftmargin,
+            });
         } else if (imageposition == 2) { // center mode = 2
-            draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (sp.mh - wta - height) / 2 + wta);
+            //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (sp.mh - wta - height) / 2 + wta);
+            draw.draw_image(imlib_image_get_data(), {
+                .x = leftmargin + (img.imagewidth - width) / 2 + xta,
+                .y = (sp.mh - wta - height) / 2 + wta,
+            });
         } else { // top center
             int minh = MIN(height, sp.mh - sp.bh - leftmargin * 2);
-            draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (minh - height) / 2 + wta + leftmargin);
+            //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (minh - height) / 2 + wta + leftmargin);
+            draw.draw_image(imlib_image_get_data(), {
+                .x = leftmargin + (img.imagewidth - width) / 2 + xta,
+                .y = (minh - height) / 2 + wta + leftmargin,
+            });
         }
     }
 
     if (selecteditem) {
         limg = selecteditem->image;
     } else {
-        limg = NULL;
+        limg = nullptr;
     }
 }
 
@@ -127,9 +142,7 @@ void createifnexist(const char *dir) {
     if (errno == EACCES)
         fprintf(stderr, "majorna: no access to create directory: %s\n", dir);
 
-    // mkdir() failure
-    if (mkdir(dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
-        fprintf(stderr, "majorna: failed to create directory: %s\n", dir);
+    std::filesystem::create_directories(dir);
 }
 
 void createifnexist_rec(const char *dir) {
@@ -200,8 +213,8 @@ void loadimagecache(const char *file, int *width, int *height) {
     int slen = 0, i;
     unsigned int digest_len = EVP_MD_size(EVP_md5());
     unsigned char *digest = (unsigned char *)OPENSSL_malloc(digest_len);
-    char *xdg_cache, *home = NULL, *cachesize, *buf = NULL;
-    struct passwd *user_id = NULL;
+    char *xdg_cache, *home = nullptr, *cachesize, *buf = nullptr;
+    struct passwd *user_id = nullptr;
 
     // just load and don't store or try cache
     if (img.longestedge > maxcache) {
@@ -229,7 +242,7 @@ void loadimagecache(const char *file, int *width, int *height) {
         if (img.longestedge > 128)
             cachesize = "large";
 
-        slen = snprintf(NULL, 0, "file://%s", file)+1;
+        slen = snprintf(nullptr, 0, "file://%s", file)+1;
 
         if(!(buf = static_cast<char*>(malloc(slen)))) {
             return;
@@ -239,7 +252,7 @@ void loadimagecache(const char *file, int *width, int *height) {
         sprintf(buf, "file://%s", file);
 
         EVP_MD_CTX *mdcontext = EVP_MD_CTX_new();
-        EVP_DigestInit_ex(mdcontext, EVP_md5(), NULL);
+        EVP_DigestInit_ex(mdcontext, EVP_md5(), nullptr);
         EVP_DigestUpdate(mdcontext, buf, slen);
 
         EVP_DigestFinal_ex(mdcontext, digest, &digest_len);
@@ -255,11 +268,11 @@ void loadimagecache(const char *file, int *width, int *height) {
         // path for cached thumbnail
         if (!cachedir || !strcmp(cachedir, "default")) {
             if (xdg_cache || !strcmp(cachedir, "xdg"))
-                slen = snprintf(NULL, 0, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5)+1;
+                slen = snprintf(nullptr, 0, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5)+1;
             else
-                slen = snprintf(NULL, 0, "%s/.cache/thumbnails/%s/%s.png", home, cachesize, md5)+1;
+                slen = snprintf(nullptr, 0, "%s/.cache/thumbnails/%s/%s.png", home, cachesize, md5)+1;
         } else {
-            slen = snprintf(NULL, 0, "%s/%s/%s.png", cachedir, cachesize, md5)+1;
+            slen = snprintf(nullptr, 0, "%s/%s/%s.png", cachedir, cachesize, md5)+1;
         }
 
         if(!(buf = static_cast<char*>(malloc(slen)))) {
@@ -279,7 +292,7 @@ void loadimagecache(const char *file, int *width, int *height) {
 
         if (image && *width < img.imagewidth && *height < img.imageheight) {
             imlib_free_image();
-            image = NULL;
+            image = nullptr;
         } else if(image && (*width > img.imagewidth || *height > img.imageheight)) {
             scaleimage(width, height);
         }
@@ -361,7 +374,10 @@ void resizetoimageheight_x11(int imageheight) {
     }
 
     XMoveResizeWindow(dpy, win, x + sp.sp, y + sp.vp, sp.mw - 2 * sp.sp - borderwidth * 2, sp.mh);
-    draw_resize(draw, sp.mw - 2 * sp.sp - borderwidth, sp.mh);
+    draw.resize({
+        .w = sp.mw - 2 * sp.sp - borderwidth * 2,
+        .h = sp.mh,
+    });
 
     if (olines != lines) {
         struct item *item;
@@ -409,16 +425,12 @@ void resizetoimageheight_wl(int imageheight) {
 
     state.buffer = create_buffer(&state);
 
-    if (draw == NULL) {
-        die("majorna: draw == NULL");
-    }
-
-    if (state.buffer == NULL) {
+    if (state.buffer == nullptr) {
         die("state.buffer == null");
     }
 
     set_layer_size(&state, state.width, state.height);
-    draw_create_surface_wl(draw, state.data, state.width, state.height);
+    draw.initialize_wayland(state.data, state.width, state.height);
 
     drawmenu();
 

@@ -6,12 +6,13 @@
 #include <options.hpp>
 #include <macros.hpp>
 #include <draw.hpp>
-#include <locale.h>
+#include <clocale>
 #include <match.hpp>
 #include <x11/xim.hpp>
 #include <x11/focus.hpp>
+#include <iostream>
 
-void setupdisplay_x11(void) {
+void setupdisplay_x11() {
     int x, y, i;
     unsigned int du;
 
@@ -90,7 +91,6 @@ void setupdisplay_x11(void) {
         sp.mw = (menuwidth > 0 ? menuwidth : mo.output_width);
     }
 
-
     // create menu window and set properties for it
     create_window_x11(
             x + sp.sp,
@@ -131,23 +131,26 @@ void setupdisplay_x11(void) {
     }
 
     // resize window and draw
-    draw_resize(draw, sp.mw - 2 * sp.sp - borderwidth * 2, sp.mh);
+    draw.resize({
+        .w = sp.mw - 2 * sp.sp - borderwidth * 2,
+        .h = sp.mh,
+    });
 
     match();
     drawmenu();
 }
 
-void prepare_window_size_x11(void) {
+void prepare_window_size_x11() {
     sp.sp = menupaddingh;
     sp.vp = (menuposition == 1) ? menupaddingv : - menupaddingv;
 
-    sp.bh = MAX(draw->font->h, draw->font->h + 2 + lineheight);
+    sp.bh = std::max(sp.bh, static_cast<int>(draw.get_font_manager().get_height() + 2 + lineheight));
     lines = MAX(lines, 0);
 #if IMAGE
     img.setlines = lines;
 #endif
 
-    sp.lrpad = draw->font->h + textpadding;
+    sp.lrpad = draw.get_font_manager().get_height() + textpadding;
     get_mh();
 
     return;
@@ -162,7 +165,7 @@ void set_screen_x11(Display *disp) {
     root = RootWindow(disp, x11.screen);
 }
 
-void handle_x11(void) {
+void handle_x11() {
     XWindowAttributes wa;
 
     if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
@@ -186,7 +189,7 @@ void handle_x11(void) {
     }
 
     xinitvisual(); // init visual and create drawable after
-    draw = draw_create_x11(dpy, x11.screen, root, wa.width, wa.height, x11.visual, x11.depth, x11.cmap, protocol);
+    draw.initialize_x11(dpy, x11.screen, root, wa.width, wa.height, x11.visual, x11.depth, x11.cmap);
 }
 
 void cleanup_x11(Display *disp) {

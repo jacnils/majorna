@@ -7,6 +7,7 @@
 #include <x11/x11_libs.hpp>
 #include <x11/init.hpp>
 #include <img.hpp>
+#include <iostream>
 
 void hexconv(const char *hex, unsigned short *r, unsigned short *g, unsigned short *b) {
     unsigned int col;
@@ -35,11 +36,9 @@ void create_window_x11(int x, int y, int w, int h) {
     win = XCreateWindow(dpy, root, x, y, w, h, borderwidth,
             x11.depth, InputOutput, x11.visual,
             CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &swa);
-
-    return;
 }
 
-void set_window_x11(void) {
+void set_window_x11() {
     XColor col;
     XClassHint ch = { _class, _class };
 
@@ -112,7 +111,10 @@ void resizeclient_x11(void) {
 
     if (win) {
         XMoveResizeWindow(dpy, win, x + sp.sp, y + sp.vp, sp.mw - 2 * sp.sp - borderwidth * 2, sp.mh);
-        draw_resize(draw, sp.mw - 2 * sp.sp - borderwidth * 2, sp.mh);
+        draw.resize({
+            .w = sp.mw - 2 * sp.sp - borderwidth * 2,
+            .h = sp.mh,
+        });
     }
 }
 

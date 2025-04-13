@@ -25,7 +25,6 @@ endif()
 
 set(PROJECT_SOURCE_FILES
         src/config/config.cpp
-        src/draw/draw.cpp
         src/regex/regex.c
         src/arg.cpp
         src/argv.cpp
@@ -65,6 +64,7 @@ if(X11)
     pkg_check_modules(XRENDER REQUIRED xrender)
     list(APPEND PROJECT_DEPENDENCIES ${X11_LIBRARIES} ${XRENDER_LIBRARIES})
     list(APPEND BUILD_ARGS -DX11)
+    list(APPEND BUILD_ARGS -DLIMHAMN_PRIMITIVE_X11)
     list(APPEND PROJECT_SOURCE_FILES
         src/x11/client.cpp
         src/x11/clipboard.cpp
@@ -103,6 +103,7 @@ if(WAYLAND)
         src/wl/wayland.cpp
     )
     list(APPEND BUILD_ARGS -DWAYLAND)
+    list(APPEND BUILD_ARGS -DLIMHAMN_PRIMITIVE_WAYLAND)
 endif()
 
 if(IMLIB2 AND OPENSSL)
@@ -160,3 +161,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_DEPENDENCIES})
 target_compile_options(${PROJECT_NAME} PRIVATE ${BUILD_ARGS})
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)

@@ -137,8 +137,6 @@ void cleanup() {
     for (i = 0; i < hplength; ++i)
         free(hpitems[i]);
 
-    draw_free(draw);
-
 #if X11
     if (!protocol) {
         cleanup_x11(dpy);
@@ -290,8 +288,11 @@ void handle() {
 #if X11
         handle_x11();
 
-        if (!draw_font_create(draw, fonts, LENGTH(fonts))) {
-            die("no fonts could be loaded.");
+        try {
+            draw.initialize_font(font);
+        } catch (const std::exception &e) {
+            fprintf(stderr, "majorna: %s\n", e.what());
+            exit(1);
         }
 
         load_history();
@@ -337,11 +338,9 @@ void handle() {
         borderwidth = 0;
         managed = 0;
 
-        draw = draw_create_wl(protocol);
-
-        if (!draw_font_create(draw, fonts, LENGTH(fonts))) {
-            die("no fonts could be loaded.");
-        }
+        // um???
+        draw = DrawManager();
+        draw.initialize_font(font);
 
         readstdin();
         set_mode();

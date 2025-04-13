@@ -1,11 +1,6 @@
 #pragma once
 
-#if RTL
-#include <fribidi.h>
-#include <cstring>
-#endif
-#include <cstdio>
-
-inline char fribidi_text[BUFSIZ] = "";
+#include <string>
 
 void apply_fribidi(char *str);
+void apply_fribidi(std::string& str);

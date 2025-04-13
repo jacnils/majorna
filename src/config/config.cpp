@@ -221,7 +221,7 @@ int bind_init() {
 }
 
 
-void conf_init(void) {
+void conf_init() {
     char *xdg_conf;
     char *cfgfile = nullptr;
     char *home = nullptr;
@@ -467,181 +467,159 @@ void conf_init(void) {
     }
 
     // load options majorna.color
-    config_setting_t *color_setting = config_lookup(&cfg, "majorna.color");
-    if (color_setting != nullptr && loadconfig) {
-        for (unsigned int i = 0; i < config_setting_length(color_setting); ++i) {
-            config_setting_t *conf = config_setting_get_elem(color_setting, i);
+    for (const auto& color_setting : std::vector<config_setting_t*>{
+        config_lookup(&cfg, "majorna.color"),
+        config_lookup(&cfg, "theme.color"),
+    }) {
+        if (color_setting != nullptr && loadconfig) {
+            for (unsigned int i = 0; i < config_setting_length(color_setting); ++i) {
+                config_setting_t *conf = config_setting_get_elem(color_setting, i);
 
-            // items
-            if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                sp_strncpy(col_itemnormfg, strdup(dest), sizeof(col_itemnormfg));
+                // items
+                if (config_setting_lookup_string(conf, "itemnormfg", &dest))
+                    sp_strncpy(col_itemnormfg, strdup(dest), sizeof(col_itemnormfg));
 
-            if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                sp_strncpy(col_itemnormbg, strdup(dest), sizeof(col_itemnormbg));
+                if (config_setting_lookup_string(conf, "itemnormbg", &dest))
+                    sp_strncpy(col_itemnormbg, strdup(dest), sizeof(col_itemnormbg));
 
-            if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
-                sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
-            else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
+                if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
+                    sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
+                else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
+                    sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
 
-            if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
-                sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
-            else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
+                if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
+                    sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
+                else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
+                    sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
 
-            if (config_setting_lookup_string(conf, "itemselfg", &dest))
-                sp_strncpy(col_itemselfg, strdup(dest), sizeof(col_itemselfg));
+                if (config_setting_lookup_string(conf, "itemselfg", &dest))
+                    sp_strncpy(col_itemselfg, strdup(dest), sizeof(col_itemselfg));
 
-            if (config_setting_lookup_string(conf, "itemselbg", &dest))
-                sp_strncpy(col_itemselbg, strdup(dest), sizeof(col_itemselbg));
+                if (config_setting_lookup_string(conf, "itemselbg", &dest))
+                    sp_strncpy(col_itemselbg, strdup(dest), sizeof(col_itemselbg));
 
-            if (config_setting_lookup_string(conf, "itemmarkedfg", &dest))
-                sp_strncpy(col_itemmarkedfg, strdup(dest), sizeof(col_itemmarkedfg));
-            else if (config_setting_lookup_string(conf, "itemselfg", &dest))
-                sp_strncpy(col_itemmarkedfg, strdup(dest), sizeof(col_itemmarkedfg));
+                if (config_setting_lookup_string(conf, "itemmarkedfg", &dest))
+                    sp_strncpy(col_itemmarkedfg, strdup(dest), sizeof(col_itemmarkedfg));
+                else if (config_setting_lookup_string(conf, "itemselfg", &dest))
+                    sp_strncpy(col_itemmarkedfg, strdup(dest), sizeof(col_itemmarkedfg));
 
-            if (config_setting_lookup_string(conf, "itemmarkedbg", &dest))
-                sp_strncpy(col_itemmarkedbg, strdup(dest), sizeof(col_itemmarkedbg));
-            else if (config_setting_lookup_string(conf, "itemselbg", &dest))
-                sp_strncpy(col_itemmarkedbg, strdup(dest), sizeof(col_itemmarkedbg));
+                if (config_setting_lookup_string(conf, "itemmarkedbg", &dest))
+                    sp_strncpy(col_itemmarkedbg, strdup(dest), sizeof(col_itemmarkedbg));
+                else if (config_setting_lookup_string(conf, "itemselbg", &dest))
+                    sp_strncpy(col_itemmarkedbg, strdup(dest), sizeof(col_itemmarkedbg));
 
-            // items with priority
-            if (config_setting_lookup_string(conf, "itemnormprifg", &dest))
-                sp_strncpy(col_itemnormprifg, strdup(dest), sizeof(col_itemnormprifg));
+                // items with priority
+                if (config_setting_lookup_string(conf, "itemnormprifg", &dest))
+                    sp_strncpy(col_itemnormprifg, strdup(dest), sizeof(col_itemnormprifg));
 
-            if (config_setting_lookup_string(conf, "itemnormpribg", &dest))
-                sp_strncpy(col_itemnormpribg, strdup(dest), sizeof(col_itemnormpribg));
+                if (config_setting_lookup_string(conf, "itemnormpribg", &dest))
+                    sp_strncpy(col_itemnormpribg, strdup(dest), sizeof(col_itemnormpribg));
 
-            if (config_setting_lookup_string(conf, "itemselprifg", &dest))
-                sp_strncpy(col_itemselprifg, strdup(dest), sizeof(col_itemselprifg));
+                if (config_setting_lookup_string(conf, "itemselprifg", &dest))
+                    sp_strncpy(col_itemselprifg, strdup(dest), sizeof(col_itemselprifg));
 
-            if (config_setting_lookup_string(conf, "itemselpribg", &dest))
-                sp_strncpy(col_itemselpribg, strdup(dest), sizeof(col_itemselpribg));
+                if (config_setting_lookup_string(conf, "itemselpribg", &dest))
+                    sp_strncpy(col_itemselpribg, strdup(dest), sizeof(col_itemselpribg));
 
-            // input
-            if (config_setting_lookup_string(conf, "inputfg", &dest))
-                sp_strncpy(col_inputfg, strdup(dest), sizeof(col_inputfg));
+                // input
+                if (config_setting_lookup_string(conf, "inputfg", &dest))
+                    sp_strncpy(col_inputfg, strdup(dest), sizeof(col_inputfg));
 
-            if (config_setting_lookup_string(conf, "inputbg", &dest))
-                sp_strncpy(col_inputbg, strdup(dest), sizeof(col_inputbg));
+                if (config_setting_lookup_string(conf, "inputbg", &dest))
+                    sp_strncpy(col_inputbg, strdup(dest), sizeof(col_inputbg));
 
-            // pretext
-            if (config_setting_lookup_string(conf, "pretextfg", &dest))
-                sp_strncpy(col_pretextfg, strdup(dest), sizeof(col_pretextfg));
-            else if (config_setting_lookup_string(conf, "inputfg", &dest))
-                sp_strncpy(col_pretextfg, strdup(dest), sizeof(col_pretextfg));
+                // pretext
+                if (config_setting_lookup_string(conf, "pretextfg", &dest))
+                    sp_strncpy(col_pretextfg, strdup(dest), sizeof(col_pretextfg));
+                else if (config_setting_lookup_string(conf, "inputfg", &dest))
+                    sp_strncpy(col_pretextfg, strdup(dest), sizeof(col_pretextfg));
 
-            if (config_setting_lookup_string(conf, "pretextbg", &dest))
-                sp_strncpy(col_pretextbg, strdup(dest), sizeof(col_pretextbg));
-            else if (config_setting_lookup_string(conf, "inputfg", &dest))
-                sp_strncpy(col_pretextbg, strdup(dest), sizeof(col_pretextbg));
+                if (config_setting_lookup_string(conf, "pretextbg", &dest))
+                    sp_strncpy(col_pretextbg, strdup(dest), sizeof(col_pretextbg));
+                else if (config_setting_lookup_string(conf, "inputfg", &dest))
+                    sp_strncpy(col_pretextbg, strdup(dest), sizeof(col_pretextbg));
 
-            // menu
-            if (config_setting_lookup_string(conf, "menu", &dest))
-                sp_strncpy(col_menu, strdup(dest), sizeof(col_menu));
+                // menu
+                if (config_setting_lookup_string(conf, "menu", &dest))
+                    sp_strncpy(col_menu, strdup(dest), sizeof(col_menu));
 
-            // prompt
-            if (config_setting_lookup_string(conf, "promptfg", &dest))
-                sp_strncpy(col_promptfg, strdup(dest), sizeof(col_promptfg));
+                // prompt
+                if (config_setting_lookup_string(conf, "promptfg", &dest))
+                    sp_strncpy(col_promptfg, strdup(dest), sizeof(col_promptfg));
 
-            if (config_setting_lookup_string(conf, "promptbg", &dest))
-                sp_strncpy(col_promptbg, strdup(dest), sizeof(col_promptbg));
+                if (config_setting_lookup_string(conf, "promptbg", &dest))
+                    sp_strncpy(col_promptbg, strdup(dest), sizeof(col_promptbg));
 
-            // arrows
-            if (config_setting_lookup_string(conf, "larrowfg", &dest))
-                sp_strncpy(col_larrowfg, strdup(dest), sizeof(col_larrowfg));
+                // arrows
+                if (config_setting_lookup_string(conf, "larrowfg", &dest))
+                    sp_strncpy(col_larrowfg, strdup(dest), sizeof(col_larrowfg));
 
-            if (config_setting_lookup_string(conf, "larrowbg", &dest))
-                sp_strncpy(col_larrowbg, strdup(dest), sizeof(col_larrowbg));
+                if (config_setting_lookup_string(conf, "larrowbg", &dest))
+                    sp_strncpy(col_larrowbg, strdup(dest), sizeof(col_larrowbg));
 
-            if (config_setting_lookup_string(conf, "rarrowfg", &dest))
-                sp_strncpy(col_rarrowfg, strdup(dest), sizeof(col_rarrowfg));
+                if (config_setting_lookup_string(conf, "rarrowfg", &dest))
+                    sp_strncpy(col_rarrowfg, strdup(dest), sizeof(col_rarrowfg));
 
-            if (config_setting_lookup_string(conf, "rarrowbg", &dest))
-                sp_strncpy(col_rarrowbg, strdup(dest), sizeof(col_rarrowbg));
+                if (config_setting_lookup_string(conf, "rarrowbg", &dest))
+                    sp_strncpy(col_rarrowbg, strdup(dest), sizeof(col_rarrowbg));
 
-            // highlight
-            if (config_setting_lookup_string(conf, "hlnormfg", &dest))
-                sp_strncpy(col_hlnormfg, strdup(dest), sizeof(col_hlnormfg));
+                // highlight
+                if (config_setting_lookup_string(conf, "hlnormfg", &dest))
+                    sp_strncpy(col_hlnormfg, strdup(dest), sizeof(col_hlnormfg));
 
-            if (config_setting_lookup_string(conf, "hlnormbg", &dest))
-                sp_strncpy(col_hlnormbg, strdup(dest), sizeof(col_hlnormbg));
+                if (config_setting_lookup_string(conf, "hlnormbg", &dest))
+                    sp_strncpy(col_hlnormbg, strdup(dest), sizeof(col_hlnormbg));
 
-            if (config_setting_lookup_string(conf, "hlselfg", &dest))
-                sp_strncpy(col_hlselfg, strdup(dest), sizeof(col_hlselfg));
+                if (config_setting_lookup_string(conf, "hlselfg", &dest))
+                    sp_strncpy(col_hlselfg, strdup(dest), sizeof(col_hlselfg));
 
-            if (config_setting_lookup_string(conf, "hlselbg", &dest))
-                sp_strncpy(col_hlselbg, strdup(dest), sizeof(col_hlselbg));
+                if (config_setting_lookup_string(conf, "hlselbg", &dest))
+                    sp_strncpy(col_hlselbg, strdup(dest), sizeof(col_hlselbg));
 
-            // number
-            if (config_setting_lookup_string(conf, "numfg", &dest))
-                sp_strncpy(col_numfg, strdup(dest), sizeof(col_numfg));
+                // number
+                if (config_setting_lookup_string(conf, "numfg", &dest))
+                    sp_strncpy(col_numfg, strdup(dest), sizeof(col_numfg));
 
-            if (config_setting_lookup_string(conf, "numbg", &dest))
-                sp_strncpy(col_numbg, strdup(dest), sizeof(col_numbg));
+                if (config_setting_lookup_string(conf, "numbg", &dest))
+                    sp_strncpy(col_numbg, strdup(dest), sizeof(col_numbg));
 
-            // mode
-            if (config_setting_lookup_string(conf, "modefg", &dest))
-                sp_strncpy(col_modefg, strdup(dest), sizeof(col_modefg));
+                // mode
+                if (config_setting_lookup_string(conf, "modefg", &dest))
+                    sp_strncpy(col_modefg, strdup(dest), sizeof(col_modefg));
 
-            if (config_setting_lookup_string(conf, "modebg", &dest))
-                sp_strncpy(col_modebg, strdup(dest), sizeof(col_modebg));
+                if (config_setting_lookup_string(conf, "modebg", &dest))
+                    sp_strncpy(col_modebg, strdup(dest), sizeof(col_modebg));
 
-            // caps
-            if (config_setting_lookup_string(conf, "capsfg", &dest))
-                sp_strncpy(col_capsfg, strdup(dest), sizeof(col_capsfg));
+                // caps
+                if (config_setting_lookup_string(conf, "capsfg", &dest))
+                    sp_strncpy(col_capsfg, strdup(dest), sizeof(col_capsfg));
 
-            if (config_setting_lookup_string(conf, "capsbg", &dest))
-                sp_strncpy(col_capsbg, strdup(dest), sizeof(col_capsbg));
+                if (config_setting_lookup_string(conf, "capsbg", &dest))
+                    sp_strncpy(col_capsbg, strdup(dest), sizeof(col_capsbg));
 
-            // border
-            if (config_setting_lookup_string(conf, "border", &dest))
-                sp_strncpy(col_border, strdup(dest), sizeof(col_border));
+                // border
+                if (config_setting_lookup_string(conf, "border", &dest))
+                    sp_strncpy(col_border, strdup(dest), sizeof(col_border));
 
-            // caret
-            if (config_setting_lookup_string(conf, "caretfg", &dest))
-                sp_strncpy(col_caretfg, strdup(dest), sizeof(col_caretfg));
+                // caret
+                if (config_setting_lookup_string(conf, "caretfg", &dest))
+                    sp_strncpy(col_caretfg, strdup(dest), sizeof(col_caretfg));
 
-            if (config_setting_lookup_string(conf, "caretbg", &dest))
-                sp_strncpy(col_caretbg, strdup(dest), sizeof(col_caretbg));
+                if (config_setting_lookup_string(conf, "caretbg", &dest))
+                    sp_strncpy(col_caretbg, strdup(dest), sizeof(col_caretbg));
 
-            // sgr colors
-            if (config_setting_lookup_string(conf, "sgr0", &dest))
-                sp_strncpy(textcolors[0], strdup(dest), sizeof(textcolors[0]));
-            if (config_setting_lookup_string(conf, "sgr1", &dest))
-                sp_strncpy(textcolors[1], strdup(dest), sizeof(textcolors[1]));
-            if (config_setting_lookup_string(conf, "sgr2", &dest))
-                sp_strncpy(textcolors[2], strdup(dest), sizeof(textcolors[2]));
-            if (config_setting_lookup_string(conf, "sgr3", &dest))
-                sp_strncpy(textcolors[3], strdup(dest), sizeof(textcolors[3]));
-            if (config_setting_lookup_string(conf, "sgr4", &dest))
-                sp_strncpy(textcolors[4], strdup(dest), sizeof(textcolors[4]));
-            if (config_setting_lookup_string(conf, "sgr5", &dest))
-                sp_strncpy(textcolors[5], strdup(dest), sizeof(textcolors[5]));
-            if (config_setting_lookup_string(conf, "sgr6", &dest))
-                sp_strncpy(textcolors[6], strdup(dest), sizeof(textcolors[6]));
-            if (config_setting_lookup_string(conf, "sgr7", &dest))
-                sp_strncpy(textcolors[7], strdup(dest), sizeof(textcolors[7]));
-            if (config_setting_lookup_string(conf, "sgr8", &dest))
-                sp_strncpy(textcolors[8], strdup(dest), sizeof(textcolors[8]));
-            if (config_setting_lookup_string(conf, "sgr9", &dest))
-                sp_strncpy(textcolors[9], strdup(dest), sizeof(textcolors[9]));
-            if (config_setting_lookup_string(conf, "sgr10", &dest))
-                sp_strncpy(textcolors[10], strdup(dest), sizeof(textcolors[10]));
-            if (config_setting_lookup_string(conf, "sgr11", &dest))
-                sp_strncpy(textcolors[11], strdup(dest), sizeof(textcolors[11]));
-            if (config_setting_lookup_string(conf, "sgr12", &dest))
-                sp_strncpy(textcolors[12], strdup(dest), sizeof(textcolors[12]));
-            if (config_setting_lookup_string(conf, "sgr13", &dest))
-                sp_strncpy(textcolors[13], strdup(dest), sizeof(textcolors[13]));
-            if (config_setting_lookup_string(conf, "sgr14", &dest))
-                sp_strncpy(textcolors[14], strdup(dest), sizeof(textcolors[14]));
-            if (config_setting_lookup_string(conf, "sgr15", &dest))
-                sp_strncpy(textcolors[15], strdup(dest), sizeof(textcolors[15]));
+                // sgr colors
+                for (int i{}; i <= 15; ++i) {
+                    std::string key = "sgr" + std::to_string(i);
+                    if (config_setting_lookup_string(conf, key.c_str(), &dest)) {
+                        textcolors[i] = dest;
+                    }
+                }
 
-            // coloritems int
-            config_setting_lookup_int(conf, "coloritems", &coloritems);
-            config_setting_lookup_int(conf, "sgr", &sgr);
+                // coloritems int
+                config_setting_lookup_int(conf, "coloritems", &coloritems);
+                config_setting_lookup_int(conf, "sgr", &sgr);
+            }
         }
     }
 
@@ -1395,38 +1373,12 @@ void theme_load() {
                 sp_strncpy(col_caretbg, strdup(dest), sizeof(col_caretbg));
 
             // sgr colors
-            if (config_setting_lookup_string(conf, "sgr0", &dest))
-                sp_strncpy(textcolors[0], strdup(dest), sizeof(textcolors[0]));
-            if (config_setting_lookup_string(conf, "sgr1", &dest))
-                sp_strncpy(textcolors[1], strdup(dest), sizeof(textcolors[1]));
-            if (config_setting_lookup_string(conf, "sgr2", &dest))
-                sp_strncpy(textcolors[2], strdup(dest), sizeof(textcolors[2]));
-            if (config_setting_lookup_string(conf, "sgr3", &dest))
-                sp_strncpy(textcolors[3], strdup(dest), sizeof(textcolors[3]));
-            if (config_setting_lookup_string(conf, "sgr4", &dest))
-                sp_strncpy(textcolors[4], strdup(dest), sizeof(textcolors[4]));
-            if (config_setting_lookup_string(conf, "sgr5", &dest))
-                sp_strncpy(textcolors[5], strdup(dest), sizeof(textcolors[5]));
-            if (config_setting_lookup_string(conf, "sgr6", &dest))
-                sp_strncpy(textcolors[6], strdup(dest), sizeof(textcolors[6]));
-            if (config_setting_lookup_string(conf, "sgr7", &dest))
-                sp_strncpy(textcolors[7], strdup(dest), sizeof(textcolors[7]));
-            if (config_setting_lookup_string(conf, "sgr8", &dest))
-                sp_strncpy(textcolors[8], strdup(dest), sizeof(textcolors[8]));
-            if (config_setting_lookup_string(conf, "sgr9", &dest))
-                sp_strncpy(textcolors[9], strdup(dest), sizeof(textcolors[9]));
-            if (config_setting_lookup_string(conf, "sgr10", &dest))
-                sp_strncpy(textcolors[10], strdup(dest), sizeof(textcolors[10]));
-            if (config_setting_lookup_string(conf, "sgr11", &dest))
-                sp_strncpy(textcolors[11], strdup(dest), sizeof(textcolors[11]));
-            if (config_setting_lookup_string(conf, "sgr12", &dest))
-                sp_strncpy(textcolors[12], strdup(dest), sizeof(textcolors[12]));
-            if (config_setting_lookup_string(conf, "sgr13", &dest))
-                sp_strncpy(textcolors[13], strdup(dest), sizeof(textcolors[13]));
-            if (config_setting_lookup_string(conf, "sgr14", &dest))
-                sp_strncpy(textcolors[14], strdup(dest), sizeof(textcolors[14]));
-            if (config_setting_lookup_string(conf, "sgr15", &dest))
-                sp_strncpy(textcolors[15], strdup(dest), sizeof(textcolors[15]));
+            for (int i{}; i <= 15; ++i) {
+                std::string key = "sgr" + std::to_string(i);
+                if (config_setting_lookup_string(conf, key.c_str(), &dest)) {
+                    textcolors[i] = dest;
+                }
+            }
 
             // coloritems int
             config_setting_lookup_int(conf, "coloritems", &coloritems);

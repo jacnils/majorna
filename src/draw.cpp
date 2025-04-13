@@ -4,7 +4,6 @@
 #include <majorna.hpp>
 #include <draw/draw.hpp>
 #include <Imlib2.h>
-#include <x11/x11_libs.hpp>
 #include <x11/init.hpp>
 #include <img.hpp>
 #include <match.hpp>
@@ -12,8 +11,11 @@
 #include <rtl.hpp>
 #include <schemes.hpp>
 #include <unistd.h>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
 
-void drawhighlights(struct item *item, int x, int y, int w, int p, char *itemtext) {
+void drawhighlights(item *item, int x, int y, int w, int p, char *itemtext) {
 	char restorechar, text[sizeof tx.text], *highlight,  *ctext;
 	int indent, highlightlen;
 
@@ -23,7 +25,7 @@ void drawhighlights(struct item *item, int x, int y, int w, int p, char *itemtex
 
 	strcpy(text, tx.text);
 
-	for (ctext = text; ctext; ctext = NULL) {
+	for (ctext = text; ctext; ctext = nullptr) {
 		highlight = fstrstr(itemtext, ctext);
 
 		while (highlight) {
@@ -39,6 +41,7 @@ void drawhighlights(struct item *item, int x, int y, int w, int p, char *itemtex
 			highlight[strlen(ctext)] = '\0';
 
 			if (indent - (sp.lrpad / 2) - 1 < w) {
+			    /*
                 draw_text(
                     draw,
                     x + indent - (sp.lrpad / 2) - 1,
@@ -50,6 +53,18 @@ void drawhighlights(struct item *item, int x, int y, int w, int p, char *itemtex
                     item == selecteditem ? alpha_hlselfg : alpha_hlnormfg,
                     item == selecteditem ? alpha_hlselbg : alpha_hlnormbg
                 );
+                */
+			    draw.draw_text({
+			        .x = x + indent - (sp.lrpad / 2) - 1,
+			        .y = y,
+			        .w = static_cast<int>(MIN(w - indent, TEXTW(highlight) - sp.lrpad)),
+			        .h = sp.bh,
+			    }, 0, highlight, false, {
+			        .foreground = item == selecteditem ? col_hlselfg : col_hlnormfg,
+			        .background = item == selecteditem ? col_hlselbg : col_hlnormbg,
+			        .foreground_alpha = item == selecteditem ? alpha_hlselfg : alpha_hlnormfg,
+			        .background_alpha = item == selecteditem ? alpha_hlselbg : alpha_hlnormbg,
+			    });
             }
 
 			highlight[strlen(ctext)] = restorechar;
@@ -62,7 +77,7 @@ void drawhighlights(struct item *item, int x, int y, int w, int p, char *itemtex
 	}
 }
 
-char* get_text_n_sgr(struct item *item) {
+char* get_text_n_sgr(item *item) {
     char buffer[MAXITEMLENGTH];
     int character, escape;
 
@@ -93,7 +108,7 @@ char* get_text_n_sgr(struct item *item) {
     return sgrtext;
 }
 
-int drawitemtext(struct item *item, int x, int y, int w) {
+int drawitemtext(item *item, int x, int y, int w) {
     char buffer[MAXITEMLENGTH]; // buffer containing item text
     int character, escape;
     int leftpadding = sp.lrpad / 2; // padding
@@ -186,15 +201,48 @@ int drawitemtext(struct item *item, int x, int y, int w) {
 
     if (!hidepowerline && powerlineitems) {
         if (itempwlstyle == 2) {
-            draw_circle(draw, x - sp.plw, y, sp.plw, sp.bh, 0, col_menu, bgcol, alpha_menu, bga);
+            //draw_circle(draw, x - sp.plw, y, sp.plw, sp.bh, 0, col_menu, bgcol, alpha_menu, bga);
+            draw.draw_circle({
+                .x = x - sp.plw,
+                .y = y,
+                .w = sp.plw,
+                .h = sp.bh,
+            }, 0, {
+                .prev = col_menu,
+                .next = bgcol,
+                .prev_alpha = alpha_menu,
+                .next_alpha = bga,
+            });
         } else {
-            draw_arrow(draw, x - sp.plw, y, sp.plw, sp.bh, 0, itempwlstyle, col_menu, bgcol, alpha_menu, bga);
+            //draw_arrow(draw, x - sp.plw, y, sp.plw, sp.bh, 0, itempwlstyle, col_menu, bgcol, alpha_menu, bga);
+            draw.draw_arrow({
+                .x = x - sp.plw,
+                .y = y,
+                .w = sp.plw,
+                .h = sp.bh,
+            }, 0, itempwlstyle, {
+                .prev = col_menu,
+                .next = bgcol,
+                .prev_alpha = alpha_menu,
+                .next_alpha = bga,
+            });
         }
     }
 
 #if IMAGE
     if (!hideimage && !imagetype) {
-        draw_rect(draw, x, y, w, sp.bh, 1, 1, fgcol, bgcol, fga, bga);
+        //draw_rect(draw, x, y, w, sp.bh, 1, 1, fgcol, bgcol, fga, bga);
+        draw.draw_rect({
+            .x = x,
+            .y = y,
+            .w = w,
+            .h = sp.bh,
+        }, {
+            .foreground = fgcol,
+            .background = bgcol,
+            .foreground_alpha = fga,
+            .background_alpha = bga,
+        });
         int nx = draw_icon(item, x, y + sp.lrpad / 4, sp.bh - sp.lrpad / 2, sp.bh - sp.lrpad / 2);
 
         if (nx != x) {
@@ -216,7 +264,19 @@ int drawitemtext(struct item *item, int x, int y, int w) {
                 buffer[character] = '\0';
 
                 apply_fribidi(buffer);
-                draw_text(draw, x, y, w, sp.bh, leftpadding, isrtl ? fribidi_text : buffer, 0, pango_item ? True : False, fgcol, bgcol, fga, bga);
+                //draw_text(draw, x, y, w, sp.bh, leftpadding, buffer, 0, pango_item ? True : False, fgcol, bgcol, fga, bga);
+                draw.draw_text({
+                    .x = x,
+                    .y = y,
+                    .w = static_cast<int>(w),
+                    .h = sp.bh,
+                }, leftpadding, buffer, pango_item ? true : false, {
+                    .foreground = fgcol,
+                    .background = bgcol,
+                    .foreground_alpha = fga,
+                    .background_alpha = bga,
+                    .filled = true,
+                });
 
                 x += MIN(w, TEXTW(buffer) - sp.lrpad + leftpadding);
                 w -= MIN(w, TEXTW(buffer) - sp.lrpad + leftpadding);
@@ -236,9 +296,9 @@ int drawitemtext(struct item *item, int x, int y, int w) {
                             continue;
                         }
                         if (bgfg == 4) {
-                            fgcol = txtcols[fg = nextchar];
+                            fgcol = strdup(textcolors[fg = nextchar].c_str());
                         } else if (bgfg == 6) {
-                            bgcol = txtcols[bg = nextchar];
+                            bgcol = strdup(textcolors[bg = nextchar].c_str());
                         }
 
                         ignore = 1;
@@ -247,14 +307,14 @@ int drawitemtext(struct item *item, int x, int y, int w) {
 
                     if (nextchar == 1) {
                         fg |= 8;
-                        fgcol = txtcols[fg];
+                        fgcol = strdup(textcolors[fg].c_str());
                     } else if (nextchar == 22) {
                         fg &= ~8;
-                        fgcol = txtcols[fg];
+                        fgcol = strdup(textcolors[fg].c_str());
                     } else if (nextchar == 38) {
                         int r, g, b, c;
 
-                        c = strtoul(c_character + 1, NULL, 10);
+                        c = strtoul(c_character + 1, nullptr, 10);
 
                         if (c == 5) {
                             bgfg = 2;
@@ -274,16 +334,16 @@ int drawitemtext(struct item *item, int x, int y, int w) {
                         fgcol = ofgcol;
                     } else if (nextchar >= 30 && nextchar <= 37) {
                         fg = nextchar % 10 | (fg & 8);
-                        fgcol = txtcols[fg];
+                        fgcol = strdup(textcolors[fg].c_str());
                     } else if (nextchar >= 40 && nextchar <= 47) {
                         bg = nextchar % 10;
-                        bgcol = txtcols[bg];
+                        bgcol = strdup(textcolors[bg].c_str());
                     } else if (nextchar >= 90 && nextchar <= 97) {
                         fg = (nextchar - 60) % 10 | (fg & 8);
-                        fgcol = txtcols[fg];
+                        fgcol = strdup(textcolors[fg].c_str());
                     } else if (nextchar >= 100 && nextchar <= 107) {
                         bg = (nextchar - 60) % 10;
-                        bgcol = txtcols[bg];
+                        bgcol = strdup(textcolors[bg].c_str());
                     } else if (nextchar == 48) {
                         int r, g, b, c;
 
@@ -327,25 +387,58 @@ int drawitemtext(struct item *item, int x, int y, int w) {
 
     // now draw any non-colored text
     apply_fribidi(buffer);
-    int ret = draw_text(draw, x, y, w, sp.bh, leftpadding, isrtl ? fribidi_text : buffer, 0, pango_item ? True : False, fgcol, bgcol, fga, bga);
+    //int ret = draw_text(draw, x, y, w, sp.bh, leftpadding, buffer, 0, pango_item ? True : False, fgcol, bgcol, fga, bga);
+    int ret = draw.draw_text({
+        .x = x,
+        .y = y,
+        .w = static_cast<int>(w),
+        .h = sp.bh,
+    }, leftpadding, buffer, pango_item ? true : false, {
+        .foreground = fgcol,
+        .background = bgcol,
+        .foreground_alpha = fga,
+        .background_alpha = bga,
+        .filled = true,
+    });
 
     if (!hidehighlight)
         drawhighlights(item, ox, oy, ow, oleftpadding, item->nsgrtext);
 
     if (!hidepowerline && powerlineitems) {
         if (itempwlstyle == 2) {
-            draw_circle(draw, ret, y, sp.plw, sp.bh, 1, col_menu, obgcol, alpha_menu, obga);
+            //draw_circle(draw, ret, y, sp.plw, sp.bh, 1, col_menu, obgcol, alpha_menu, obga);
+            draw.draw_circle({
+                .x = ret,
+                .y = y,
+                .w = sp.plw,
+                .h = sp.bh,
+            }, 1, {
+                .prev = col_menu,
+                .next = obgcol,
+                .prev_alpha = alpha_menu,
+                .next_alpha = obga,
+            });
         } else {
-            draw_arrow(draw, ret, y, sp.plw, sp.bh, 1, itempwlstyle, col_menu, obgcol, alpha_menu, obga);
+            //draw_arrow(draw, ret, y, sp.plw, sp.bh, 1, itempwlstyle, col_menu, obgcol, alpha_menu, obga);
+            draw.draw_arrow({
+                .x = ret,
+                .y = y,
+                .w = sp.plw,
+                .h = sp.bh,
+            }, 1, itempwlstyle, {
+                .prev = col_menu,
+                .next = obgcol,
+                .prev_alpha = alpha_menu,
+                .next_alpha = obga,
+            });
         }
     }
 
     return ret;
 }
 
-int drawitem(int x, int y, int w) {
-    struct item *item;
 
+int drawitem(int x, int y, int w) {
     int numberw = 0;
     int modew = 0;
     int larroww = 0;
@@ -388,7 +481,7 @@ int drawitem(int x, int y, int w) {
         int itemoverride = 1;
         itemn = 0;
 
-        for (item = currentitem; item != nextitem; item = item->right, i++) {
+        for (item* item = currentitem; item != nextitem; item = item->right, i++) {
             item->nsgrtext = get_text_n_sgr(item);
 
             x = drawitemtext(
@@ -418,7 +511,7 @@ int drawitem(int x, int y, int w) {
         sp.itemnumber = 0;
         int itemoverride = 1;
 
-        for (item = currentitem; item != nextitem; item = item->right) { // draw items
+        for (item* item = currentitem; item != nextitem; item = item->right) { // draw items
             item->nsgrtext = get_text_n_sgr(item);
 
             x = drawitemtext(item, x + (powerlineitems ? 2 * sp.plw : 0), y, MIN(pango_item ? TEXTWM(item->nsgrtext) : TEXTW(item->nsgrtext),
@@ -453,13 +546,46 @@ int drawitem(int x, int y, int w) {
 
 int drawprompt(int x, int y, int w) {
     if (prompt && *prompt && !hideprompt) {
-        x = draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, prompt, 0, pango_prompt ? True : False, col_promptfg, col_promptbg, alpha_promptfg, alpha_promptbg);
+        //x = draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, prompt, 0, pango_prompt ? True : False, col_promptfg, col_promptbg, alpha_promptfg, alpha_promptbg);
+        x = draw.draw_text({
+            .x = x,
+            .y = y,
+            .w = w,
+            .h = sp.bh,
+        }, sp.lrpad / 2, prompt, pango_prompt, {
+            .foreground = col_promptfg,
+            .background = col_promptbg,
+            .foreground_alpha = alpha_promptfg,
+            .background_alpha = alpha_promptbg,
+        });
 
         if (!hidepowerline && powerlineprompt) {
             if (promptpwlstyle == 2) {
-                draw_circle(draw, x, y, sp.plw, sp.bh, 1, col_menu, col_promptbg, alpha_menu, alpha_promptbg);
+                //draw_circle(draw, x, y, sp.plw, sp.bh, 1, col_menu, col_promptbg, alpha_menu, alpha_promptbg);
+                draw.draw_circle({
+                    .x = x,
+                    .y = y,
+                    .w = sp.plw,
+                    .h = sp.bh,
+                }, 1, {
+                    .prev = col_menu,
+                    .next = col_promptbg,
+                    .prev_alpha = alpha_menu,
+                    .next_alpha = alpha_promptbg,
+                });
             } else {
-                draw_arrow(draw, x, y, sp.plw, sp.bh, 1, promptpwlstyle, col_menu, col_promptbg, alpha_menu, alpha_promptbg);
+                //draw_arrow(draw, x, y, sp.plw, sp.bh, 1, promptpwlstyle, col_menu, col_promptbg, alpha_menu, alpha_promptbg);
+                draw.draw_arrow({
+                    .x = x,
+                    .y = y,
+                    .w = sp.plw,
+                    .h = sp.bh,
+                }, 1, promptpwlstyle, {
+                    .prev = col_menu,
+                    .next = col_promptbg,
+                    .prev_alpha = alpha_menu,
+                    .next_alpha = alpha_promptbg,
+                });
             }
 
             x += sp.plw;
@@ -489,7 +615,18 @@ int drawinput(int x, int y, int w) {
             memcpy(&censort[i], password, strlen(tx.text));
 
         apply_fribidi(censort);
-        draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, isrtl ? fribidi_text : censort, 0, pango_password ? True : False, col_inputfg, col_inputbg, alpha_inputfg, alpha_inputbg);
+        //draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, isrtl ? fribidi_text : censort, 0, pango_password ? True : False, col_inputfg, col_inputbg, alpha_inputfg, alpha_inputbg);
+        draw.draw_text({
+            .x = x,
+            .y = y,
+            .w = w,
+            .h = sp.bh,
+        }, sp.lrpad / 2, censort, pango_password, {
+            .foreground = col_inputfg,
+            .background = col_inputbg,
+            .foreground_alpha = alpha_inputfg,
+            .background_alpha = alpha_inputbg,
+        });
 
         curpos = TEXTW(censort) - TEXTW(&tx.text[sp.cursor]);
 
@@ -510,22 +647,56 @@ int drawinput(int x, int y, int w) {
             memmove(ptext, p, strlen(p) + 1);
 
             apply_fribidi(ptext);
-            draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, isrtl ? fribidi_text : ptext, 0, pango_input ? True : False, col_inputfg, col_inputbg, alpha_inputfg, alpha_inputbg);
+            //draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, isrtl ? fribidi_text : ptext, 0, pango_input ? True : False, col_inputfg, col_inputbg, alpha_inputfg, alpha_inputbg);
+            draw.draw_text({
+                .x = x,
+                .y = y,
+                .w = w,
+                .h = sp.bh,
+            }, sp.lrpad / 2, ptext, pango_input, {
+                .foreground = col_inputfg,
+                .background = col_inputbg,
+                .foreground_alpha = alpha_inputfg,
+                .background_alpha = alpha_inputbg,
+            });
 
             curpos = TEXTW(ptext) - TEXTW(&ptext[sp.cursor]);
-        } else if (pretext != NULL) {
+        } else if (pretext != nullptr) {
             if (hidepretext) {
                 pretext = "";
             }
 
             apply_fribidi(pretext);
-            draw_text(draw, x + fw, y, w, sp.bh, sp.lrpad / 2, isrtl ? fribidi_text : pretext, 0, pango_pretext ? True : False, col_pretextfg, col_pretextbg, alpha_pretextfg, alpha_pretextbg);
+            //draw_text(draw, x + fw, y, w, sp.bh, sp.lrpad / 2, isrtl ? fribidi_text : pretext, 0, pango_pretext ? True : False, col_pretextfg, col_pretextbg, alpha_pretextfg, alpha_pretextbg);
+            draw.draw_text({
+                .x = x + fw,
+                .y = y,
+                .w = w,
+                .h = sp.bh,
+            }, sp.lrpad / 2, pretext, pango_pretext, {
+                .foreground = col_pretextfg,
+                .background = col_pretextbg,
+                .foreground_alpha = alpha_pretextfg,
+                .background_alpha = alpha_pretextbg,
+            });
         }
     }
 
     if ((curpos += sp.lrpad / 2 - 1) < w && !hidecaret && !hideinput) {
         curpos += fp;
-        draw_rect(draw, x + curpos, 2 + (sp.bh - fh) / 2 + y, fw, fh - 4, 1, 0, col_caretfg, col_caretbg, alpha_caretfg, alpha_caretbg);
+        //draw_rect(draw, x + curpos, 2 + (sp.bh - fh) / 2 + y, fw, fh - 4, 1, 0, col_caretfg, col_caretbg, alpha_caretfg, alpha_caretbg);
+        draw.draw_rect({
+            .x = static_cast<int>(x + curpos),
+            .y = 2 + (sp.bh - fh) / 2 + y,
+            .w = fw,
+            .h = fh - 4,
+        }, {
+            .foreground = col_caretfg,
+            .background = col_caretbg,
+            .foreground_alpha = alpha_caretfg,
+            .background_alpha = alpha_caretbg,
+            .filled = true,
+        });
     }
 
     return x;
@@ -535,7 +706,18 @@ int drawlarrow(int x, int y, int w) {
     if (hidelarrow) return x;
 
     if (currentitem->left) { // draw left arrow
-        draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, leftarrow, 0, pango_leftarrow ? True : False, col_larrowfg, col_larrowbg, alpha_larrowfg, alpha_larrowbg);
+        //draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, leftarrow, 0, pango_leftarrow ? True : False, col_larrowfg, col_larrowbg, alpha_larrowfg, alpha_larrowbg);
+        draw.draw_text({
+            .x = x,
+            .y = y,
+            .w = w,
+            .h = sp.bh,
+        }, sp.lrpad / 2, leftarrow, pango_leftarrow, {
+            .foreground = col_larrowfg,
+            .background = col_larrowbg,
+            .foreground_alpha = alpha_larrowfg,
+            .background_alpha = alpha_larrowbg,
+        });
         x += w;
     }
 
@@ -546,7 +728,18 @@ int drawrarrow(int x, int y, int w) {
     if (hiderarrow) return x;
 
     if (nextitem) { // draw right arrow
-        draw_text(draw, sp.mw - w, y, w, sp.bh, sp.lrpad / 2, rightarrow, 0, pango_rightarrow ? True : False, col_rarrowfg, col_rarrowbg, alpha_rarrowfg, alpha_rarrowbg);
+        //draw_text(draw, sp.mw - w, y, w, sp.bh, sp.lrpad / 2, rightarrow, 0, pango_rightarrow ? True : False, col_rarrowfg, col_rarrowbg, alpha_rarrowfg, alpha_rarrowbg);
+        draw.draw_text({
+            .x = x,
+            .y = y,
+            .w = w,
+            .h = sp.bh,
+        }, sp.lrpad / 2, rightarrow, pango_rightarrow, {
+            .foreground = col_rarrowfg,
+            .background = col_rarrowbg,
+            .foreground_alpha = alpha_rarrowfg,
+            .background_alpha = alpha_rarrowbg,
+        });
         x += w;
     }
 
@@ -562,14 +755,47 @@ int drawnumber(int x, int y, int w) {
         powerlinewidth = sp.plw / 2;
     }
 
-    draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2 + powerlinewidth, tx.numbers, 0, pango_numbers ? True : False, col_numfg, col_numbg, alpha_numfg, alpha_numbg);
+    //draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2 + powerlinewidth, tx.numbers, 0, pango_numbers ? True : False, col_numfg, col_numbg, alpha_numfg, alpha_numbg);
+    draw.draw_text({
+        .x = x,
+        .y = y,
+        .w = w,
+        .h = sp.bh,
+    }, sp.lrpad / 2 + powerlinewidth, tx.numbers, pango_numbers, {
+        .foreground = col_numfg,
+        .background = col_numbg,
+        .foreground_alpha = alpha_numfg,
+        .background_alpha = alpha_numbg,
+    });
 
     // draw powerline for match count
     if (!hidepowerline && powerlinecount) {
         if (matchcountpwlstyle == 2) {
-            draw_circle(draw, x, y, sp.plw, sp.bh, 0, col_menu, col_numbg, alpha_menu, alpha_numbg);
+            //draw_circle(draw, x, y, sp.plw, sp.bh, 0, col_menu, col_numbg, alpha_menu, alpha_numbg);
+            draw.draw_circle({
+                .x = x,
+                .y = y,
+                .w = sp.plw,
+                .h = sp.bh,
+            }, 0, {
+                .prev = col_menu,
+                .next = col_numbg,
+                .prev_alpha = alpha_menu,
+                .next_alpha = alpha_numbg,
+            });
         } else {
-            draw_arrow(draw, x, y, sp.plw, sp.bh, 0, matchcountpwlstyle, col_menu, col_numbg, alpha_menu, alpha_numbg);
+            //draw_arrow(draw, x, y, sp.plw, sp.bh, 0, matchcountpwlstyle, col_menu, col_numbg, alpha_menu, alpha_numbg);
+            draw.draw_arrow({
+                .x = x,
+                .y = y,
+                .w = sp.plw,
+                .h = sp.bh,
+            }, 0, matchcountpwlstyle, {
+                .prev = col_menu,
+                .next = col_numbg,
+                .prev_alpha = alpha_menu,
+                .next_alpha = alpha_numbg,
+            });
         }
 
         x += sp.plw;
@@ -586,18 +812,55 @@ int drawmode(int x, int y, int w) {
             powerlinewidth = sp.plw / 2;
         }
 
-        draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2 + powerlinewidth, tx.modetext, 0, pango_mode ? True : False, col_modefg, col_modebg, alpha_modefg, alpha_modebg);
+        //draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2 + powerlinewidth, tx.modetext, 0, pango_mode ? True : False, col_modefg, col_modebg, alpha_modefg, alpha_modebg);
+        draw.draw_text({
+            .x = x,
+            .y = y,
+            .w = w,
+            .h = sp.bh,
+        }, sp.lrpad / 2 + powerlinewidth, tx.modetext, pango_mode, {
+            .foreground = col_modefg,
+            .background = col_modebg,
+            .foreground_alpha = alpha_modefg,
+            .background_alpha = alpha_modebg,
+        });
 
         // draw powerline for match count
         if (!hidepowerline && powerlinemode) {
             if (modepwlstyle == 2) {
+                /*
                 draw_circle(draw, x, y, sp.plw, sp.bh, 0,
                         hidematchcount ? col_menu : col_numbg, col_modebg,
                         hidematchcount ? alpha_menu : alpha_numbg, alpha_modebg);
+                        */
+                draw.draw_circle({
+                    .x = x,
+                    .y = y,
+                    .w = sp.plw,
+                    .h = sp.bh,
+                }, 0, {
+                    .prev = hidematchcount ? col_menu : col_numbg,
+                    .next = col_modebg,
+                    .prev_alpha = hidematchcount ? alpha_menu : alpha_numbg,
+                    .next_alpha = alpha_modebg,
+                });
             } else {
+                /*
                 draw_arrow(draw, x, y, sp.plw, sp.bh, 0, modepwlstyle,
                         hidematchcount ? col_menu : col_numbg, col_modebg,
                         hidematchcount ? alpha_menu : alpha_numbg, alpha_modebg);
+                        */
+                draw.draw_arrow({
+                    .x = x,
+                    .y = y,
+                    .w = sp.plw,
+                    .h = sp.bh,
+                }, 0, modepwlstyle, {
+                    .prev = hidemode ? hidematchcount ? col_menu : col_numbg : col_modebg,
+                    .next = col_modebg,
+                    .prev_alpha = hidemode ? hidematchcount ? alpha_menu : alpha_numbg : alpha_modebg,
+                    .next_alpha = alpha_modebg,
+                });
             }
 
             x += sp.plw;
@@ -617,18 +880,55 @@ int drawcaps(int x, int y, int w) {
             powerlinewidth = sp.plw / 2;
         }
 
-        draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2 + powerlinewidth, tx.capstext, 0, pango_caps ? True : False, col_capsfg, col_capsbg, alpha_capsfg, alpha_capsbg);
+        //draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2 + powerlinewidth, tx.capstext, 0, pango_caps ? True : False, col_capsfg, col_capsbg, alpha_capsfg, alpha_capsbg);
+        draw.draw_text({
+            .x = x,
+            .y = y,
+            .w = w,
+            .h = sp.bh,
+        }, sp.lrpad / 2 + powerlinewidth, tx.capstext, pango_caps, {
+            .foreground = col_capsfg,
+            .background = col_capsbg,
+            .foreground_alpha = alpha_capsfg,
+            .background_alpha = alpha_capsbg,
+        });
 
         // draw powerline for caps lock indicator
         if (!hidepowerline && powerlinecaps) {
             if (capspwlstyle == 2) {
+                /*
                 draw_circle(draw, x, y, sp.plw, sp.bh, 0,
                         hidemode ? hidematchcount ? col_menu : col_numbg : col_modebg, col_capsbg,
                         hidemode ? hidematchcount ? alpha_menu : alpha_numbg : alpha_modebg, alpha_capsbg);
+                        */
+                draw.draw_circle({
+                    .x = x,
+                    .y = y,
+                    .w = sp.plw,
+                    .h = sp.bh,
+                }, 0, {
+                    .prev = hidemode ? hidematchcount ? col_menu : col_numbg : col_modebg,
+                    .next = col_capsbg,
+                    .prev_alpha = hidemode ? hidematchcount ? alpha_menu : alpha_numbg : alpha_modebg,
+                    .next_alpha = alpha_capsbg,
+                });
             } else {
+                /*
                 draw_arrow(draw, x, y, sp.plw, sp.bh, 0, capspwlstyle,
                         hidemode ? hidematchcount ? col_menu : col_numbg : col_modebg, col_capsbg,
                         hidemode ? hidematchcount ? alpha_menu : alpha_numbg : alpha_modebg, alpha_capsbg);
+                        */
+                draw.draw_arrow({
+                    .x = x,
+                    .y = y,
+                    .w = sp.plw,
+                    .h = sp.bh,
+                }, 0, capspwlstyle, {
+                    .prev = hidemode ? hidematchcount ? col_menu : col_numbg : col_modebg,
+                    .next = col_capsbg,
+                    .prev_alpha = hidemode ? hidematchcount ? alpha_menu : alpha_numbg : alpha_modebg,
+                    .next_alpha = alpha_capsbg,
+                });
             }
 
             x += sp.plw;
@@ -638,7 +938,7 @@ int drawcaps(int x, int y, int w) {
     return x;
 }
 
-void drawmenu(void) {
+void drawmenu() {
     sp.isdrawing = 1;
 #if WAYLAND
     if (protocol) {
@@ -686,7 +986,8 @@ void drawmenu(void) {
 #if IMAGE
         drawimage();
 #endif
-        draw_map(draw, win, 0, 0, sp.mw, sp.mh);
+        //draw_map(draw, win, 0, 0, sp.mw, sp.mh);
+        draw.map(win);
 #endif
 #if WAYLAND
     }
@@ -695,9 +996,9 @@ void drawmenu(void) {
     sp.isdrawing = 0;
 }
 
-void drawmenu_layer(void) {
+void drawmenu_layer() {
     int x = 0, y = 0, w = 0;
-    sp.plw = hidepowerline ? 0 : draw->font->h / 2 + 1; // powerline size
+    sp.plw = hidepowerline ? 0 : draw.get_font_manager().get_height() / 2 + 1; // powerline size
 
     sp_strncpy(tx.modetext, sp.mode ? instext : normtext, sizeof(tx.modetext));
 
@@ -708,7 +1009,18 @@ void drawmenu_layer(void) {
 #endif
 
     // draw menu first using menu scheme
-    draw_rect(draw, 0, 0, sp.mw, sp.mh, 1, 1, col_menu, col_menu, alpha_menu, alpha_menu);
+    //draw_rect(draw, 0, 0, sp.mw, sp.mh, 1, 1, col_menu, col_menu, alpha_menu, alpha_menu);
+    draw.draw_rect({
+        .x = 0,
+        .y = 0,
+        .w = sp.mw,
+        .h = sp.mh,
+    }, {
+        .foreground = col_menu,
+        .background = col_menu,
+        .foreground_alpha = alpha_menu,
+        .background_alpha = alpha_menu,
+    });
 
     int numberw = 0;
     int modew = 0;
@@ -787,7 +1099,7 @@ void drawmenu_layer(void) {
 }
 
 #if IMAGE
-int draw_icon(struct item *item, int x, int y, int w, int h) {
+int draw_icon(item *item, int x, int y, int w, int h) {
     int ich = 0;
     int icw = 0;
 
@@ -795,8 +1107,8 @@ int draw_icon(struct item *item, int x, int y, int w, int h) {
     int slen = 0, i;
     unsigned int digest_len = EVP_MD_size(EVP_md5());
     unsigned char *digest = (unsigned char *)OPENSSL_malloc(digest_len);
-    char *xdg_cache, *home = NULL, *cachesize, *buf = NULL;
-    struct passwd *user_id = NULL;
+    char *xdg_cache, *home = nullptr, *cachesize, *buf = nullptr;
+    struct passwd *user_id = nullptr;
 
     if (hideimage) {
         return x;
@@ -817,7 +1129,7 @@ int draw_icon(struct item *item, int x, int y, int w, int h) {
 
             cachesize = "icon";
 
-            slen = snprintf(NULL, 0, "file://%s", item->image)+1;
+            slen = snprintf(nullptr, 0, "file://%s", item->image)+1;
 
             if(!(buf = static_cast<char*>(malloc(slen)))) {
                 return x;
@@ -826,7 +1138,7 @@ int draw_icon(struct item *item, int x, int y, int w, int h) {
             sprintf(buf, "file://%s", item->image);
 
             EVP_MD_CTX *mdcontext = EVP_MD_CTX_new();
-            EVP_DigestInit_ex(mdcontext, EVP_md5(), NULL);
+            EVP_DigestInit_ex(mdcontext, EVP_md5(), nullptr);
             EVP_DigestUpdate(mdcontext, buf, slen);
 
             EVP_DigestFinal_ex(mdcontext, digest, &digest_len);
@@ -841,11 +1153,11 @@ int draw_icon(struct item *item, int x, int y, int w, int h) {
 
             if (!cachedir || !strcmp(cachedir, "default")) { // "default" here is from the config file
                 if (xdg_cache || !strcmp(cachedir, "xdg"))
-                    slen = snprintf(NULL, 0, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5sum)+1;
+                    slen = snprintf(nullptr, 0, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5sum)+1;
                 else
-                    slen = snprintf(NULL, 0, "%s/.cache/thumbnails/%s/%s.png", home, cachesize, md5sum)+1;
+                    slen = snprintf(nullptr, 0, "%s/.cache/thumbnails/%s/%s.png", home, cachesize, md5sum)+1;
             } else {
-                slen = snprintf(NULL, 0, "%s/%s/%s.png", cachedir, cachesize, md5sum)+1;
+                slen = snprintf(nullptr, 0, "%s/%s/%s.png", cachedir, cachesize, md5sum)+1;
             }
 
             if(!(buf = static_cast<char*>(malloc(slen)))) {
@@ -876,7 +1188,7 @@ int draw_icon(struct item *item, int x, int y, int w, int h) {
          * been generated.
          */
         if (ich != h || icw != w) {
-            image = NULL;
+            image = nullptr;
         }
 
         // load regular image, because an image was not loaded from cache
@@ -915,8 +1227,12 @@ int draw_icon(struct item *item, int x, int y, int w, int h) {
         }
 
         // draw the image
-        draw_set_img(draw, imlib_image_get_data(), w, h);
-        draw_img(draw, x, y);
+        draw.draw_image(imlib_image_get_data(), {
+            .x = x,
+            .y = y,
+            .w = w,
+            .h = h,
+        });
 
         x += w;
     }

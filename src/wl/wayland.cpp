@@ -482,18 +482,14 @@ void create_drawable(struct state *state) {
         return;
     }
 
-    // create buffer to draw on
     state->buffer = create_buffer(state);
-
-    if (draw == NULL) {
-        die("majorna: draw == NULL");
-    }
 
     if (state->buffer == NULL) {
         die("state->buffer == NULL");
     }
 
-    draw_create_surface_wl(draw, state->data, state->width, state->height);
+    draw.initialize_wayland(state->data, state->width, state->height);
+
     drawmenu();
 }
 
@@ -658,15 +654,11 @@ void resizeclient_wl(struct state *state) {
 
     state->buffer = create_buffer(state);
 
-    if (draw == NULL) {
-        die("majorna: draw == NULL");
-    }
-
     if (state->buffer == NULL) {
         die("state->buffer == null");
     }
 
-    draw_create_surface_wl(draw, state->data, state->width, state->height);
+    draw.initialize_wayland(state->data, state->width, state->height);
 
     set_layer_size(state, state->width, state->height);
     commit_drawable(state);

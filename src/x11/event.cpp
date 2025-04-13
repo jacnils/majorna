@@ -26,7 +26,7 @@ void eventloop_x11() {
                 break;
             case Expose:
                 if (ev.xexpose.count == 0)
-                    draw_map(draw, win, 0, 0, sp.mw, sp.mh);
+                    draw.map(win);
                 break;
             case FocusIn:
                 // regrab focus from parent window
