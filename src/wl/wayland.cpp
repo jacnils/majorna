@@ -7,6 +7,10 @@
 #include <draw.hpp>
 #include <wl/wayland.hpp>
 #include <wl/shm.hpp>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/timerfd.h>
+#include <sys/poll.h>
 
 struct wl_buffer *create_buffer(struct state *state) {
     int32_t width = state->width;
@@ -16,13 +20,16 @@ struct wl_buffer *create_buffer(struct state *state) {
     size_t siz = stride * height;
 
     int fd = create_shm_file(siz);
-    assert(fd != -1);
+    if (fd == -1) {
+        close(fd);
+        throw std::runtime_error("Failed to create shared memory file");
+    }
 
-    void *data = mmap(NULL, siz, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    void *data = mmap(nullptr, siz, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     if (data == MAP_FAILED) {
         close(fd);
-        return NULL;
+        return nullptr;
     }
 
 	struct wl_shm_pool *pool = wl_shm_create_pool(state->shm, fd, siz);
@@ -91,12 +98,12 @@ int is_correct_modifier(struct state *state, char *modifier) {
 
     fp = popen("which wl-paste > /dev/null && wl-paste -t text/plain", "r");
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         fprintf(stderr, "majorna: Failed to open command\n");
-        return NULL;
+        return nullptr;
     }
 
-    while (fgets(output_text, sizeof(output_text), fp) != NULL) {
+    while (fgets(output_text, sizeof(output_text), fp) != nullptr) {
         strcat(clipboard, output_text);
     }
 
@@ -210,7 +217,7 @@ void keyboard_repeat(struct state *state) {
     spec.it_value.tv_sec = state->period / 1000;
 	spec.it_value.tv_nsec = (state->period % 1000) * 1000000l;
 
-	timerfd_settime(state->timer, 0, &spec, NULL);
+	timerfd_settime(state->timer, 0, &spec, nullptr);
 }
 
 void keyboard_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t _key_state) {
@@ -232,11 +239,11 @@ void keyboard_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, 
 		spec.it_value.tv_sec = state->delay / 1000;
 		spec.it_value.tv_nsec = (state->delay % 1000) * 1000000l;
 
-		timerfd_settime(state->timer, 0, &spec, NULL);
+		timerfd_settime(state->timer, 0, &spec, nullptr);
 	} else if (key_state == WL_KEYBOARD_KEY_STATE_RELEASED) {
 		struct itimerspec spec = { 0 };
 
-		timerfd_settime(state->timer, 0, &spec, NULL);
+		timerfd_settime(state->timer, 0, &spec, nullptr);
 	}
 }
 
@@ -247,7 +254,7 @@ void keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, uint32_t forma
         exit(1);
 		return;
 	}
-	char *map_shm = static_cast<char*>(mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0));
+	char *map_shm = static_cast<char*>(mmap(nullptr, size, PROT_READ, MAP_SHARED, fd, 0));
 	if (map_shm == MAP_FAILED) {
 		close(fd);
         die("MAP_FAILED");
@@ -429,6 +436,10 @@ void pointer_button_handler(void *data, struct wl_pointer *pointer, uint32_t ser
 void seat_capabilities(void *data, struct wl_seat *seat, uint32_t caps) {
     struct state* state = static_cast<struct state*>(data);
 
+    if (seat == nullptr) {
+        throw std::runtime_error("seat == nullptr");
+    }
+
     if (caps & WL_SEAT_CAPABILITY_KEYBOARD) {
         state->keyboard = wl_seat_get_keyboard(seat);
         state->pointer = wl_seat_get_pointer(seat);
@@ -484,8 +495,8 @@ void create_drawable(struct state *state) {
 
     state->buffer = create_buffer(state);
 
-    if (state->buffer == NULL) {
-        die("state->buffer == NULL");
+    if (state->buffer == nullptr) {
+        die("state->buffer == nullptr");
     }
 
     draw.initialize_wayland(state->data, state->width, state->height);
@@ -543,7 +554,7 @@ int roundtrip(struct state *state) {
 }
 
 int connect_display(struct state *state) {
-    state->display = wl_display_connect(NULL);
+    state->display = wl_display_connect(nullptr);
 
     if (state->display) {
         return 0;
@@ -610,13 +621,17 @@ int init_disp(struct state *state) {
     wl_registry_add_listener(registry, &registry_listener, state);
     wl_display_roundtrip(state->display);
 
-    assert(state->compositor != NULL);
+    if (state->compositor == nullptr) {
+        die("majorna: Your compositor does not implement the wl-compositor protocol. Run majorna in X11 mode.");
+    }
 
-    if (state->layer_shell == NULL) {
+    if (state->layer_shell == nullptr) {
         die("majorna: Your compositor does not implement the wlr-layer-shell protocol. Run majorna in X11 mode.");
     }
 
-    assert(state->shm != NULL);
+    if (state->shm == nullptr) {
+        die("majorna: Your compositor does not implement the wl-shm protocol. Run majorna in X11 mode.");
+    }
 
     wl_display_roundtrip(state->display);
 
@@ -628,7 +643,7 @@ int init_disp(struct state *state) {
 }
 
 void resizeclient_wl(struct state *state) {
-    struct item *item;
+    item *item;
     int mh = sp.mh;
     int ic = 0;
 
@@ -654,7 +669,7 @@ void resizeclient_wl(struct state *state) {
 
     state->buffer = create_buffer(state);
 
-    if (state->buffer == NULL) {
+    if (state->buffer == nullptr) {
         die("state->buffer == null");
     }
 
@@ -689,28 +704,38 @@ int init_keys(struct state *state) {
 }
 
 int create_layer(struct state *state, char *name) {
-    assert(state->compositor != NULL);
+    if (state->compositor == nullptr) {
+        throw std::runtime_error("state->compositor == nullptr");
+    }
 
     state->surface = wl_compositor_create_surface(state->compositor);
 
-    assert(state->surface != NULL);
-    assert(state->layer_shell != NULL);
+    if (!state->layer_shell) {
+        throw std::runtime_error("state->layer_shell == nullptr");
+    }
+    if (!state->surface) {
+        throw std::runtime_error("state->surface == nullptr");
+    }
 
     wl_surface_add_listener(state->surface, &surface_listener, state);
     state->layer_surface = zwlr_layer_shell_v1_get_layer_surface(
             state->layer_shell,
             state->surface,
-            NULL,
+            nullptr,
             ZWLR_LAYER_SHELL_V1_LAYER_TOP,
             name);
 
-    assert(state->layer_surface != NULL);
+    if (!state->layer_surface) {
+        throw std::runtime_error("state->layer_surface == nullptr");
+    }
 
     return 0;
 }
 
 int anchor_layer(struct state *state, int position) {
-    assert(state->layer_surface != NULL);
+    if (state->layer_surface == nullptr) {
+        throw std::runtime_error("state->layer_surface == nullptr");
+    }
     zwlr_layer_surface_v1_set_anchor(
             state->layer_surface,
             ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
@@ -723,7 +748,9 @@ int anchor_layer(struct state *state, int position) {
 }
 
 int set_layer_size(struct state *state, int32_t width, int32_t height) {
-    assert(state->layer_surface != NULL);
+    if (state->layer_surface == nullptr) {
+        throw std::runtime_error("state->layer_surface == nullptr");
+    }
 
     zwlr_layer_surface_v1_set_size(state->layer_surface, width, height);
 
@@ -731,7 +758,9 @@ int set_layer_size(struct state *state, int32_t width, int32_t height) {
 }
 
 int set_exclusive_zone(struct state *state, unsigned int val) {
-    assert(state->layer_surface != NULL);
+    if (state->layer_surface == nullptr) {
+        throw std::runtime_error("state->layer_surface == nullptr");
+    }
 
     zwlr_layer_surface_v1_set_exclusive_zone(state->layer_surface, val);
 
@@ -739,7 +768,9 @@ int set_exclusive_zone(struct state *state, unsigned int val) {
 }
 
 int set_keyboard(struct state *state, int interactivity) {
-    assert(state->layer_surface != NULL);
+    if (state->layer_surface == nullptr) {
+        throw std::runtime_error("state->layer_surface == nullptr");
+    }
 
     zwlr_layer_surface_v1_set_keyboard_interactivity(state->layer_surface, interactivity ? true : false);
 
@@ -747,7 +778,9 @@ int set_keyboard(struct state *state, int interactivity) {
 }
 
 int add_layer_listener(struct state *state) {
-    assert(state->layer_surface != NULL);
+    if (!state->layer_surface) {
+        throw std::runtime_error("state->layer_surface == nullptr");
+    }
 
     zwlr_layer_surface_v1_add_listener(state->layer_surface, &layer_surface_listener, state);
 
@@ -755,8 +788,12 @@ int add_layer_listener(struct state *state) {
 }
 
 int set_visible_layer(struct state *state) {
-    assert(state->layer_surface != NULL);
-    assert(state->surface != NULL);
+    if (!state->layer_surface) {
+        throw std::runtime_error("state->layer_surface == nullptr");
+    }
+    if (!state->surface) {
+        throw std::runtime_error("state->surface == nullptr");
+    }
 
     wl_surface_commit(state->surface);
 

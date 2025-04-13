@@ -2,24 +2,10 @@
 
 #if WAYLAND
 
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <time.h>
-#include <sys/timerfd.h>
-#include <assert.h>
-#include <signal.h>
-#include <poll.h>
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
 #include <xkbcommon/xkbcommon.h>
-
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
-#include "xdg-shell-client-protocol.h"
-#include "xdg-output-unstable-v1-client-protocol.h"
 
 struct output {
     struct state *state;
@@ -119,7 +105,6 @@ inline int mouse_y = 0;
 inline int mouse_scroll = 0;
 inline int mouse_scroll_direction = 0;
 
-void zero();
 void resizeclient_wl(struct state *state);
 void output_scale(void *data, struct wl_output *wl_output, int32_t factor);
 void output_name(void *data, struct wl_output *wl_output, const char *name);
@@ -178,27 +163,27 @@ inline int has_keys = 0;
 /* See global_handler */
 inline const struct wl_registry_listener registry_listener = {
     .global = global_handler,
-//    .global_remove = zero,
+    .global_remove = [](void *, struct wl_registry*, uint32_t) {},
 };
 
 /* See surface_enter */
 inline const struct wl_surface_listener surface_listener = {
     .enter = surface_enter,
-//    .leave = zero,
+    .leave = [](void *, struct wl_surface*, struct wl_output*) {},
 };
 
 inline const struct wl_keyboard_listener keyboard_listener = {
 	.keymap = keyboard_keymap,
-//	.enter = zero,
-//	.leave = zero,
+	.enter = [](void *, struct wl_keyboard*, uint32_t, wl_surface*, struct wl_array*) {},
+	.leave = [](void *, struct wl_keyboard*, uint32_t, wl_surface*) {},
 	.key = keyboard_key,
 	.modifiers = keyboard_modifiers,
 	.repeat_info = keyboard_repeat_info,
 };
 
 inline const struct wl_pointer_listener pointer_listener = {
-//    .enter = zero,
-//    .leave = zero,
+    .enter = [](void *, struct wl_pointer*, uint32_t, struct wl_surface*, wl_fixed_t, wl_fixed_t) {},
+    .leave = [](void *, struct wl_pointer*, uint32_t, struct wl_surface*) {},
     .motion = pointer_motion_handler,
     .button = pointer_button_handler,
     .axis = pointer_axis_handler,
@@ -207,10 +192,10 @@ inline const struct wl_pointer_listener pointer_listener = {
 inline struct wl_output_listener output_listener = {
     .geometry = output_geometry,
     .mode = output_mode,
-//    .done = zero,
+    .done = [](void *, struct wl_output*) {},
     .scale = output_scale,
     .name = output_name,
-//    .description = zero,
+    .description = [](void *, struct wl_output*, const char *) {},
 };
 
 inline struct zwlr_layer_surface_v1_listener layer_surface_listener = {
@@ -220,11 +205,11 @@ inline struct zwlr_layer_surface_v1_listener layer_surface_listener = {
 
 inline struct wl_seat_listener seat_listener = {
     .capabilities = seat_capabilities,
-//    .name = zero,
+    .name = [](void *, struct wl_seat*, const char *) {},
 };
 
 inline const struct wl_buffer_listener buffer_listener = {
-//    .release = zero,
+    .release = [](void *data, struct wl_buffer *buffer) {},
 };
 
 #endif

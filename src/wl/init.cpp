@@ -5,7 +5,7 @@
 #include <macros.hpp>
 #include <locale.h>
 
-void prepare_window_size_wl(void) {
+void prepare_window_size_wl() {
     sp.sp = menupaddingh;
     sp.vp = (menuposition == 1) ? menupaddingv : - menupaddingv;
 
@@ -16,8 +16,6 @@ void prepare_window_size_wl(void) {
 #endif
 
     sp.lrpad = draw.get_font_manager().get_height() + textpadding;
-
-    return;
 }
 
 void handle_wl(void) {
@@ -26,7 +24,7 @@ void handle_wl(void) {
     }
 
     prepare_window_size_wl();
-    sp.promptw = (prompt && *prompt) ?  pango_prompt ? TEXTWM(prompt) : TEXTW(prompt) - sp.lrpad / 4 : 0;
+    sp.promptw = (prompt && *prompt) ? pango_prompt ? TEXTWM(prompt) : TEXTW(prompt) - sp.lrpad / 4 : 0;
 
     allow_draw = 1;
 
