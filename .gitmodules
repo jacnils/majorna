@@ -1,0 +1,3 @@
+[submodule "libs/limhamn"]
+	path = libs/limhamn
+	url = https://github.com/jacnils/limhamn

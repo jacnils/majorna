@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <macros.hpp>
-#include <draw/draw.hpp>
+#include <limhamn/primitive/primitive.hpp>
 #include <options.hpp>
 #include <x11/x11_libs.hpp>
 #include <x11/key.hpp>
@@ -125,7 +125,7 @@ inline item *nextitem;
 inline item *selecteditem;
 inline item *mouseitem;
 
-inline DrawManager draw;
+inline limhamn::primitive::draw_manager draw;
 
 inline int hplength = 0;
 inline char **hpitems = nullptr;

@@ -1,8 +1,6 @@
-/* See LICENSE file for copyright and license details. */
-
 #include <draw.hpp>
 #include <majorna.hpp>
-#include <draw/draw.hpp>
+#include <limhamn/primitive/primitive.hpp>
 #include <Imlib2.h>
 #include <x11/init.hpp>
 #include <img.hpp>
@@ -11,7 +9,6 @@
 #include <rtl.hpp>
 #include <schemes.hpp>
 #include <unistd.h>
-#include <sstream>
 #include <iomanip>
 #include <algorithm>
 

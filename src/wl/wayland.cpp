@@ -499,7 +499,7 @@ void create_drawable(struct state *state) {
         die("state->buffer == nullptr");
     }
 
-    draw.initialize_wayland(state->data, state->width, state->height);
+    draw.initialize(state->data, state->width, state->height);
 
     drawmenu();
 }
@@ -673,7 +673,7 @@ void resizeclient_wl(struct state *state) {
         die("state->buffer == null");
     }
 
-    draw.initialize_wayland(state->data, state->width, state->height);
+    draw.initialize(state->data, state->width, state->height);
 
     set_layer_size(state, state->width, state->height);
     commit_drawable(state);

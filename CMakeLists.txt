@@ -16,6 +16,7 @@ option(REGEX "Enable Regex support" ON)
 option(FIFO "Enable FIFO support" ON)
 
 include_directories(include)
+include_directories(libs/limhamn/include)
 
 if(APPLE)
     include_directories(/usr/local/include)
@@ -57,6 +58,7 @@ set(PROJECT_DEPENDENCIES
 
 set(BUILD_ARGS
     -DVERSION="${PROJECT_VERSION}"
+    -DLIMHAMN_PRIMITIVE_IMPL=1
 )
 
 if(X11)
@@ -103,7 +105,7 @@ if(WAYLAND)
         src/wl/wayland.cpp
     )
     list(APPEND BUILD_ARGS -DWAYLAND)
-    list(APPEND BUILD_ARGS -DLIMHAMN_PRIMITIVE_WAYLAND)
+    list(APPEND BUILD_ARGS -DLIMHAMN_PRIMITIVE_CANVAS)
 endif()
 
 if(IMLIB2 AND OPENSSL)

@@ -10,7 +10,7 @@
 #include <history.hpp>
 #include <macros.hpp>
 #include <majorna.hpp>
-#include <draw/draw.hpp>
+#include <limhamn/primitive/primitive.hpp>
 #include <options.hpp>
 #include <draw.hpp>
 #include <wl/wayland.hpp>
@@ -339,7 +339,7 @@ void handle() {
         managed = 0;
 
         // um???
-        draw = DrawManager();
+        draw = limhamn::primitive::draw_manager();
         draw.initialize_font(font);
 
         readstdin();

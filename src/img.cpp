@@ -438,7 +438,7 @@ void resizetoimageheight_wl(int imageheight) {
     }
 
     set_layer_size(&state, state.width, state.height);
-    draw.initialize_wayland(state.data, state.width, state.height);
+    draw.initialize(state.data, state.width, state.height);
 
     drawmenu();
 
