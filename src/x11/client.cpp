@@ -40,13 +40,13 @@ void create_window_x11(int x, int y, int w, int h) {
 
 void set_window_x11() {
     XColor col;
-    XClassHint ch = { _class, _class };
+    XClassHint ch = { strdup(_class.c_str()), strdup(_class.c_str()) };
 
-    unsigned short r;
-    unsigned short g;
-    unsigned short b;
+    unsigned short r{};
+    unsigned short g{};
+    unsigned short b{};
 
-    hexconv(col_border, &r, &g, &b);
+    hexconv(col_border.c_str(), &r, &g, &b);
 
     col.red = r << 8;
     col.green = g << 8;

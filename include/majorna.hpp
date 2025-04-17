@@ -164,7 +164,6 @@ inline char *(*fstrstr)(const char *, const char *) = cistrstr;
 
 inline char **list;
 inline size_t listsize;
-inline char* fonts[] = {font};
 
 #if X11
 inline Key keys[] = {

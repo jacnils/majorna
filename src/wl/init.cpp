@@ -3,7 +3,7 @@
 #include <options.hpp>
 #include <match.hpp>
 #include <macros.hpp>
-#include <locale.h>
+#include <clocale>
 
 void prepare_window_size_wl() {
     sp.sp = menupaddingh;
@@ -18,13 +18,13 @@ void prepare_window_size_wl() {
     sp.lrpad = draw.get_font_manager().get_height() + textpadding;
 }
 
-void handle_wl(void) {
+void handle_wl() {
     if (!setlocale(LC_CTYPE, "")) {
         die("majorna: no locale support");
     }
 
     prepare_window_size_wl();
-    sp.promptw = (prompt && *prompt) ? pango_prompt ? TEXTWM(prompt) : TEXTW(prompt) - sp.lrpad / 4 : 0;
+    sp.promptw = !prompt.empty() ? pango_prompt ? TEXTWM(prompt) : TEXTW(prompt) - sp.lrpad / 4 : 0;
 
     allow_draw = 1;
 

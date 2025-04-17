@@ -1,5 +1,8 @@
 #pragma once
 
+/* structure which may be used to represent any argument type
+ * we'll be using them to pass arguments to functions
+ */
 struct Arg {
     int i{};
     unsigned int ui{};

@@ -9,9 +9,9 @@ inline Atom clip, utf8, types, dock;
 inline Display *dpy;
 inline Window root, parentwin, win;
 
-void setupdisplay_x11(void);
+void setupdisplay_x11();
 void set_screen_x11(Display *disp);
-void handle_x11(void);
+void handle_x11();
 void cleanup_x11(Display *disp);
-void prepare_window_size_x11(void);
-Display* opendisplay_x11(char *disp);
+void prepare_window_size_x11();
+Display* opendisplay_x11(char* disp);

@@ -27,8 +27,7 @@ void setupdisplay_x11() {
 #endif
 
     // set prompt width based on prompt size
-    sp.promptw = (prompt && *prompt)
-        ? pango_prompt ? TEXTWM(prompt) : TEXTW(prompt) - sp.lrpad / 4 : 0; // prompt width
+    sp.promptw = !prompt.empty() ? pango_prompt ? TEXTWM(prompt) : TEXTW(prompt) - sp.lrpad / 4 : 0; // prompt width
 
     // init xinerama screens
 #if XINERAMA

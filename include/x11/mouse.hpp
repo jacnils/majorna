@@ -4,12 +4,12 @@
 #include <arg.hpp>
 #include <functional>
 
-typedef struct {
-    unsigned int click;
-    unsigned int button;
-    std::function<void(Arg&)> func;
-    Arg arg;
-} Mouse;
+struct Mouse {
+    unsigned int click{};
+    unsigned int button{};
+    std::function<void(Arg&)> func{};
+    Arg arg{};
+};
 
 inline Mouse cbuttons[256];
-void buttonpress_x11(XEvent *e);
+void buttonpress_x11(XEvent& e);

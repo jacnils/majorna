@@ -212,7 +212,7 @@ void paste(const Arg& arg) {
 void viewhist(const Arg& arg) {
     int i;
 
-    if (histfile) {
+    if (!histfile.empty()) {
         if (!history_items) {
             history_items = items;
             items = static_cast<item*>(calloc(histsz + 1, sizeof(struct item)));
@@ -238,9 +238,9 @@ void viewhist(const Arg& arg) {
 void deleteword(const Arg& arg) {
     if (sp.cursor == 0) return;
 
-    while (sp.cursor > 0 && strchr(worddelimiters, tx.text[nextrune(-1)])) {
+    while (sp.cursor > 0 && strchr(worddelimiters.c_str(), tx.text[nextrune(-1)])) {
         insert(nullptr, nextrune(-1) - sp.cursor);
-    } while (sp.cursor > 0 && !strchr(worddelimiters, tx.text[nextrune(-1)])) {
+    } while (sp.cursor > 0 && !strchr(worddelimiters.c_str(), tx.text[nextrune(-1)])) {
         insert(nullptr, nextrune(-1) - sp.cursor);
     }
 
@@ -249,15 +249,15 @@ void deleteword(const Arg& arg) {
 
 void moveword(const Arg& arg) {
     if (arg.i < 0) { // move sp.cursor to the start of the word
-        while (sp.cursor > 0 && strchr(worddelimiters, tx.text[nextrune(-1)])) {
+        while (sp.cursor > 0 && strchr(worddelimiters.c_str(), tx.text[nextrune(-1)])) {
             sp.cursor = nextrune(-1);
-        } while (sp.cursor > 0 && !strchr(worddelimiters, tx.text[nextrune(-1)])) {
+        } while (sp.cursor > 0 && !strchr(worddelimiters.c_str(), tx.text[nextrune(-1)])) {
             sp.cursor = nextrune(-1);
         }
     } else { // move sp.cursor to the end of the word
-        while (tx.text[sp.cursor] && strchr(worddelimiters, tx.text[sp.cursor])) {
+        while (tx.text[sp.cursor] && strchr(worddelimiters.c_str(), tx.text[sp.cursor])) {
             sp.cursor = nextrune(+1);
-        } while (tx.text[sp.cursor] && !strchr(worddelimiters, tx.text[sp.cursor])) {
+        } while (tx.text[sp.cursor] && !strchr(worddelimiters.c_str(), tx.text[sp.cursor])) {
             sp.cursor = nextrune(+1);
         }
     }
@@ -363,7 +363,7 @@ void clearins(const Arg& arg) {
 
     sp.mode = 1;
     sp.allowkeys = 0;
-    strncpy(tx.modetext, instext, 15);
+    strncpy(tx.modetext, instext.c_str(), 15);
 
     calcoffsets();
     drawmenu();
@@ -624,7 +624,7 @@ void switchmode(const Arg& arg) {
 
     sp.allowkeys = !sp.mode;
 
-    strncpy(tx.modetext, sp.mode ? instext : normtext, 15);
+    strncpy(tx.modetext, sp.mode ? instext.c_str() : normtext.c_str(), 15);
     drawmenu();
 }
 
@@ -702,25 +702,25 @@ void screenshot(const Arg& arg) {
     time_t time_ = time(nullptr);
     struct tm t = *localtime(&time_);
 
-    if (!screenshotfile) {
+    if (screenshotfile.empty()) {
         if (!(home = getenv("HOME"))) {
             fprintf(stderr, "majorna: failed to determine home directory\n");
             return;
         }
 
-        if (!screenshotdir && !screenshotname) { // default
+        if (screenshotdir.empty() && screenshotname.empty()) { // default
             if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s-%02d-%02d-%02d%s", home, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
             sprintf(file, "%s/%s-%02d-%02d-%02d%s", home, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png");
-        } else if (!screenshotdir && screenshotname) { // no dir but name
+        } else if (screenshotdir.empty() && !screenshotname.empty()) { // no dir but name
             if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, screenshotname) + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
             sprintf(file, "%s/%s", home, screenshotname);
-        } else if (screenshotdir && !screenshotname) { // dir but no name
+        } else if (!screenshotdir.empty() && screenshotname.empty()) { // dir but no name
             if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s-%02d-%02d-%02d%s", screenshotdir, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }

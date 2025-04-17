@@ -354,7 +354,7 @@ void conf_init() {
 
             // look up
             if (config_setting_lookup_string(conf, "font", &dest)) // majorna.text.font
-                sp_strncpy(font, strdup(dest), sizeof(font));
+                font = strdup(dest);
 
             config_setting_lookup_int(conf, "padding", &textpadding); // majorna.text.padding
             config_setting_lookup_int(conf, "normitempadding", &normitempadding); // majorna.text.normitempadding
@@ -477,20 +477,20 @@ void conf_init() {
 
                 // items
                 if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                    sp_strncpy(col_itemnormfg, strdup(dest), sizeof(col_itemnormfg));
+                    col_itemnormfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                    sp_strncpy(col_itemnormbg, strdup(dest), sizeof(col_itemnormbg));
+                    col_itemnormbg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
-                    sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
+                    col_itemnormbg2 = strdup(dest);
                 else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                    sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
+                    col_itemnormfg2 = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
-                    sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
+                    col_itemnormbg2 = strdup(dest);
                 else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                    sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
+                    col_itemnormbg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemselfg", &dest))
                     sp_strncpy(col_itemselfg, strdup(dest), sizeof(col_itemselfg));

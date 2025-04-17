@@ -6,16 +6,16 @@
 #include <options.hpp>
 #include <majorna.hpp>
 #include <macros.hpp>
-#include <string.h>
+#include <cstring>
 
-void buttonpress_x11(XEvent *e) {
-    struct item *item;
-    XButtonPressedEvent *ev = &e->xbutton;
+void buttonpress_x11(XEvent& e) {
+    item *item;
+    XButtonPressedEvent *ev = &e.xbutton;
+
     int x = 0, y = 0, h = sp.bh, w, item_num = 0;
     unsigned int i, click;
     int yp = 0;
 
-    // margin
     x += menumarginh;
 
     int larroww = 0;

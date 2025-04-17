@@ -27,7 +27,7 @@ void grabfocus_x11(void) {
         if (managed) {
             if (wa.map_state == IsViewable) {
                 XTextProperty prop;
-                const char *windowtitle = prompt != NULL ? prompt : "majorna";
+                const char *windowtitle = prompt.empty() ? "majorna" : prompt.c_str();
                 Xutf8TextListToTextProperty(dpy, const_cast<char**>(&windowtitle), 1, XUTF8StringStyle, &prop);
                 XSetWMName(dpy, win, &prop);
                 XSetTextProperty(dpy, win, &prop, XInternAtom(dpy, "_NET_WM_NAME", False));

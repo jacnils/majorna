@@ -192,7 +192,7 @@ void keyboard_modifiers(void *data, struct wl_keyboard *keyboard, uint32_t seria
     }
 
     if (ocapslockstate != sp.capslockstate) {
-        strncpy(tx.capstext, sp.capslockstate ? capslockontext : capslockofftext, 15);
+        strncpy(tx.capstext, sp.capslockstate ? capslockontext.c_str() : capslockofftext.c_str(), 15);
         drawmenu();
     }
 }
@@ -223,9 +223,9 @@ void keyboard_repeat(struct state *state) {
 void keyboard_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t _key_state) {
 	struct state* state = static_cast<struct state*>(data);
 
-	enum wl_keyboard_key_state key_state = static_cast<wl_keyboard_key_state>(_key_state);
+	wl_keyboard_key_state key_state = static_cast<wl_keyboard_key_state>(_key_state);
 
-    strncpy(tx.capstext, sp.capslockstate ? capslockontext : capslockofftext, 15);
+    strncpy(tx.capstext, sp.capslockstate ? capslockontext.c_str() : capslockofftext.c_str(), 15);
 
 	xkb_keysym_t sym = xkb_state_key_get_one_sym(state->xkb_state, key + 8);
 	keypress_wl(state, key_state, sym);

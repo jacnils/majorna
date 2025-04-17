@@ -25,6 +25,7 @@
 #include <x11/client.hpp>
 #include <match.hpp>
 #include <cctype>
+#include <filesystem>
 
 int is_selected(size_t index) {
     for (int i = 0; i < sel_size; i++) {
@@ -144,7 +145,7 @@ void cleanup() {
 #endif
 
 #if FIFO
-    remove(fifofile);
+    std::filesystem::remove(fifofile);
 #endif
 
     free(sel_index);

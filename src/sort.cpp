@@ -1,29 +1,22 @@
 /* See LICENSE file for copyright and license details. */
 
 #include <cstring>
-#include <cstdlib>
-#include <macros.hpp>
 #include <sort.hpp>
 #include <majorna.hpp>
 
-char** tokenize(char *source, const char *delim, int *llen) {
-    int listlength = 0, list_size = 0;
-    char **list = nullptr, *token;
+std::vector<std::string> tokenize(const std::string& source, const char* delim) {
+    std::vector<std::string> tokens;
+    size_t start = 0;
+    size_t end = source.find_first_of(delim);
 
-    token = strtok(source, delim);
-    while (token) {
-        if (listlength + 1 >= list_size) {
-            if (!(list = static_cast<char**>(realloc(list, (list_size += 8) * sizeof(*list)))))
-                die("majorna: unable to realloc %zu bytes\n", list_size * sizeof(*list));
-        }
-        if (!(list[listlength] = strdup(token)))
-            die("majorna: unable to strdup %zu bytes\n", strlen(token) + 1);
-        token = strtok(nullptr, delim);
-        listlength++;
+    while (end != std::string::npos) {
+        tokens.push_back(source.substr(start, end - start));
+        start = end + 1;
+        end = source.find_first_of(delim, start);
     }
+    tokens.push_back(source.substr(start));
 
-    *llen = listlength;
-    return list;
+    return tokens;
 }
 
 int arrayhas(char **list, int length, char *item) {

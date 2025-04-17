@@ -20,7 +20,7 @@ void eventloop_x11() {
                 cleanup();
                 exit(1);
             case ButtonPress:
-                buttonpress_x11(&ev);
+                buttonpress_x11(ev);
                 break;
             case MotionNotify: // currently does nothing
                 break;
@@ -34,7 +34,7 @@ void eventloop_x11() {
                     grabfocus_x11();
                 break;
             case KeyPress: // read key array and call functions
-                keypress_x11(&ev);
+                keypress_x11(ev);
                 break;
             case SelectionNotify: // paste selection
                 if (ev.xselection.property == utf8)

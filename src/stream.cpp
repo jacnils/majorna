@@ -4,6 +4,7 @@
 #include <sort.hpp>
 #include <majorna.hpp>
 #include <img.hpp>
+#include <filesystem>
 
 void readstdin() {
     char buf[sizeof tx.text], *p;
@@ -15,7 +16,7 @@ void readstdin() {
         return;
     }
 
-    if (listfile) {
+    if (!listfile.empty() && std::filesystem::is_regular_file(listfile)) {
         readfile();
         return;
     }
@@ -77,7 +78,7 @@ void readfile() {
     static size_t c = 0;
     char *l;
 
-    FILE *lf = fopen(listfile, "r");
+    FILE *lf = fopen(listfile.c_str(), "r");
 
     if (!lf) return;
 
