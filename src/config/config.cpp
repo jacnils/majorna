@@ -6,47 +6,39 @@
 #include <cstring>
 #include <cstdlib>
 #include <macros.hpp>
-#include <unistd.h>
 #include <x11/key.hpp>
 #include <wl/wayland.hpp>
 #include <x11/mouse.hpp>
 #include <majorna.hpp>
 #include <schemes.hpp>
+#include <filesystem>
+#include <iostream>
 
 int bind_init() {
-    char *xdg_conf;
-    char *bindfile = nullptr;
-    char *home = nullptr;
+    std::string bnfile{};
     const char *dest;
     int ret = 0;
 
-    if (!bindsfile || !strcmp(bindsfile, "nullptr")) {
-        if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
-            home = getenv("HOME");
-
-            if (!(bindfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, ".config/majorna/binds.conf") + 1)))) {
-                die("majorna: failed to malloc bindfile");
+    // get path for configuration file
+    if (bindsfile.empty()) {
+        const char* xdg_conf = getenv("XDG_CONFIG_HOME");
+        if (!xdg_conf) {
+            // ~/.config/majorna/binds.conf
+            const char* home = getenv("HOME");
+            if (!home) {
+                die("majorna: HOME environment variable is not set");
             }
-
-            sprintf(bindfile, "%s/%s", home, ".config/majorna/binds.conf");
+            bnfile = std::string(home) + "/.config/majorna/binds.conf";
         } else {
-            if (!(bindfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", xdg_conf, "majorna/binds.conf") + 1)))) {
-                die("majorna: failed to malloc bindfile");
-            }
-
-            sprintf(bindfile, "%s/%s", xdg_conf, "majorna/binds.conf");
+            // XDG_CONFIG_HOME is set, so let's use that instead
+            bnfile = std::string(xdg_conf) + "/majorna/binds.conf";
         }
-    } else { // custom keys path
-        if (!(bindfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", bindsfile) + 1)))) {
-            die("majorna: failed to malloc bindfile");
-        }
-
-        sprintf(bindfile, "%s", bindsfile);
+    } else { // custom config path
+        bnfile = bindsfile;
     }
 
-    // don't bother trying to load if it doesn't exist.
-    if (access(bindfile, F_OK) != 0) {
-        return ret;
+    if (!std::filesystem::is_regular_file(bnfile)) {
+        return 0;
     }
 
     // init config
@@ -55,9 +47,9 @@ int bind_init() {
     config_init(&bind);
 
     // attempt to read config file to cfg
-    if (!config_read_file(&bind, bindfile)) {
+    if (!config_read_file(&bind, bnfile.c_str())) {
         // invalid configuration, but let's try to read it anyway
-        fprintf(stderr, "majorna: Invalid keys file.\n");
+        std::cerr << "majorna: Invalid keys file." << std::endl;
     }
 
     // load options bind.keys
@@ -74,95 +66,120 @@ int bind_init() {
             config_setting_lookup_string(conf, "modifier", &dest);
 
 #if X11
-            for (int j = 0; j < LENGTH(ml); j++) {
-                if (!strcmp(ml[j].mod, strdup(dest))) {
-                    ckeys[i].mod = ml[j].modifier;
+            Key key{};
+#endif
+#if WAYLAND
+            WlKey wl_key{};
+#endif
+
+#if X11
+            for (const auto& it : ml) {
+                if (it.mod == dest) {
+                    key.mod = it.modifier;
                 }
             }
 #endif
 
 #if WAYLAND
-            for (int j = 0; j < LENGTH(wml); j++) {
-                if (!strcmp(wml[j].mod, strdup(dest))) {
-                    wl_ckeys[i].modifier = wml[j].modifier;
+            for (const auto& it : wml) {
+                if (it.mod == dest) {
+                    wl_key.mod = it.modifier;
                 }
             }
 #endif
 
             if (config_setting_lookup_int(conf, "mode", &nmode)) {
+                if (nmode < 0) nmode = -1;
+                if (nmode > 1) nmode = 1;
+
 #if X11
-                ckeys[i].mode = nmode;
+                key.mode = nmode;
 #endif
 #if WAYLAND
-                wl_ckeys[i].mode = nmode;
+                wl_key.mode = nmode;
 #endif
             }
 
             config_setting_lookup_string(conf, "key", &dest);
 
 #if X11
-            for (int j = 0; j < LENGTH(kl); j++) {
-                if (!strcmp(kl[j].key, strdup(dest))) {
-                    ckeys[i].keysym = kl[j].keysym;
+            for (const auto& it : kl) {
+                if (it.key == dest) {
+                    key.keysym = it.keysym;
                 }
             }
 #endif
 
 #if WAYLAND
-            for (int j = 0; j < LENGTH(wkl); j++) {
-                if (!strcmp(wkl[j].key, strdup(dest))) {
-                    wl_ckeys[i].keysym = wkl[j].keysym;
+            for (const auto& it : wkl) {
+                if (it.key == dest) {
+                    wl_key.keysym = it.keysym;
                 }
             }
 #endif
 
             config_setting_lookup_string(conf, "function", &dest);
 
-            for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
+            for (const auto& it : fl) {
+                if (it.function == dest) {
 #if X11
-                    ckeys[i].func = fl[j].func;
+                    key.func = it.func;
 #endif
 #if WAYLAND
-                    wl_ckeys[i].func = fl[j].func;
+                    wl_key.func = it.func;
 #endif
                 }
             }
 
             config_setting_lookup_string(conf, "argument", &dest);
 
+            // TODO: More types
             if (strdup(dest)) {
 #if X11
-                ckeys[i].arg.i = atoi(strdup(dest));
+                key.arg.i = std::stoi(dest);
 #endif
 #if WAYLAND
-                wl_ckeys[i].arg.i = atoi(strdup(dest));
+                wl_key.arg.i = std::stoi(dest);
 #endif
             }
 
             config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
-            config_setting_lookup_int(conf, "ignoreglobalkeys", &sp.ignoreglobalkeys);
+            config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
+
+#if X11
+            std::cerr << "X11 key: " << "Keysym: " << key.keysym << " Mod: " << key.mod << " Mode: " << key.mode << std::endl;
+            ckeys.emplace_back(key);
+#endif
+#if WAYLAND
+            wl_ckeys.emplace_back(wl_key);
+#endif
         }
     }
 
     // load options bind.mouse
     config_setting_t *mouse_bind = config_lookup(&bind, "bind.mouse");
     if (mouse_bind != nullptr && loadbinds) {
-#if X11
         ret = 1;
-#endif
+
         for (unsigned int i = 0; i < config_setting_length(mouse_bind); ++i) {
             config_setting_t *conf = config_setting_get_elem(mouse_bind, i);
 
             config_setting_lookup_string(conf, "click", &dest);
 
-            for (int j = 0; j < LENGTH(ctp); j++) {
-                if (!strcmp(ctp[j].tclick, strdup(dest))) {
 #if X11
-                    cbuttons[i].click = ctp[j].click;
+            Mouse mouse{};
 #endif
 #if WAYLAND
-                    wl_cbuttons[i].click = ctp[j].click;
+            WlMouse wl_mouse{};
+#endif
+
+            for (const auto& it : ctp) {
+                if (it.tclick == dest) {
+#if X11
+                    mouse.click = it.click;
+#endif
+#if WAYLAND
+                    mouse.click = it.click;
 #endif
                 }
             }
@@ -170,30 +187,29 @@ int bind_init() {
             config_setting_lookup_string(conf, "button", &dest);
 
 #if X11
-            for (int j = 0; j < LENGTH(btp); j++) {
-                if (!strcmp(btp[j].click, strdup(dest))) {
-                    cbuttons[i].button = btp[j].button;
+            for (const auto& it : btp) {
+                if (it.click == dest) {
+                    mouse.button = it.button;
                 }
             }
 #endif
-
 #if WAYLAND
-            for (int j = 0; j < LENGTH(w_btp); j++) {
-                if (!strcmp(w_btp[j].click, strdup(dest))) {
-                    wl_cbuttons[i].button = w_btp[j].button;
+            for (const auto& it : w_btp) {
+                if (it.click == dest) {
+                    wl_mouse.button = it.button;
                 }
             }
 #endif
 
             config_setting_lookup_string(conf, "function", &dest);
 
-            for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
+            for (const auto& it : fl) {
+                if (it.function == dest) {
 #if X11
-                    cbuttons[i].func = fl[j].func;
+                    mouse.func = it.func;
 #endif
 #if WAYLAND
-                    wl_cbuttons[i].func = fl[j].func;
+                    wl_mouse.func = it.func;
 #endif
                 }
             }
@@ -202,17 +218,26 @@ int bind_init() {
 
             if (strdup(dest)) {
 #if X11
-                cbuttons[i].arg.i = atoi(strdup(dest));
+                mouse.arg.i = std::stoi(strdup(dest));
 #endif
 #if WAYLAND
-                wl_cbuttons[i].arg.i = atoi(strdup(dest));
+                wl_mouse.arg.i = std::stoi(strdup(dest));
 #endif
             }
 
-            config_setting_lookup_int(conf, "ignoreglobalmouse", &sp.ignoreglobalmouse);
+            config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
             config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
+
+#if X11
+            cbuttons.push_back(mouse);
+#endif
+#if WAYLAND
+            wl_cbuttons.push_back(wl_mouse);
+#endif
         }
     }
+
+    std::cerr << ret << std::endl;
 
     // finally done
     config_destroy(&bind);
@@ -222,42 +247,32 @@ int bind_init() {
 
 
 void conf_init() {
-    char *xdg_conf;
-    char *cfgfile = nullptr;
-    char *home = nullptr;
+    if (!loadconfig) {
+        return;
+    }
+
+    std::string cfgfile{};
     const char *dest;
 
     // get path for configuration file
-    if (!configfile) {
-        if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
+    if (configfile.empty()) {
+        const char* xdg_conf = getenv("XDG_CONFIG_HOME");
+        if (!xdg_conf) {
             // ~/.config/majorna/majorna.conf
-            home = getenv("HOME");
-
-            // malloc
-            if (!(cfgfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, ".config/majorna/majorna.conf") + 1)))) {
-                die("majorna: failed to malloc cfgfile");
+            const char* home = getenv("HOME");
+            if (!home) {
+                die("majorna: HOME environment variable is not set");
             }
-
-            sprintf(cfgfile, "%s/%s", home, ".config/majorna/majorna.conf");
+            cfgfile = std::string(home) + "/.config/majorna/majorna.conf";
         } else {
-            // malloc
-            if (!(cfgfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", xdg_conf, "majorna/majorna.conf") + 1)))) {
-                die("majorna: failed to malloc cfgfile");
-            }
-
             // XDG_CONFIG_HOME is set, so let's use that instead
-            sprintf(cfgfile, "%s/%s", xdg_conf, "majorna/majorna.conf");
+            cfgfile = std::string(xdg_conf) + "/majorna/majorna.conf";
         }
     } else { // custom config path
-        if (!(cfgfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", configfile) + 1)))) {
-            die("majorna: failed to malloc cfgfile");
-        }
-
-        sprintf(cfgfile, "%s", configfile);
+        cfgfile = configfile;
     }
 
-    // don't bother trying to load if it doesn't exist.
-    if (access(cfgfile, F_OK) != 0) {
+    if (!std::filesystem::is_regular_file(cfgfile)) {
         loadconfig = 0;
     }
 
@@ -267,7 +282,7 @@ void conf_init() {
 
     // attempt to read config file to cfg
     if (loadconfig) {
-        if (!config_read_file(&cfg, cfgfile)) {
+        if (!config_read_file(&cfg, cfgfile.c_str())) {
             // invalid configuration, but let's try to read it anyway
             fprintf(stderr, "majorna: Invalid configuration.\n");
         }
@@ -310,7 +325,7 @@ void conf_init() {
 
             // look up
             config_setting_lookup_string(conf, "class", &dest); // majorna.properties.class
-            _class = strdup(dest);
+            window_class = strdup(dest);
 
             config_setting_lookup_int(conf, "dock", &dockproperty); // majorna.properties.dock
         }
@@ -354,7 +369,7 @@ void conf_init() {
 
             // look up
             if (config_setting_lookup_string(conf, "font", &dest)) // majorna.text.font
-                sp_strncpy(font, strdup(dest), sizeof(font));
+                font = strdup(dest);
 
             config_setting_lookup_int(conf, "padding", &textpadding); // majorna.text.padding
             config_setting_lookup_int(conf, "normitempadding", &normitempadding); // majorna.text.normitempadding
@@ -477,136 +492,136 @@ void conf_init() {
 
                 // items
                 if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                    sp_strncpy(col_itemnormfg, strdup(dest), sizeof(col_itemnormfg));
+                    col_itemnormfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                    sp_strncpy(col_itemnormbg, strdup(dest), sizeof(col_itemnormbg));
+                    col_itemnormbg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
-                    sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
+                    col_itemnormbg2 = strdup(dest);
                 else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                    sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
+                    col_itemnormfg2 = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
-                    sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
+                    col_itemnormbg2 = strdup(dest);
                 else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                    sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
+                    col_itemnormbg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemselfg", &dest))
-                    sp_strncpy(col_itemselfg, strdup(dest), sizeof(col_itemselfg));
+                    col_itemselfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemselbg", &dest))
-                    sp_strncpy(col_itemselbg, strdup(dest), sizeof(col_itemselbg));
+                    col_itemselbg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemmarkedfg", &dest))
-                    sp_strncpy(col_itemmarkedfg, strdup(dest), sizeof(col_itemmarkedfg));
+                    col_itemmarkedfg = strdup(dest);
                 else if (config_setting_lookup_string(conf, "itemselfg", &dest))
-                    sp_strncpy(col_itemmarkedfg, strdup(dest), sizeof(col_itemmarkedfg));
+                    col_itemmarkedfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemmarkedbg", &dest))
-                    sp_strncpy(col_itemmarkedbg, strdup(dest), sizeof(col_itemmarkedbg));
+                    col_itemmarkedbg = strdup(dest);
                 else if (config_setting_lookup_string(conf, "itemselbg", &dest))
-                    sp_strncpy(col_itemmarkedbg, strdup(dest), sizeof(col_itemmarkedbg));
+                    col_itemmarkedbg = strdup(dest);
 
                 // items with priority
                 if (config_setting_lookup_string(conf, "itemnormprifg", &dest))
-                    sp_strncpy(col_itemnormprifg, strdup(dest), sizeof(col_itemnormprifg));
+                    col_itemnormprifg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemnormpribg", &dest))
-                    sp_strncpy(col_itemnormpribg, strdup(dest), sizeof(col_itemnormpribg));
+                    col_itemnormpribg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemselprifg", &dest))
-                    sp_strncpy(col_itemselprifg, strdup(dest), sizeof(col_itemselprifg));
+                    col_itemselprifg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "itemselpribg", &dest))
-                    sp_strncpy(col_itemselpribg, strdup(dest), sizeof(col_itemselpribg));
+                    col_itemselpribg = strdup(dest);
 
                 // input
                 if (config_setting_lookup_string(conf, "inputfg", &dest))
-                    sp_strncpy(col_inputfg, strdup(dest), sizeof(col_inputfg));
+                    col_inputfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "inputbg", &dest))
-                    sp_strncpy(col_inputbg, strdup(dest), sizeof(col_inputbg));
+                    col_inputbg = strdup(dest);
 
                 // pretext
                 if (config_setting_lookup_string(conf, "pretextfg", &dest))
-                    sp_strncpy(col_pretextfg, strdup(dest), sizeof(col_pretextfg));
+                    col_pretextfg = strdup(dest);
                 else if (config_setting_lookup_string(conf, "inputfg", &dest))
-                    sp_strncpy(col_pretextfg, strdup(dest), sizeof(col_pretextfg));
+                    col_pretextfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "pretextbg", &dest))
-                    sp_strncpy(col_pretextbg, strdup(dest), sizeof(col_pretextbg));
+                    col_pretextbg = strdup(dest);
                 else if (config_setting_lookup_string(conf, "inputfg", &dest))
-                    sp_strncpy(col_pretextbg, strdup(dest), sizeof(col_pretextbg));
+                    col_pretextbg = strdup(dest);
 
                 // menu
                 if (config_setting_lookup_string(conf, "menu", &dest))
-                    sp_strncpy(col_menu, strdup(dest), sizeof(col_menu));
+                    col_menu = strdup(dest);
 
                 // prompt
                 if (config_setting_lookup_string(conf, "promptfg", &dest))
-                    sp_strncpy(col_promptfg, strdup(dest), sizeof(col_promptfg));
+                    col_promptfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "promptbg", &dest))
-                    sp_strncpy(col_promptbg, strdup(dest), sizeof(col_promptbg));
+                    col_promptbg = strdup(dest);
 
                 // arrows
                 if (config_setting_lookup_string(conf, "larrowfg", &dest))
-                    sp_strncpy(col_larrowfg, strdup(dest), sizeof(col_larrowfg));
+                    col_larrowfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "larrowbg", &dest))
-                    sp_strncpy(col_larrowbg, strdup(dest), sizeof(col_larrowbg));
+                    col_larrowbg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "rarrowfg", &dest))
-                    sp_strncpy(col_rarrowfg, strdup(dest), sizeof(col_rarrowfg));
+                    col_rarrowfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "rarrowbg", &dest))
-                    sp_strncpy(col_rarrowbg, strdup(dest), sizeof(col_rarrowbg));
+                    col_rarrowbg = strdup(dest);
 
                 // highlight
                 if (config_setting_lookup_string(conf, "hlnormfg", &dest))
-                    sp_strncpy(col_hlnormfg, strdup(dest), sizeof(col_hlnormfg));
+                    col_hlnormfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "hlnormbg", &dest))
-                    sp_strncpy(col_hlnormbg, strdup(dest), sizeof(col_hlnormbg));
+                    col_hlnormbg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "hlselfg", &dest))
-                    sp_strncpy(col_hlselfg, strdup(dest), sizeof(col_hlselfg));
+                    col_hlselfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "hlselbg", &dest))
-                    sp_strncpy(col_hlselbg, strdup(dest), sizeof(col_hlselbg));
+                    col_hlselbg = strdup(dest);
 
                 // number
                 if (config_setting_lookup_string(conf, "numfg", &dest))
-                    sp_strncpy(col_numfg, strdup(dest), sizeof(col_numfg));
+                    col_numfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "numbg", &dest))
-                    sp_strncpy(col_numbg, strdup(dest), sizeof(col_numbg));
+                    col_numbg = strdup(dest);
 
                 // mode
                 if (config_setting_lookup_string(conf, "modefg", &dest))
-                    sp_strncpy(col_modefg, strdup(dest), sizeof(col_modefg));
+                    col_modefg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "modebg", &dest))
-                    sp_strncpy(col_modebg, strdup(dest), sizeof(col_modebg));
+                    col_modebg = strdup(dest);
 
                 // caps
                 if (config_setting_lookup_string(conf, "capsfg", &dest))
-                    sp_strncpy(col_capsfg, strdup(dest), sizeof(col_capsfg));
+                    col_capsfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "capsbg", &dest))
-                    sp_strncpy(col_capsbg, strdup(dest), sizeof(col_capsbg));
+                    col_capsbg = strdup(dest);
 
                 // border
                 if (config_setting_lookup_string(conf, "border", &dest))
-                    sp_strncpy(col_border, strdup(dest), sizeof(col_border));
+                    col_border = strdup(dest);
 
                 // caret
                 if (config_setting_lookup_string(conf, "caretfg", &dest))
-                    sp_strncpy(col_caretfg, strdup(dest), sizeof(col_caretfg));
+                    col_caretfg = strdup(dest);
 
                 if (config_setting_lookup_string(conf, "caretbg", &dest))
-                    sp_strncpy(col_caretbg, strdup(dest), sizeof(col_caretbg));
+                    col_caretbg = strdup(dest);
 
                 // sgr colors
                 for (int i{}; i <= 15; ++i) {
@@ -675,15 +690,15 @@ void conf_init() {
             }
 #endif
 
-            if (config_setting_lookup_string(conf, "screenshotfile", &dest) && strcmp(dest, "nullptr")) {
+            if (config_setting_lookup_string(conf, "screenshotfile", &dest) && dest != "nullptr" && dest != "NULL") {
                 screenshotfile = strdup(dest);
             }
 
-            if (config_setting_lookup_string(conf, "screenshotname", &dest) && strcmp(dest, "nullptr")) {
+            if (config_setting_lookup_string(conf, "screenshotname", &dest) && dest != "nullptr" && dest != "NULL") {
                 screenshotname = strdup(dest);
             }
 
-            if (config_setting_lookup_string(conf, "screenshotdir", &dest) && strcmp(dest, "nullptr")) {
+            if (config_setting_lookup_string(conf, "screenshotdir", &dest) && dest != "nullptr" && dest != "NULL") {
                 screenshotdir = strdup(dest);
             }
         }
@@ -754,9 +769,11 @@ void conf_init() {
             config_setting_lookup_int(conf, "mark", &mark); // majorna.match.mark
             config_setting_lookup_string(conf, "delimiters", &dest); // majorna.match.delimiters
             worddelimiters = strdup(dest);
-            if (config_setting_lookup_string(conf, "listfile", &dest)) // majorna.match.listfile
-                if (dest && strcmp(strdup(dest), "nullptr"))
+            if (config_setting_lookup_string(conf, "listfile", &dest)) { // majorna.match.listfile
+                if (dest != "nullptr" && dest != "NULL") {
                     listfile = strdup(dest);
+                }
+            }
         }
     }
 
@@ -833,162 +850,184 @@ void conf_init() {
         }
     }
 
-    int ret = bind_init();
+    if (!bind_init()) {
+        config_setting_t *key_setting = config_lookup(&cfg, "majorna.keys");
+        if (key_setting != nullptr && loadconfig) {
+            int nmode{0};
 
-    // load options majorna.keys
-    config_setting_t *key_setting = config_lookup(&cfg, "majorna.keys");
-    if (key_setting != nullptr && loadconfig) {
-        int nmode = 0;
+            for (unsigned int i = 0; i < config_setting_length(key_setting); ++i) {
+                config_setting_t *conf = config_setting_get_elem(key_setting, i);
 
-        for (unsigned int i = 0; i < config_setting_length(key_setting); ++i) {
-            if (ret) {
-                break;
-            }
-
-            config_setting_t *conf = config_setting_get_elem(key_setting, i);
-
-            // look up
-            config_setting_lookup_string(conf, "modifier", &dest);
+                // look up
+                config_setting_lookup_string(conf, "modifier", &dest);
 
 #if X11
-            for (int j = 0; j < LENGTH(ml); j++) {
-                if (!strcmp(ml[j].mod, strdup(dest))) {
-                    ckeys[i].mod = ml[j].modifier;
+                Key key{};
+#endif
+#if WAYLAND
+                WlKey wl_key{};
+#endif
+
+#if X11
+                for (const auto& it : ml) {
+                    if (it.mod == dest) {
+                        key.mod = it.modifier;
+                    }
                 }
-            }
 #endif
 
 #if WAYLAND
-            for (int j = 0; j < LENGTH(wml); j++) {
-                if (!strcmp(wml[j].mod, strdup(dest))) {
-                    wl_ckeys[i].modifier = wml[j].modifier;
+                for (const auto& it : wml) {
+                    if (it.mod == dest) {
+                        wl_key.mod = it.modifier;
+                    }
                 }
-            }
 #endif
 
-            if (config_setting_lookup_int(conf, "mode", &nmode)) {
-#if X11
-                ckeys[i].mode = nmode;
-#endif
-#if WAYLAND
-                wl_ckeys[i].mode = nmode;
-#endif
-            }
-
-            config_setting_lookup_string(conf, "key", &dest);
+                if (config_setting_lookup_int(conf, "mode", &nmode)) {
+                    if (nmode < 0) nmode = -1;
+                    if (nmode > 1) nmode = 1;
 
 #if X11
-            for (int j = 0; j < LENGTH(kl); j++) {
-                if (!strcmp(kl[j].key, strdup(dest))) {
-                    ckeys[i].keysym = kl[j].keysym;
-                }
-            }
+                    key.mode = nmode;
 #endif
-
 #if WAYLAND
-            for (int j = 0; j < LENGTH(wkl); j++) {
-                if (!strcmp(wkl[j].key, strdup(dest))) {
-                    wl_ckeys[i].keysym = wkl[j].keysym;
-                }
-            }
+                    wl_key.mode = nmode;
 #endif
+                }
 
-            config_setting_lookup_string(conf, "function", &dest);
+                config_setting_lookup_string(conf, "key", &dest);
 
-            for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
 #if X11
-                    ckeys[i].func = fl[j].func;
+                for (const auto& it : kl) {
+                    if (it.key == dest) {
+                        key.keysym = it.keysym;
+                    }
+                }
+#endif
+
+#if WAYLAND
+                for (const auto& it : wkl) {
+                    if (it.key == dest) {
+                        wl_key.keysym = it.keysym;
+                    }
+                }
+#endif
+
+                config_setting_lookup_string(conf, "function", &dest);
+
+                for (const auto& it : fl) {
+                    if (it.function == dest) {
+#if X11
+                        key.func = it.func;
 #endif
 #if WAYLAND
-                    wl_ckeys[i].func = fl[j].func;
+                        wl_key.func = it.func;
+#endif
+                    }
+                }
+
+                config_setting_lookup_string(conf, "argument", &dest);
+
+                if (strdup(dest)) {
+#if X11
+                    key.arg.i = std::stoi(dest);
+#endif
+#if WAYLAND
+                    wl_key.arg.i = std::stoi(dest);
 #endif
                 }
-            }
 
-            config_setting_lookup_string(conf, "argument", &dest);
+                config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
+                config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
 
-            if (strdup(dest)) {
 #if X11
-                ckeys[i].arg.i = atoi(strdup(dest));
+                ckeys.emplace_back(key);
 #endif
 #if WAYLAND
-                wl_ckeys[i].arg.i = atoi(strdup(dest));
+                wl_ckeys.emplace_back(wl_key);
 #endif
             }
-
-            config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
-            config_setting_lookup_int(conf, "ignoreglobalkeys", &sp.ignoreglobalkeys);
         }
-    }
 
-    // load options majorna.mouse
-    config_setting_t *mouse_setting = config_lookup(&cfg, "majorna.mouse");
-    if (mouse_setting != nullptr && loadconfig) {
-        for (unsigned int i = 0; i < config_setting_length(mouse_setting); ++i) {
-            if (ret) {
-                break;
-            }
-
-            config_setting_t *conf = config_setting_get_elem(mouse_setting, i);
-
-            config_setting_lookup_string(conf, "click", &dest);
-
-            for (int j = 0; j < LENGTH(ctp); j++) {
-                if (!strcmp(ctp[j].tclick, strdup(dest))) {
-#if X11
-                    cbuttons[i].click = ctp[j].click;
-#endif
-#if WAYLAND
-                    wl_cbuttons[i].click = ctp[j].click;
-#endif
-                }
-            }
-
-            config_setting_lookup_string(conf, "button", &dest);
+        // load options majorna.mouse
+        config_setting_t *mouse_setting = config_lookup(&cfg, "majorna.mouse");
+        if (mouse_setting != nullptr && loadconfig) {
+            for (unsigned int i = 0; i < config_setting_length(mouse_setting); ++i) {
+                config_setting_t *conf = config_setting_get_elem(mouse_setting, i);
 
 #if X11
-            for (int j = 0; j < LENGTH(btp); j++) {
-                if (!strcmp(btp[j].click, strdup(dest))) {
-                    cbuttons[i].button = btp[j].button;
-                }
-            }
+                Mouse mouse{};
 #endif
-
 #if WAYLAND
-            for (int j = 0; j < LENGTH(w_btp); j++) {
-                if (!strcmp(w_btp[j].click, strdup(dest))) {
-                    wl_cbuttons[i].button = w_btp[j].button;
-                }
-            }
+                WlMouse wl_mouse{};
 #endif
 
-            config_setting_lookup_string(conf, "function", &dest);
+                config_setting_lookup_string(conf, "click", &dest);
 
-            for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
+                for (const auto& it : ctp) {
+                    if (it.tclick == dest) {
 #if X11
-                    cbuttons[i].func = fl[j].func;
+                        mouse.click = it.click;
 #endif
 #if WAYLAND
-                    wl_cbuttons[i].func = fl[j].func;
+                        wl_mouse.click = it.click;
+#endif
+                    }
+                }
+
+                config_setting_lookup_string(conf, "button", &dest);
+
+#if X11
+                for (const auto& it : btp) {
+                    if (it.click == dest) {
+                        mouse.button = it.button;
+                    }
+                }
+#endif
+
+#if WAYLAND
+                for (const auto& it : w_btp) {
+                    if (it.click == dest) {
+                        wl_mouse.button = it.button;
+                    }
+                }
+#endif
+
+                config_setting_lookup_string(conf, "function", &dest);
+
+                for (const auto& it : fl) {
+                    if (it.function == dest) {
+#if X11
+                        mouse.func = it.func;
+#endif
+#if WAYLAND
+                        wl_mouse.func = it.func;
+#endif
+                    }
+                }
+
+                config_setting_lookup_string(conf, "argument", &dest);
+
+                if (strdup(dest)) {
+#if X11
+                    mouse.arg.i = std::stoi(dest);
+#endif
+#if WAYLAND
+                    wl_mouse.arg.i = std::stoi(dest);
 #endif
                 }
-            }
 
-            config_setting_lookup_string(conf, "argument", &dest);
+                config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
+                config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
 
-            if (strdup(dest)) {
 #if X11
-                cbuttons[i].arg.i = atoi(strdup(dest));
+                cbuttons.emplace_back(mouse);
 #endif
 #if WAYLAND
-                wl_cbuttons[i].arg.i = atoi(strdup(dest));
+                wl_cbuttons.emplace_back(wl_mouse);
 #endif
             }
-
-            config_setting_lookup_int(conf, "ignoreglobalmouse", &sp.ignoreglobalmouse);
-            config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
         }
     }
 
@@ -1002,47 +1041,32 @@ void conf_init() {
 }
 
 void theme_load() {
-    char* xdg_conf;
-    char* theme = nullptr;
-    char* home = nullptr;
-    const char *dest;
-
-    // don't load configuration
     if (!loadtheme)
         return;
 
+    std::string tmfile{};
+    const char *dest;
+
     // get path for configuration file
-    if (!themefile || !strcmp(themefile, "nullptr")) {
-        if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
+    if (tmfile.empty()) {
+        const char* xdg_conf = getenv("XDG_CONFIG_HOME");
+        if (!xdg_conf) {
             // ~/.config/majorna/theme.conf
-            home = getenv("HOME");
-
-            // malloc
-            if (!(theme = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, ".config/majorna/theme.conf") + 1)))) {
-                die("majorna: failed to malloc theme");
+            const char* home = getenv("HOME");
+            if (!home) {
+                die("majorna: HOME environment variable is not set");
             }
-
-            sprintf(theme, "%s/%s", home, ".config/majorna/theme.conf");
+            tmfile = std::string(home) + "/.config/majorna/theme.conf";
         } else {
-            // malloc
-            if (!(theme = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", xdg_conf, "majorna/theme.conf") + 1)))) {
-                die("majorna: failed to malloc theme");
-            }
-
             // XDG_CONFIG_HOME is set, so let's use that instead
-            sprintf(theme, "%s/%s", xdg_conf, "majorna/theme.conf");
+            tmfile = std::string(xdg_conf) + "/majorna/theme.conf";
         }
     } else { // custom config path
-        if (!(theme = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", themefile) + 1)))) {
-            die("majorna: failed to malloc theme");
-        }
-
-        sprintf(theme, "%s", themefile);
+        tmfile = themefile;
     }
 
-    // don't bother trying to load if it doesn't exist.
-    if (access(theme, F_OK) != 0) {
-        return;
+    if (!std::filesystem::is_regular_file(tmfile)) {
+        loadtheme = 0;
     }
 
     // init config
@@ -1050,7 +1074,7 @@ void theme_load() {
     config_init(&cfg);
 
     // attempt to read theme
-    if (!config_read_file(&cfg, theme)) {
+    if (!config_read_file(&cfg, tmfile.c_str())) {
         fprintf(stderr, "majorna: Invalid theme.\n"); // invalid configuration, but let's try to read it anyway
     }
 
@@ -1127,7 +1151,7 @@ void theme_load() {
 
             // look up
             if (config_setting_lookup_string(conf, "font", &dest)) // theme.text.font
-                sp_strncpy(font, strdup(dest), sizeof(font));
+                font = strdup(dest);
 
             config_setting_lookup_int(conf, "padding", &textpadding); // theme.text.padding
             config_setting_lookup_int(conf, "normitempadding", &normitempadding); // theme.text.normitempadding
@@ -1239,138 +1263,137 @@ void theme_load() {
         for (unsigned int i = 0; i < config_setting_length(color_setting); ++i) {
             config_setting_t *conf = config_setting_get_elem(color_setting, i);
 
-            // items
             if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                sp_strncpy(col_itemnormfg, strdup(dest), sizeof(col_itemnormfg));
+                col_itemnormfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                sp_strncpy(col_itemnormbg, strdup(dest), sizeof(col_itemnormbg));
+                col_itemnormbg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
-                sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
+                col_itemnormbg2 = strdup(dest);
             else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                sp_strncpy(col_itemnormfg2, strdup(dest), sizeof(col_itemnormfg2));
+                col_itemnormfg2 = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
-                sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
+                col_itemnormbg2 = strdup(dest);
             else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                sp_strncpy(col_itemnormbg2, strdup(dest), sizeof(col_itemnormbg2));
+                col_itemnormbg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemselfg", &dest))
-                sp_strncpy(col_itemselfg, strdup(dest), sizeof(col_itemselfg));
+                col_itemselfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemselbg", &dest))
-                sp_strncpy(col_itemselbg, strdup(dest), sizeof(col_itemselbg));
+                col_itemselbg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemmarkedfg", &dest))
-                sp_strncpy(col_itemmarkedfg, strdup(dest), sizeof(col_itemmarkedfg));
+                col_itemmarkedfg = strdup(dest);
             else if (config_setting_lookup_string(conf, "itemselfg", &dest))
-                sp_strncpy(col_itemmarkedfg, strdup(dest), sizeof(col_itemmarkedfg));
+                col_itemmarkedfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemmarkedbg", &dest))
-                sp_strncpy(col_itemmarkedbg, strdup(dest), sizeof(col_itemmarkedbg));
+                col_itemmarkedbg = strdup(dest);
             else if (config_setting_lookup_string(conf, "itemselbg", &dest))
-                sp_strncpy(col_itemmarkedbg, strdup(dest), sizeof(col_itemmarkedbg));
+                col_itemmarkedbg = strdup(dest);
 
             // items with priority
             if (config_setting_lookup_string(conf, "itemnormprifg", &dest))
-                sp_strncpy(col_itemnormprifg, strdup(dest), sizeof(col_itemnormprifg));
+                col_itemnormprifg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemnormpribg", &dest))
-                sp_strncpy(col_itemnormpribg, strdup(dest), sizeof(col_itemnormpribg));
+                col_itemnormpribg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemselprifg", &dest))
-                sp_strncpy(col_itemselprifg, strdup(dest), sizeof(col_itemselprifg));
+                col_itemselprifg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemselpribg", &dest))
-                sp_strncpy(col_itemselpribg, strdup(dest), sizeof(col_itemselpribg));
+                col_itemselpribg = strdup(dest);
 
             // input
             if (config_setting_lookup_string(conf, "inputfg", &dest))
-                sp_strncpy(col_inputfg, strdup(dest), sizeof(col_inputfg));
+                col_inputfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "inputbg", &dest))
-                sp_strncpy(col_inputbg, strdup(dest), sizeof(col_inputbg));
+                col_inputbg = strdup(dest);
 
             // pretext
             if (config_setting_lookup_string(conf, "pretextfg", &dest))
-                sp_strncpy(col_pretextfg, strdup(dest), sizeof(col_pretextfg));
+                col_pretextfg = strdup(dest);
             else if (config_setting_lookup_string(conf, "inputfg", &dest))
-                sp_strncpy(col_pretextfg, strdup(dest), sizeof(col_pretextfg));
+                col_pretextfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "pretextbg", &dest))
-                sp_strncpy(col_pretextbg, strdup(dest), sizeof(col_pretextbg));
-            else if (config_setting_lookup_string(conf, "inputbg", &dest))
-                sp_strncpy(col_pretextbg, strdup(dest), sizeof(col_pretextbg));
+                col_pretextbg = strdup(dest);
+            else if (config_setting_lookup_string(conf, "inputfg", &dest))
+                col_pretextbg = strdup(dest);
 
             // menu
             if (config_setting_lookup_string(conf, "menu", &dest))
-                sp_strncpy(col_menu, strdup(dest), sizeof(col_menu));
+                col_menu = strdup(dest);
 
             // prompt
             if (config_setting_lookup_string(conf, "promptfg", &dest))
-                sp_strncpy(col_promptfg, strdup(dest), sizeof(col_promptfg));
+                col_promptfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "promptbg", &dest))
-                sp_strncpy(col_promptbg, strdup(dest), sizeof(col_promptbg));
+                col_promptbg = strdup(dest);
 
             // arrows
             if (config_setting_lookup_string(conf, "larrowfg", &dest))
-                sp_strncpy(col_larrowfg, strdup(dest), sizeof(col_larrowfg));
+                col_larrowfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "larrowbg", &dest))
-                sp_strncpy(col_larrowbg, strdup(dest), sizeof(col_larrowbg));
+                col_larrowbg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "rarrowfg", &dest))
-                sp_strncpy(col_rarrowfg, strdup(dest), sizeof(col_rarrowfg));
+                col_rarrowfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "rarrowbg", &dest))
-                sp_strncpy(col_rarrowbg, strdup(dest), sizeof(col_rarrowbg));
+                col_rarrowbg = strdup(dest);
 
             // highlight
             if (config_setting_lookup_string(conf, "hlnormfg", &dest))
-                sp_strncpy(col_hlnormfg, strdup(dest), sizeof(col_hlnormfg));
+                col_hlnormfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "hlnormbg", &dest))
-                sp_strncpy(col_hlnormbg, strdup(dest), sizeof(col_hlnormbg));
+                col_hlnormbg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "hlselfg", &dest))
-                sp_strncpy(col_hlselfg, strdup(dest), sizeof(col_hlselfg));
+                col_hlselfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "hlselbg", &dest))
-                sp_strncpy(col_hlselbg, strdup(dest), sizeof(col_hlselbg));
+                col_hlselbg = strdup(dest);
 
             // number
             if (config_setting_lookup_string(conf, "numfg", &dest))
-                sp_strncpy(col_numfg, strdup(dest), sizeof(col_numfg));
+                col_numfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "numbg", &dest))
-                sp_strncpy(col_numbg, strdup(dest), sizeof(col_numbg));
+                col_numbg = strdup(dest);
 
             // mode
             if (config_setting_lookup_string(conf, "modefg", &dest))
-                sp_strncpy(col_modefg, strdup(dest), sizeof(col_modefg));
+                col_modefg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "modebg", &dest))
-                sp_strncpy(col_modebg, strdup(dest), sizeof(col_modebg));
+                col_modebg = strdup(dest);
 
             // caps
             if (config_setting_lookup_string(conf, "capsfg", &dest))
-                sp_strncpy(col_capsfg, strdup(dest), sizeof(col_capsfg));
+                col_capsfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "capsbg", &dest))
-                sp_strncpy(col_capsbg, strdup(dest), sizeof(col_capsbg));
+                col_capsbg = strdup(dest);
 
             // border
             if (config_setting_lookup_string(conf, "border", &dest))
-                sp_strncpy(col_border, strdup(dest), sizeof(col_border));
+                col_border = strdup(dest);
 
             // caret
             if (config_setting_lookup_string(conf, "caretfg", &dest))
-                sp_strncpy(col_caretfg, strdup(dest), sizeof(col_caretfg));
+                col_caretfg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "caretbg", &dest))
-                sp_strncpy(col_caretbg, strdup(dest), sizeof(col_caretbg));
+                col_caretbg = strdup(dest);
 
             // sgr colors
             for (int i{}; i <= 15; ++i) {

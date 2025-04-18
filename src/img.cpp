@@ -13,7 +13,7 @@
 #include <filesystem>
 
 void setimagesize(int width, int height) {
-    if (!image || hideimage || height < 5 || width < 5 || width > sp.mw - sp.bh) {
+    if (!image || hideimage || height < 5 || width < 5 || width > ctx.mw - ctx.bh) {
         return;
     }
 
@@ -45,7 +45,7 @@ void cleanupimage() {
     }
 }
 
-void drawimage(void) {
+void drawimage() {
     int width = 0, height = 0;
     char *limg = nullptr;
 
@@ -73,16 +73,16 @@ void drawimage(void) {
         int xta = 0; // add to x
 
         if (hideprompt && hideinput && hidemode && hidematchcount && hidecaps) {
-            wtr = sp.bh;
+            wtr = ctx.bh;
         } else {
-            wta = sp.bh;
+            wta = ctx.bh;
         }
 
         // margin
         xta += menumarginh;
         wta += menumarginv;
 
-        if (sp.mh != sp.bh + height + leftmargin * 2 - wtr && imageresize) { // menu height cannot be smaller than image height
+        if (ctx.mh != ctx.bh + height + leftmargin * 2 - wtr && imageresize) { // menu height cannot be smaller than image height
             resizetoimageheight(imlib_image_get_height());
         }
 
@@ -105,7 +105,7 @@ void drawimage(void) {
             //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, sp.mh - height - leftmargin);
             draw.draw_image(imlib_image_get_data(), {
                 .x = leftmargin + (img.imagewidth - width) / 2 + xta,
-                .y = sp.mh - height - leftmargin,
+                .y = ctx.mh - height - leftmargin,
                 .w = width,
                 .h = height,
             });
@@ -113,12 +113,12 @@ void drawimage(void) {
             //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (sp.mh - wta - height) / 2 + wta);
             draw.draw_image(imlib_image_get_data(), {
                 .x = leftmargin + (img.imagewidth - width) / 2 + xta,
-                .y = (sp.mh - wta - height) / 2 + wta,
+                .y = (ctx.mh - wta - height) / 2 + wta,
                 .w = width,
                 .h = height,
             });
         } else { // top center
-            int minh = MIN(height, sp.mh - sp.bh - leftmargin * 2);
+            int minh = MIN(height, ctx.mh - ctx.bh - leftmargin * 2);
             //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (minh - height) / 2 + wta + leftmargin);
             draw.draw_image(imlib_image_get_data(), {
                 .x = leftmargin + (img.imagewidth - width) / 2 + xta,
@@ -274,8 +274,8 @@ void loadimagecache(const char *file, int *width, int *height) {
             sprintf(&md5[i*2], "%02x", (unsigned int)digest[i]);
 
         // path for cached thumbnail
-        if (!cachedir || !strcmp(cachedir, "default")) {
-            if (xdg_cache || !strcmp(cachedir, "xdg"))
+        if (cachedir.empty() || cachedir == "default") {
+            if (xdg_cache || cachedir == "xdg")
                 slen = snprintf(nullptr, 0, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5)+1;
             else
                 slen = snprintf(nullptr, 0, "%s/.cache/thumbnails/%s/%s.png", home, cachesize, md5)+1;
@@ -287,7 +287,7 @@ void loadimagecache(const char *file, int *width, int *height) {
             return;
         }
 
-        if (!cachedir || !strcmp(cachedir, "default")) {
+        if (cachedir.empty() || cachedir == "default") {
             if (xdg_cache)
                 sprintf(buf, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5);
             else
@@ -356,35 +356,35 @@ void resizetoimageheight(int imageheight) {
 
 #if X11
 void resizetoimageheight_x11(int imageheight) {
-    int mh = sp.mh, olines = lines;
+    int mh = ctx.mh, olines = lines;
     lines = img.setlines;
 
     int x, y;
 
-    if (lines * sp.bh < imageheight + img.imagegaps * 2) {
-        lines = (imageheight + img.imagegaps * 2) / sp.bh;
+    if (lines * ctx.bh < imageheight + img.imagegaps * 2) {
+        lines = (imageheight + img.imagegaps * 2) / ctx.bh;
     }
 
     get_mh();
 
     if (menuposition == 2) { // centered
-        sp.mw = MIN(MAX(max_textw() + sp.promptw, centerwidth), mo.output_width);
-        x = mo.output_xpos + ((mo.output_width  - sp.mw) / 2 + xpos);
-        y = mo.output_ypos + ((mo.output_height - sp.mh) / 2 - ypos);
+        ctx.mw = MIN(MAX(max_textw() + ctx.promptw, centerwidth), monitor.output_width);
+        x = monitor.output_xpos + ((monitor.output_width  - ctx.mw) / 2 + xpos);
+        y = monitor.output_ypos + ((monitor.output_height - ctx.mh) / 2 - ypos);
     } else { // top or bottom
-        x = mo.output_xpos + xpos;
-        y = mo.output_ypos + menuposition ? (-ypos) : (mo.output_height - sp.mh - ypos);
-        sp.mw = (menuwidth > 0 ? menuwidth : mo.output_width);
+        x = monitor.output_xpos + xpos;
+        y = monitor.output_ypos + menuposition ? (-ypos) : (monitor.output_height - ctx.mh - ypos);
+        ctx.mw = (menuwidth > 0 ? menuwidth : monitor.output_width);
     }
 
-    if (!win || mh == sp.mh) {
+    if (!win || mh == ctx.mh) {
         return;
     }
 
-    XMoveResizeWindow(dpy, win, x + sp.sp, y + sp.vp, sp.mw - 2 * sp.sp - borderwidth * 2, sp.mh);
+    XMoveResizeWindow(dpy, win, x + ctx.sp, y + ctx.vp, ctx.mw - 2 * ctx.sp - borderwidth * 2, ctx.mh);
     draw.resize({
-        .w = sp.mw - 2 * sp.sp - borderwidth * 2,
-        .h = sp.mh,
+        .w = ctx.mw - 2 * ctx.sp - borderwidth * 2,
+        .h = ctx.mh,
     });
 
     if (olines != lines) {
@@ -404,16 +404,16 @@ void resizetoimageheight_x11(int imageheight) {
 
 #if WAYLAND
 void resizetoimageheight_wl(int imageheight) {
-    int mh = sp.mh, olines = lines;
+    int mh = ctx.mh, olines = lines;
     lines = img.setlines;
 
-    if (lines * sp.bh < imageheight + img.imagegaps * 2) {
-        lines = (imageheight + img.imagegaps * 2) / sp.bh;
+    if (lines * ctx.bh < imageheight + img.imagegaps * 2) {
+        lines = (imageheight + img.imagegaps * 2) / ctx.bh;
     }
 
     get_mh();
 
-    if (mh == sp.mh) {
+    if (mh == ctx.mh) {
         return;
     }
 
@@ -428,8 +428,8 @@ void resizetoimageheight_wl(int imageheight) {
         jumptoindex(i);
     }
 
-    state.width = sp.mw;
-    state.height = sp.mh;
+    state.width = ctx.mw;
+    state.height = ctx.mh;
 
     state.buffer = create_buffer(&state);
 

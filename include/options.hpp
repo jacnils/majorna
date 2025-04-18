@@ -1,9 +1,9 @@
 #pragma once
 
-/* See LICENSE file for copyright and license details. */
+#include <string>
 
 /* majorna options */
-inline char* _class                     = "majorna"; /* Class for majorna */
+inline std::string window_class        = "majorna"; /* Class for majorna */
 inline int protocol                    = 1; /* Protocol to try first (0: X11, 1: Wayland) */
 inline int fast                        = 0; /* Grab keyboard first */
 inline int xresources                  = 1; /* Enable .Xresources support */
@@ -19,9 +19,9 @@ inline int scrolldistance              = 512; /* Distance to scroll for a scroll
 
 /* Config file options */
 #if CONFIG
-inline char *configfile                = nullptr; /* Config file path. Default is ~/.config/majorna/majorna.conf */
-inline char *themefile                 = nullptr; /* Theme file path. Default is ~/.config/majorna/theme.conf */
-inline char *bindsfile                 = nullptr; /* Keybind file path. Default is ~/.config/majorna/binds.conf */
+inline std::string configfile                = {}; /* Config file path. Default is ~/.config/majorna/majorna.conf */
+inline std::string themefile                 = {}; /* Theme file path. Default is ~/.config/majorna/theme.conf */
+inline std::string bindsfile                 = {}; /* Keybind file path. Default is ~/.config/majorna/binds.conf */
 #endif
 
 /* Window options */
@@ -61,44 +61,44 @@ inline int imageposition               = 0; /* Image position (0: Top, 1: Bottom
 inline int imagetype                   = 1; /* Image type (0: Icon, 1: Image) */
 inline int generatecache               = 1; /* Generate image cache by default */
 inline int maxcache                    = 512; /* Max image size to cache */
-inline char *cachedir                  = "default"; /* Cache directory. Default means majorna will determine automatically */
+inline std::string cachedir            = "default"; /* Cache directory. Default means majorna will determine automatically */
 
 /* FIFO options */
 #if FIFO
-inline char *fifofile                  = "/tmp/majorna.fifo"; /* majorna FIFO path */
+inline std::string fifofile                  = "/tmp/majorna.fifo"; /* majorna FIFO path */
 #endif
 
 /* Screenshot options */
-inline char *screenshotfile            = nullptr; /* Screenshot file path. If set to nullptr, the default path will be used. */
-inline char *screenshotname            = nullptr; /* Screenshot file name. If set to nullptr, the default name will be used. */
-inline char *screenshotdir             = nullptr; /* Screenshot file directory. If set to nullptr, the default directory will be used. */
+inline std::string screenshotfile            = {}; /* Screenshot file path. If set to nullptr, the default path will be used. */
+inline std::string screenshotname            = {}; /* Screenshot file name. If set to nullptr, the default name will be used. */
+inline std::string screenshotdir             = {}; /* Screenshot file directory. If set to nullptr, the default directory will be used. */
 
 /* Mode options */
 inline int mode                        = 0; /* Mode to start speedwm in (0: Normal mode, 1: Insert mode) */
 inline int forceinsertmode             = 1; /* Force insert mode, meaning normal mode will be disabled (0/1) */
-inline char *normtext                  = "Normal"; /* Text to display for normal mode */
-inline char *instext                   = "Insert"; /* Text to display for insert mode */
-inline char *regextext                 = "Regex"; /* Text to display for insert mode when regex is enabled */
-inline char *capslockontext            = "Caps Lock"; /* Text to display for the caps lock indicator when caps lock is on */
-inline char *capslockofftext           = ""; /* Text to display for the caps lock indicator when caps lock is off */
+inline std::string normtext                  = "Normal"; /* Text to display for normal mode */
+inline std::string instext                   = "Insert"; /* Text to display for insert mode */
+inline std::string regextext                 = "Regex"; /* Text to display for insert mode when regex is enabled */
+inline std::string capslockontext            = "Caps Lock"; /* Text to display for the caps lock indicator when caps lock is on */
+inline std::string capslockofftext           = {}; /* Text to display for the caps lock indicator when caps lock is off */
 
 /* Window border options */
 inline int borderwidth                 = 0; /* Width of the border */
 
 /* Font options */
-inline char font[]                     = "Noto Sans Mono 10"; /* Font to draw text and Pango markup with. */
+inline std::string font                     = "Noto Sans Mono 10"; /* Font to draw text and Pango markup with. */
 inline int textpadding                 = 0; /* Global text padding */
 inline int normitempadding             = 0; /* Text padding for normal items */
 inline int selitempadding              = 0; /* Text padding for the selected item */
 inline int priitempadding              = 0; /* Text padding for the high priority items */
 
 /* Text options */
-inline char *leftarrow                 = "<"; /* Left arrow, used to indicate you can move to the left */
-inline char *rightarrow                = ">"; /* Right arrow, used to indicate you can move to the right */
-inline char *password                  = "*"; /* Password character, when the -P argument is active this will replace all characters typed */
-inline char *prompt                    = nullptr; /* Default prompt */
-inline char *input                     = nullptr; /* Default input text */
-inline char *pretext                   = nullptr; /* Default pretext */
+inline std::string leftarrow                 = "<"; /* Left arrow, used to indicate you can move to the left */
+inline std::string rightarrow                = ">"; /* Right arrow, used to indicate you can move to the right */
+inline std::string password                  = "*"; /* Password character, when the -P argument is active this will replace all characters typed */
+inline std::string prompt                    = {}; /* Default prompt */
+inline std::string input                     = {}; /* Default input text */
+inline std::string pretext                   = {}; /* Default pretext */
 
 /* Match options */
 inline int type                        = 1; /* Allow typing into majorna or only allow keybinds. */
@@ -107,9 +107,9 @@ inline int sortmatches                 = 1; /* Sort matches (0/1) */
 inline int casesensitive               = 0; /* Case-sensitive by default? (0/1) */
 inline int mark                        = 1; /* Enable marking items (multi selection) (0/1) */
 inline int preselected                 = 0; /* Which line should majorna preselect? */
-inline int fuzzy                       = 1; /* Whether or not to enable fuzzy matching by default */
-inline int regex                       = 0; /* Whether or not to enable regex matching by default */
-inline char *listfile                  = nullptr; /* File to read entries from instead of stdin. nullptr means read from stdin instead. */
+inline int fuzzy                       = 1; /* Whether to enable fuzzy matching by default */
+inline int regex                       = 0; /* Whether to enable regex matching by default */
+inline std::string listfile                  = {}; /* File to read entries from instead of stdin. nullptr means read from stdin instead. */
 
 /* Line options */
 inline int itemposition                = 0; /* Item position (0: Bottom, 1: Top) */
@@ -121,7 +121,7 @@ inline int overridecolumns             = 1; /* Allow overriding columns using ke
 inline int minlines                    = 0; /* Minimum number of lines allowed */
 
 /* History options */
-inline char *histfile                  = nullptr; /* History file, nullptr means no history file */
+inline std::string histfile                  = {}; /* History file, nullptr means no history file */
 inline int maxhist                     = 64; /* Max number of history entries */
 inline int histdup                     = 0;	/* If 1, record repeated histories */
 
@@ -151,84 +151,84 @@ inline int hideimage                   = 0; /* Hide image (0/1) */
 /* Color options
  *
  * Item colors */
-inline char col_itemnormfg[]           = "#bbbbbb"; /* Normal foreground item color */
-inline char col_itemnormbg[]           = "#110f1f"; /* Normal background item color */
-inline char col_itemnormfg2[]          = "#bbbbbb"; /* Normal foreground item colors for the next item */
-inline char col_itemnormbg2[]          = "#110f1f"; /* Normal background item colors for the next item */
-inline char col_itemselfg[]            = "#110f1f"; /* Selected foreground item color */
-inline char col_itemselbg[]            = "#8e93c2"; /* Selected background item color */
-inline char col_itemmarkedfg[]         = "#110f1f"; /* Marked foreground item color */
-inline char col_itemmarkedbg[]         = "#8e93c2"; /* Marked background item color */
-inline char col_itemnormprifg[]        = "#bbbbbb"; /* Normal foreground item (high priority) color */
-inline char col_itemnormpribg[]        = "#110f1f"; /* Normal background item (high priority) color */
-inline char col_itemselprifg[]         = "#110f1f"; /* Selected foreground item (high priority) color */
-inline char col_itemselpribg[]         = "#8e93c2"; /* Selected background item (high priority) color */
+inline std::string col_itemnormfg           = "#bbbbbb"; /* Normal foreground item color */
+inline std::string col_itemnormbg           = "#110f1f"; /* Normal background item color */
+inline std::string col_itemnormfg2          = "#bbbbbb"; /* Normal foreground item colors for the next item */
+inline std::string col_itemnormbg2          = "#110f1f"; /* Normal background item colors for the next item */
+inline std::string col_itemselfg            = "#110f1f"; /* Selected foreground item color */
+inline std::string col_itemselbg            = "#8e93c2"; /* Selected background item color */
+inline std::string col_itemmarkedfg         = "#110f1f"; /* Marked foreground item color */
+inline std::string col_itemmarkedbg         = "#8e93c2"; /* Marked background item color */
+inline std::string col_itemnormprifg        = "#bbbbbb"; /* Normal foreground item (high priority) color */
+inline std::string col_itemnormpribg        = "#110f1f"; /* Normal background item (high priority) color */
+inline std::string col_itemselprifg         = "#110f1f"; /* Selected foreground item (high priority) color */
+inline std::string col_itemselpribg         = "#8e93c2"; /* Selected background item (high priority) color */
 
 /* Input colors */
-inline char col_inputfg[]              = "#eeeeee"; /* Input field foreground color */
-inline char col_inputbg[]              = "#110f1f"; /* Input field background color */
+inline std::string col_inputfg              = "#eeeeee"; /* Input field foreground color */
+inline std::string col_inputbg              = "#110f1f"; /* Input field background color */
 
 /* Pretext colors */
-inline char col_pretextfg[]            = "#999888"; /* Pretext foreground color */
-inline char col_pretextbg[]            = "#110f1f"; /* Pretext background color */
+inline std::string col_pretextfg            = "#999888"; /* Pretext foreground color */
+inline std::string col_pretextbg            = "#110f1f"; /* Pretext background color */
 
 /* Menu colors */
-inline char col_menu[]                 = "#110f1f"; /* Menu background color */
+inline std::string col_menu                 = "#110f1f"; /* Menu background color */
 
 /* Prompt colors */
-inline char col_promptfg[]             = "#110f1f"; /* Prompt foreground color */
-inline char col_promptbg[]             = "#c66e5b"; /* Prompt background color */
+inline std::string col_promptfg             = "#110f1f"; /* Prompt foreground color */
+inline std::string col_promptbg             = "#c66e5b"; /* Prompt background color */
 
 /* Arrow colors */
-inline char col_larrowfg[]             = "#bbbbbb"; /* Left arrow color */
-inline char col_rarrowfg[]             = "#bbbbbb"; /* Right arrow color */
-inline char col_larrowbg[]             = "#110f1f"; /* Left arrow color */
-inline char col_rarrowbg[]             = "#110f1f"; /* Right arrow color */
+inline std::string col_larrowfg             = "#bbbbbb"; /* Left arrow color */
+inline std::string col_rarrowfg             = "#bbbbbb"; /* Right arrow color */
+inline std::string col_larrowbg             = "#110f1f"; /* Left arrow color */
+inline std::string col_rarrowbg             = "#110f1f"; /* Right arrow color */
 
 /* Normal highlight colors */
-inline char col_hlnormfg[]             = "#ffffff"; /* Normal text highlight color */
-inline char col_hlnormbg[]             = "#000000"; /* Normal background highlight color */
+inline std::string col_hlnormfg             = "#ffffff"; /* Normal text highlight color */
+inline std::string col_hlnormbg             = "#000000"; /* Normal background highlight color */
 
 /* Selected highlight colors */
-inline char col_hlselfg[]              = "#ffffff"; /* Selected text highlight color */
-inline char col_hlselbg[]              = "#000000"; /* Selected background highlight color */
+inline std::string col_hlselfg              = "#ffffff"; /* Selected text highlight color */
+inline std::string col_hlselbg              = "#000000"; /* Selected background highlight color */
 
 /* Match count colors */
-inline char col_numfg[]                = "#110f1f"; /* Match count text color */
-inline char col_numbg[]                = "#eba62a"; /* Match count background color */
+inline std::string col_numfg                = "#110f1f"; /* Match count text color */
+inline std::string col_numbg                = "#eba62a"; /* Match count background color */
 
 /* Border color */
-inline char col_border[]               = "#8e93c2"; /* Border color */
+inline std::string col_border               = "#8e93c2"; /* Border color */
 
 /* Caret colors */
-inline char col_caretfg[]              = "#ffffff"; /* Foreground caret color */
-inline char col_caretbg[]              = "#110f1f"; /* Background caret color */
+inline std::string col_caretfg              = "#ffffff"; /* Foreground caret color */
+inline std::string col_caretbg              = "#110f1f"; /* Background caret color */
 
 /* Mode colors */
-inline char col_modefg[]               = "#110f1f"; /* Mode text color */
-inline char col_modebg[]               = "#92c94b"; /* Mode background color */
+inline std::string col_modefg               = "#110f1f"; /* Mode text color */
+inline std::string col_modebg               = "#92c94b"; /* Mode background color */
 
 /* Caps lock colors */
-inline char col_capsfg[]               = "#110f1f"; /* Caps lock text color */
-inline char col_capsbg[]               = "#f8d3e6"; /* Caps lock background color */
+inline std::string col_capsfg               = "#110f1f"; /* Caps lock text color */
+inline std::string col_capsbg               = "#f8d3e6"; /* Caps lock background color */
 
 /* SGR colors */
-inline char col_sgr0[]                 = "#20201d"; /* SGR color #0 */
-inline char col_sgr1[]                 = "#d73737"; /* SGR color #1 */
-inline char col_sgr2[]                 = "#60ac39"; /* SGR color #2 */
-inline char col_sgr3[]                 = "#cfb017"; /* SGR color #3 */
-inline char col_sgr4[]                 = "#6684e1"; /* SGR color #4 */
-inline char col_sgr5[]                 = "#b854d4"; /* SGR color #5 */
-inline char col_sgr6[]                 = "#1fad83"; /* SGR color #6 */
-inline char col_sgr7[]                 = "#a6a28c"; /* SGR color #7 */
-inline char col_sgr8[]                 = "#7d7a68"; /* SGR color #8 */
-inline char col_sgr9[]                 = "#d73737"; /* SGR color #9 */
-inline char col_sgr10[]                = "#60ac39"; /* SGR color #10 */
-inline char col_sgr11[]                = "#cfb017"; /* SGR color #11 */
-inline char col_sgr12[]                = "#6684e1"; /* SGR color #12 */
-inline char col_sgr13[]                = "#b854d4"; /* SGR color #13 */
-inline char col_sgr14[]                = "#1fad83"; /* SGR color #14 */
-inline char col_sgr15[]                = "#fefbec"; /* SGR color #15 */
+inline std::string col_sgr0                 = "#20201d"; /* SGR color #0 */
+inline std::string col_sgr1                 = "#d73737"; /* SGR color #1 */
+inline std::string col_sgr2                 = "#60ac39"; /* SGR color #2 */
+inline std::string col_sgr3                 = "#cfb017"; /* SGR color #3 */
+inline std::string col_sgr4                 = "#6684e1"; /* SGR color #4 */
+inline std::string col_sgr5                 = "#b854d4"; /* SGR color #5 */
+inline std::string col_sgr6                 = "#1fad83"; /* SGR color #6 */
+inline std::string col_sgr7                 = "#a6a28c"; /* SGR color #7 */
+inline std::string col_sgr8                 = "#7d7a68"; /* SGR color #8 */
+inline std::string col_sgr9                 = "#d73737"; /* SGR color #9 */
+inline std::string col_sgr10                = "#60ac39"; /* SGR color #10 */
+inline std::string col_sgr11                = "#cfb017"; /* SGR color #11 */
+inline std::string col_sgr12                = "#6684e1"; /* SGR color #12 */
+inline std::string col_sgr13                = "#b854d4"; /* SGR color #13 */
+inline std::string col_sgr14                = "#1fad83"; /* SGR color #14 */
+inline std::string col_sgr15                = "#fefbec"; /* SGR color #15 */
 
 /* Alpha options */
 inline int alpha_itemnormfg            = 255; /* Alpha for normal item foreground (0-255) */
@@ -286,4 +286,4 @@ inline int requirematch                = 0; /* Require input text to match an it
 inline int incremental                 = 0; /* Print text every time a key is pressed (0/1) */
 inline int coloritems                  = 1; /* Color items (0/1) */
 inline int sgr                         = 1; /* Support SGR sequences (0/1) */
-inline char *worddelimiters            = " /?\"&[]"; /* Word delimiters used for keybinds that change words, Space is default. */
+inline std::string worddelimiters            = " /?\"&[]"; /* Word delimiters used for keybinds that change words, Space is default. */

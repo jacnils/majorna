@@ -12,6 +12,7 @@
 #include <majorna.hpp>
 #include <draw.hpp>
 #include <match.hpp>
+#include <filesystem>
 
 void execute_fifo_cmd() {
     int fd;
@@ -19,7 +20,7 @@ void execute_fifo_cmd() {
 
     done = 0;
 
-    fd = open(fifofile, O_RDONLY);
+    fd = open(fifofile.c_str(), O_RDONLY);
     int r = read(fd, fifot, sizeof(fifot));
 
     if (!r) {
@@ -33,13 +34,13 @@ void execute_fifo_cmd() {
      * by outputting text to the FIFO.
      */
     if (!strcmp(fifot, "drawmenu")) {
-        if (!sp.isdrawing) {
+        if (!ctx.isdrawing) {
             drawmenu();
         }
     } else if (!strcmp(fifot, "match")) {
         match();
     } else if (!strcmp(fifot, "update")) {
-        if (!sp.isdrawing) {
+        if (!ctx.isdrawing) {
             match();
             drawmenu();
         }
@@ -217,8 +218,8 @@ void execute_fifo_cmd() {
 
     close(fd);
 
-    remove(fifofile);
-    mkfifo(fifofile, 0660);
+    std::filesystem::remove(fifofile);
+    mkfifo(fifofile.c_str(), 0660);
 
     done = 1;
 }
@@ -234,7 +235,7 @@ void *fifocmd(void *n) {
 }
 
 void init_fifo() {
-    mkfifo(fifofile, 0660);
+    mkfifo(fifofile.c_str(), 0660);
     pthread_t tid;
     pthread_create(&tid, NULL, &fifocmd, NULL);
 }

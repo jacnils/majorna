@@ -25,6 +25,7 @@
 #include <x11/client.hpp>
 #include <match.hpp>
 #include <cctype>
+#include <filesystem>
 
 int is_selected(size_t index) {
     for (int i = 0; i < sel_size; i++) {
@@ -71,9 +72,9 @@ void recalculatenumbers() {
     }
 
     if (selected) {
-        snprintf(tx.numbers, NUMBERSBUFSIZE, "%d/%d/%d", numer, denom, selected);
+        snprintf(strings.numbers, NUMBERSBUFSIZE, "%d/%d/%d", numer, denom, selected);
     } else {
-        snprintf(tx.numbers, NUMBERSBUFSIZE, "%d/%d", numer, denom);
+        snprintf(strings.numbers, NUMBERSBUFSIZE, "%d/%d", numer, denom);
     }
 }
 
@@ -85,35 +86,35 @@ void calcoffsets() {
     int rarroww = 0;
     int capsw = 0;
 
-    if (!hidematchcount) numberw = pango_numbers ? TEXTWM(tx.numbers) : TEXTW(tx.numbers);
-    if (!hidemode) modew = pango_mode ? TEXTWM(tx.modetext) : TEXTW(tx.modetext);
+    if (!hidematchcount) numberw = pango_numbers ? TEXTWM(strings.numbers) : TEXTW(strings.numbers);
+    if (!hidemode) modew = pango_mode ? TEXTWM(strings.modetext) : TEXTW(strings.modetext);
     if (!hidelarrow) larroww = pango_leftarrow ? TEXTWM(leftarrow) : TEXTW(leftarrow);
     if (!hiderarrow) rarroww = pango_rightarrow ? TEXTWM(rightarrow) : TEXTW(rightarrow);
-    if (!hidecaps) capsw = pango_caps ? TEXTWM(tx.capstext) : TEXTW(tx.capstext);
+    if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.capstext) : TEXTW(strings.capstext);
 
-    if (!strcmp(tx.capstext, "")) {
+    if (!strcmp(strings.capstext, "")) {
         capsw = 0;
     }
 
     if (lines > 0) {
-        offset = lines * columns * sp.bh;
-        sp.maxlen = sp.mw - (sp.promptw + modew + numberw + capsw + menumarginh);
+        offset = lines * columns * ctx.bh;
+        ctx.maxlen = ctx.mw - (ctx.promptw + modew + numberw + capsw + menumarginh);
     } else { /* no lines, therefore the size of items must be decreased to fit the menu elements */
-        offset = sp.mw - (sp.promptw + sp.inputw + larroww + rarroww + modew + numberw + capsw + menumarginh);
-        sp.maxlen = selecteditem ? sp.inputw : sp.mw - (sp.promptw + modew + numberw + capsw + (selecteditem ? larroww : 0) + (selecteditem ? rarroww : 0));
+        offset = ctx.mw - (ctx.promptw + ctx.inputw + larroww + rarroww + modew + numberw + capsw + menumarginh);
+        ctx.maxlen = selecteditem ? ctx.inputw : ctx.mw - (ctx.promptw + modew + numberw + capsw + (selecteditem ? larroww : 0) + (selecteditem ? rarroww : 0));
     }
 
     for (i = 0, nextitem = currentitem; nextitem; nextitem = nextitem->right) { // next page
         nextitem->nsgrtext = get_text_n_sgr(nextitem);
 
-        if ((i += (lines > 0) ? sp.bh : MIN(TEXTWM(nextitem->nsgrtext) + (powerlineitems ? !lines ? 3 * sp.plw : 0 : 0), offset)) > offset)
+        if ((i += (lines > 0) ? ctx.bh : MIN(TEXTWM(nextitem->nsgrtext) + (powerlineitems ? !lines ? 3 * ctx.plw : 0 : 0), offset)) > offset)
             break;
     }
 
     for (i = 0, previousitem = currentitem; previousitem && previousitem->left; previousitem = previousitem->left) { // previous page
         previousitem->nsgrtext = get_text_n_sgr(previousitem);
 
-        if ((i += (lines > 0) ? sp.bh : MIN(TEXTWM(previousitem->left->nsgrtext) + (powerlineitems ? !lines ? 3 * sp.plw : 0 : 0), offset)) > offset)
+        if ((i += (lines > 0) ? ctx.bh : MIN(TEXTWM(previousitem->left->nsgrtext) + (powerlineitems ? !lines ? 3 * ctx.plw : 0 : 0), offset)) > offset)
             break;
     }
 }
@@ -144,7 +145,7 @@ void cleanup() {
 #endif
 
 #if FIFO
-    remove(fifofile);
+    std::filesystem::remove(fifofile);
 #endif
 
     free(sel_index);
@@ -168,38 +169,38 @@ char * cistrstr(const char *h, const char *n) {
 }
 
 void insert(const char *str, ssize_t n) {
-    if (strlen(tx.text) + n > sizeof tx.text - 1)
+    if (strlen(strings.text) + n > sizeof strings.text - 1)
         return;
 
     static char l[BUFSIZ] = "";
 
     if (requirematch) {
-        memcpy(l, tx.text, BUFSIZ);
+        memcpy(l, strings.text, BUFSIZ);
     }
 
     // move existing text out of the way, insert new text, and update cursor
     memmove(
-            &tx.text[sp.cursor + n],
-            &tx.text[sp.cursor],
-            sizeof tx.text - sp.cursor - MAX(n, 0)
+            &strings.text[ctx.cursor + n],
+            &strings.text[ctx.cursor],
+            sizeof strings.text - ctx.cursor - MAX(n, 0)
     );
 
     if (n > 0 && str && n) {
-        memcpy(&tx.text[sp.cursor], str, n);
+        memcpy(&strings.text[ctx.cursor], str, n);
     }
 
-    sp.cursor += n;
+    ctx.cursor += n;
     match();
 
     if (!matches && requirematch) {
-        memcpy(tx.text, l, BUFSIZ);
-        sp.cursor -= n;
+        memcpy(strings.text, l, BUFSIZ);
+        ctx.cursor -= n;
         match();
     }
 
     // output on insertion
     if (incremental) {
-        puts(tx.text);
+        puts(strings.text);
         fflush(stdout);
     }
 }
@@ -208,7 +209,7 @@ size_t nextrune(int inc) {
     ssize_t rune;
 
     // return location of next utf8 rune in the given direction (+1 or -1)
-    for (rune = sp.cursor + inc; rune + inc >= 0 && (tx.text[rune] & 0xc0) == 0x80; rune += inc)
+    for (rune = ctx.cursor + inc; rune + inc >= 0 && (strings.text[rune] & 0xc0) == 0x80; rune += inc)
         ;
 
     return rune;
@@ -233,53 +234,53 @@ void resizeclient() {
  * items.
  */
 void get_width() {
-    sp.inputw = sp.mw * inputwidth;
+    ctx.inputw = ctx.mw * inputwidth;
 }
 
 void get_mh() {
     int epad;
 
-    sp.mh = (lines + 1) * sp.bh;
-    sp.mh += 2 * menumarginv;
+    ctx.mh = (lines + 1) * ctx.bh;
+    ctx.mh += 2 * menumarginv;
 
     // subtract 1 line if there's nothing to draw on the top line
     if ((hideprompt && hideinput && hidemode && hidematchcount && hidecaps) && lines) {
-        sp.mh -= sp.bh;
+        ctx.mh -= ctx.bh;
     }
 
     epad = 2 * menupaddingv;
 
     // the majorna window should not exceed the screen resolution height
-    if (mo.output_height && !xpos && !ypos) {
-        sp.mh = MIN(sp.mh, mo.output_height - epad);
+    if (monitor.output_height && !xpos && !ypos) {
+        ctx.mh = MIN(ctx.mh, monitor.output_height - epad);
 
-        if (sp.mh == mo.output_height - epad) {
-            lines = ((mo.output_height - epad) / sp.bh);
+        if (ctx.mh == monitor.output_height - epad) {
+            lines = ((monitor.output_height - epad) / ctx.bh);
         }
     }
 }
 
 void set_mode() {
     if (!type) { // no typing allowed, require normal mode
-        sp.mode = 0;
+        ctx.mode = 0;
     }
 
     // set default mode, must be done before the event loop or keybindings will not work
     if (mode) {
-        sp.mode = 1;
-        sp.allowkeys = 1;
+        ctx.mode = 1;
+        ctx.allowkeys = 1;
 
-        sp_strncpy(tx.modetext, instext, sizeof(tx.modetext));
+        sp_strncpy(strings.modetext, instext.c_str(), sizeof(strings.modetext));
     } else {
-        sp.mode = 0;
-        sp.allowkeys = !sp.mode;
+        ctx.mode = 0;
+        ctx.allowkeys = !ctx.mode;
 
-        sp_strncpy(tx.modetext, normtext, sizeof(tx.modetext));
+        sp_strncpy(strings.modetext, normtext.c_str(), sizeof(strings.modetext));
     }
 
     if (forceinsertmode) {
-        sp.mode = 1;
-        sp.allowkeys = 1;
+        ctx.mode = 1;
+        ctx.allowkeys = 1;
     }
 }
 

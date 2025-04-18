@@ -9,40 +9,50 @@
 #if CONFIG
 #if X11
 struct KeyList {
-    char* key{};
+    std::string key{};
     KeySym keysym{};
 };
 #endif
 
 #if WAYLAND
 struct WlKeyList {
-    char* key{};
+    std::string key{};
     xkb_keysym_t keysym{};
 };
 #endif
 
 #if X11
 struct ModList {
-    char* mod{};
+    std::string mod{};
     unsigned int modifier{};
 };
 #endif
 
 #if WAYLAND
 struct WlModList {
-    char* mod{};
-    char* modifier{};
+    std::string mod{};
+    std::string modifier{};
 };
 #endif
 
 struct ArgList {
-    char* argument{};
+    std::string argument{};
     Arg arg{};
 };
 
 struct FuncList {
     std::string function{};
     std::function<void(Arg&)> func{};
+};
+
+struct ButtonType {
+    std::string click;
+    unsigned int button;
+};
+
+struct ClickType {
+    std::string tclick;
+    unsigned int click;
 };
 
 inline FuncList fl[] = {
@@ -107,7 +117,7 @@ inline FuncList fl[] = {
 
 // list of modifiers that can be used in the config file
 #if X11
-inline ModList ml[] = {
+inline std::vector<ModList> ml{
     { "Ctrl+Shift", ShiftMask|ControlMask },
     { "Ctrl+Shift+Super", ShiftMask|ControlMask|Mod4Mask },
     { "Ctrl+Super", Mod4Mask|ControlMask },
@@ -128,7 +138,7 @@ inline ModList ml[] = {
 #endif
 
 #if WAYLAND
-inline WlModList wml[] = {
+inline std::vector<WlModList> wml{
     { "Ctrl+Shift", WL_CtrlShift },
     { "Ctrl+Shift+Super", WL_CtrlShiftSuper },
     { "Ctrl+Super", WL_CtrlSuper },
@@ -149,7 +159,7 @@ inline WlModList wml[] = {
 // list of keys that can be used in the config file
 // expand this array if you want more
 #if X11
-inline KeyList kl[] = {
+inline std::vector<KeyList> kl {
     { "None",       0 },
     { "Space",      XK_space },
     { "Enter",      XK_Return },
@@ -255,7 +265,7 @@ inline KeyList kl[] = {
 // list of keys that can be used in the config file
 // expand this array if you want more
 #if WAYLAND
-inline WlKeyList wkl[] = {
+inline std::vector<WlKeyList> wkl{
     { "None",       0 },
     { "Space",      XKB_KEY_space },
     { "Enter",      XKB_KEY_Return },
@@ -358,18 +368,8 @@ inline WlKeyList wkl[] = {
 };
 #endif
 
-typedef struct {
-    char *click;
-    unsigned int button;
-} ButtonType;
-
-typedef struct {
-    char *tclick;
-    unsigned int click;
-} ClickType;
-
 #if X11
-inline ButtonType btp[] = {
+inline std::vector<ButtonType> btp{
     { "Left Click",   Button1 },
     { "Middle Click", Button2 },
     { "Right Click",  Button3 },
@@ -379,7 +379,7 @@ inline ButtonType btp[] = {
 #endif
 
 #if WAYLAND
-inline ButtonType w_btp[] = {
+inline std::vector<ButtonType> w_btp{
     { "Left Click",   WL_Left },
     { "Middle Click", WL_Middle },
     { "Right Click",  WL_Right },
@@ -388,7 +388,7 @@ inline ButtonType w_btp[] = {
 };
 #endif
 
-inline ClickType ctp[] = {
+inline std::vector<ClickType> ctp{
     { "ClickWindow",  ClickWindow },
     { "ClickPrompt",  ClickPrompt },
     { "ClickInput",   ClickInput },

@@ -1,4 +1,7 @@
 #pragma once
 
-char **tokenize(char *source, const char *delim, int *llen);
+#include <string>
+#include <vector>
+
+std::vector<std::string> tokenize(const std::string& source, const char* delim);
 int arrayhas(char **list, int length, char *item);

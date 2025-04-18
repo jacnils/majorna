@@ -7,6 +7,7 @@
 #include <options.hpp>
 #include <majorna.hpp>
 #include <match.hpp>
+#include <filesystem>
 
 void load_history() {
     FILE *fp = nullptr;
@@ -15,12 +16,12 @@ void load_history() {
     char *line;
 
     // no history file, give up like i do with all things in life
-    if (!histfile) {
+    if (histfile.empty() || !std::filesystem::is_regular_file(histfile)) {
         return;
     }
 
     // open history file, return if it failed
-    fp = fopen(histfile, "r");
+    fp = fopen(histfile.c_str(), "r");
     if (!fp) {
         fprintf(stderr, "majorna: failed to open history file\n");
         return;
@@ -67,7 +68,7 @@ void navigatehistfile(int dir) {
         return;
 
     if (histsz == histpos) {
-        strncpy(def, tx.text, sizeof(def));
+        strncpy(def, strings.text, sizeof(def));
     }
 
     switch (dir) {
@@ -91,9 +92,9 @@ void navigatehistfile(int dir) {
     }
 
     len = MIN(strlen(p), BUFSIZ - 1);
-    sp_strncpy(tx.text, p, sizeof(tx.text));
-    tx.text[len] = '\0';
-    sp.cursor = len;
+    sp_strncpy(strings.text, p, sizeof(strings.text));
+    strings.text[len] = '\0';
+    ctx.cursor = len;
     match();
 }
 
@@ -101,13 +102,13 @@ void savehistory(char *input) {
     unsigned int i;
     FILE *fp;
 
-    if (!histfile ||
+    if (histfile.empty() ||
             0 == maxhist ||
             0 == strlen(input)) {
         goto out;
     }
 
-    fp = fopen(histfile, "w");
+    fp = fopen(histfile.c_str(), "w");
     if (!fp) {
         die("majorna: failed to open %s", histfile);
     }

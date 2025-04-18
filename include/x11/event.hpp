@@ -1,3 +1,3 @@
 #pragma once
 
-void eventloop_x11(void);
+void eventloop_x11();

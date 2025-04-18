@@ -4,13 +4,13 @@
 #include <arg.hpp> // only for the quit fptr
 #include <functional>
 
-typedef struct {
-    unsigned int mode;
-    unsigned int mod;
-    KeySym keysym;
-    std::function <void(Arg&)> func;
-    Arg arg;
-} Key;
+struct Key {
+    int mode{};
+    unsigned int mod{};
+    KeySym keysym{};
+    std::function <void(Arg&)> func{};
+    Arg arg{};
+};
 
 // user friendly names for all the modifiers we're using, but there are many more
 #define Ctrl ControlMask
@@ -20,10 +20,10 @@ typedef struct {
 #define Super Mod4Mask
 #define ShiftGr Mod5Mask
 
-void updatenumlockmask(void);
-void keypress_x11(XEvent *e);
-void grabkeyboard_x11(void);
-void getcapsstate(void);
+void updatenumlockmask();
+void keypress_x11(XEvent& e);
+void grabkeyboard_x11();
+void getcapsstate();
 
-inline Key ckeys[256];
-inline Key hkeys[1] = { { static_cast<unsigned int>(-1), Ctrl|Alt, XK_Delete, quit, {0} } };
+inline std::vector<Key> ckeys;
+inline Key hkeys[1] = { { -1, Ctrl|Alt, XK_Delete, quit, {0} } };
