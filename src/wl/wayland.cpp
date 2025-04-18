@@ -382,16 +382,16 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
         }
     }
 
-    for (i = 0; i < LENGTH(wl_buttons); i++) {
+    for (auto& it : wl_buttons) {
         if (ctx.ignore_global_mouse) break;
-        if ((click == wl_buttons[i].click || wl_buttons[i].click == ClickNone) && wl_buttons[i].func && wl_buttons[i].button == button)
-            wl_buttons[i].func(wl_buttons[i].arg);
+        if ((click == it.click || it.click == ClickNone) && it.func && it.button == button)
+            it.func(it.arg);
     }
 
-    for (i = 0; i < LENGTH(wl_cbuttons); i++) {
+    for (auto& it : wl_cbuttons) {
         if (ctx.ignore_conf_mouse) break;
-        if ((click == wl_cbuttons[i].click || wl_cbuttons[i].click == ClickNone) && wl_cbuttons[i].func && wl_cbuttons[i].button == button)
-            wl_cbuttons[i].func(wl_cbuttons[i].arg);
+        if ((click == it.click || it.click == ClickNone) && it.func && it.button == button)
+            it.func(it.arg);
     }
 }
 

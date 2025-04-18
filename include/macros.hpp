@@ -2,21 +2,9 @@
 
 #include <cstddef>
 
-#ifndef MAX
-#define MAX(A, B)               ((A) > (B) ? (A) : (B))
-#endif
-#ifndef MIN
-#define MIN(A, B)               ((A) < (B) ? (A) : (B))
-#endif
-#ifndef BETWEEN
-#define BETWEEN(X, A, B)        ((A) <= (X) && (X) <= (B))
-#endif
 #ifndef INTERSECT
 #define INTERSECT(x,y,w,h,r)    (MAX(0, MIN((x)+(w),(r).x_org+(r).width)  - MAX((x),(r).x_org)) \
         && MAX(0, MIN((y)+(h),(r).y_org+(r).height) - MAX((y),(r).y_org)))
-#endif
-#ifndef LENGTH
-#define LENGTH(X)               (sizeof X / sizeof X[0])
 #endif
 #ifndef TEXTW
 #define TEXTW(X)                (draw.get_text_width((X), false) + ctx.lrpad)
