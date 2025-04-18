@@ -40,34 +40,34 @@ void keypress_x11(XEvent& e) {
     if (keysym == hkeys[0].keysym && CLEANMASK(hkeys[0].mod) == CLEANMASK(ev->state) && hkeys[0].func) hkeys[0].func(hkeys[0].arg);
 
     for (unsigned int i = 0; i < LENGTH(keys); i++) {
-        if (sp.ignoreglobalkeys) break;
+        if (ctx.ignoreglobalkeys) break;
         if (keysym == keys[i].keysym && CLEANMASK(keys[i].mod) == CLEANMASK(ev->state) && keys[i].func) {
-            if ((keys[i].mode && sp.mode) || keys[i].mode == -1) {
+            if ((keys[i].mode && ctx.mode) || keys[i].mode == -1) {
                 keys[i].func(keys[i].arg);
                 return;
-            } else if (!keys[i].mode && !sp.mode) {
+            } else if (!keys[i].mode && !ctx.mode) {
                 keys[i].func(keys[i].arg);
             }
         }
     }
 
     for (unsigned int i = 0; i < LENGTH(ckeys); i++) {
-        if (sp.ignoreconfkeys) break;
+        if (ctx.ignoreconfkeys) break;
         if (keysym == ckeys[i].keysym && CLEANMASK(ckeys[i].mod) == CLEANMASK(ev->state) && ckeys[i].func) {
-            if ((ckeys[i].mode && sp.mode) || ckeys[i].mode == -1) {
+            if ((ckeys[i].mode && ctx.mode) || ckeys[i].mode == -1) {
                 ckeys[i].func(ckeys[i].arg);
                 return;
-            } else if (!ckeys[i].mode && !sp.mode) {
+            } else if (!ckeys[i].mode && !ctx.mode) {
                 ckeys[i].func(ckeys[i].arg);
             }
         }
     }
 
-    if (!iscntrl(*buf) && type && sp.mode ) {
-        if (sp.allowkeys) {
+    if (!iscntrl(*buf) && type && ctx.mode ) {
+        if (ctx.allowkeys) {
             insert(buf, len);
         } else {
-            sp.allowkeys = !sp.allowkeys;
+            ctx.allowkeys = !ctx.allowkeys;
         }
 
         drawmenu();
@@ -96,7 +96,7 @@ void getcapsstate() {
     unsigned int cs = 0;
 
     XkbGetIndicatorState(dpy, XkbUseCoreKbd, &cs);
-    sp.capslockstate = (cs & 0x01) == 1;
+    ctx.capslockstate = (cs & 0x01) == 1;
 
-    strncpy(tx.capstext, sp.capslockstate ? capslockontext.c_str() : capslockofftext.c_str(), 15);
+    strncpy(strings.capstext, ctx.capslockstate ? capslockontext.c_str() : capslockofftext.c_str(), 15);
 }

@@ -34,13 +34,13 @@ void execute_fifo_cmd() {
      * by outputting text to the FIFO.
      */
     if (!strcmp(fifot, "drawmenu")) {
-        if (!sp.isdrawing) {
+        if (!ctx.isdrawing) {
             drawmenu();
         }
     } else if (!strcmp(fifot, "match")) {
         match();
     } else if (!strcmp(fifot, "update")) {
-        if (!sp.isdrawing) {
+        if (!ctx.isdrawing) {
             match();
             drawmenu();
         }

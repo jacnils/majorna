@@ -40,7 +40,7 @@ void create_window_x11(int x, int y, int w, int h) {
 
 void set_window_x11() {
     XColor col;
-    XClassHint ch = { strdup(_class.c_str()), strdup(_class.c_str()) };
+    XClassHint ch = { strdup(window_class.c_str()), strdup(window_class.c_str()) };
 
     unsigned short r{};
     unsigned short g{};
@@ -96,24 +96,24 @@ void resizeclient_x11(void) {
     get_mh();
 
     if (hideprompt && hideinput && hidemode && hidematchcount && hidecaps) {
-        sp.mh -= sp.bh;
+        ctx.mh -= ctx.bh;
     }
 
     if (menuposition == 2) { // centered
-        sp.mw = MIN(MAX(max_textw() + sp.promptw, centerwidth), mo.output_width);
-        x = mo.output_xpos + ((mo.output_width  - sp.mw) / 2 + xpos);
-        y = mo.output_ypos + ((mo.output_height - sp.mh) / 2 - ypos);
+        ctx.mw = MIN(MAX(max_textw() + ctx.promptw, centerwidth), monitor.output_width);
+        x = monitor.output_xpos + ((monitor.output_width  - ctx.mw) / 2 + xpos);
+        y = monitor.output_ypos + ((monitor.output_height - ctx.mh) / 2 - ypos);
     } else { // top or bottom
-        x = mo.output_xpos + xpos;
-        y = mo.output_ypos + menuposition ? (-ypos) : (mo.output_height - sp.mh - ypos);
-        sp.mw = (menuwidth > 0 ? menuwidth : mo.output_width);
+        x = monitor.output_xpos + xpos;
+        y = monitor.output_ypos + menuposition ? (-ypos) : (monitor.output_height - ctx.mh - ypos);
+        ctx.mw = (menuwidth > 0 ? menuwidth : monitor.output_width);
     }
 
     if (win) {
-        XMoveResizeWindow(dpy, win, x + sp.sp, y + sp.vp, sp.mw - 2 * sp.sp - borderwidth * 2, sp.mh);
+        XMoveResizeWindow(dpy, win, x + ctx.sp, y + ctx.vp, ctx.mw - 2 * ctx.sp - borderwidth * 2, ctx.mh);
         draw.resize({
-            .w = sp.mw - 2 * sp.sp - borderwidth * 2,
-            .h = sp.mh,
+            .w = ctx.mw - 2 * ctx.sp - borderwidth * 2,
+            .h = ctx.mh,
         });
     }
 }

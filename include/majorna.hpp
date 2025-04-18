@@ -25,66 +25,67 @@ enum {
 };
 
 struct item {
-    char *text;
-    char *nsgrtext;
-    char *image;
-    char *ex;
-    item* left, *right;
-    int hp;
-    int index;
-    double distance;
+    char *text{};
+    char *nsgrtext{};
+    char *image{};
+    char *ex{};
+    item* left{}, *right{};
+    int hp{};
+    int index{};
+    double distance{};
 };
 
-struct sp {
-    int bh; // height of each menu item
-    int mw; // width
-    int mh; // height
-    int vp; // vertical padding for bar
-    int sp; // side padding for bar
-    int lrpad; // sum of left and right padding
+struct context
+{
+    int bh{}; // height of each menu item
+    int mw{}; // width
+    int mh{}; // height
+    int vp{}; // vertical padding for bar
+    int sp{}; // side padding for bar
+    int lrpad{}; // sum of left and right padding
 
-    int mode; // current mode
-    int allowkeys; // interpret a keypress as an insertion?
-    int capslockstate; // caps lock state
-    int isdrawing;
+    int mode{}; // current mode
+    int allowkeys{}; // interpret a keypress as an insertion?
+    bool capslockstate{}; // caps lock state
+    bool isdrawing{};
 
-    int inputw; // input width
-    int promptw; // prompt width
-    int plw; // powerline width
+    int inputw{}; // input width
+    int promptw{}; // prompt width
+    int plw{}; // powerline width
 
-    int itemnumber; // item number
-    int listcount;
-    int listchanged;
+    int itemnumber{}; // item number
+    int listcount{};
+    bool listchanged{};
 
-    int maxlen; // max length of text
+    int maxlen{}; // max length of text
 
-    size_t cursor; // cursor width
+    std::size_t cursor{}; // cursor width
 
-    int ignoreconfkeys; // can be set globally if you don't want to override keybinds with config file keys
-    int ignoreglobalkeys; // should be set in the config file, if 1, the Keys keys array is ignored
-    int ignoreconfmouse; // same for mouse
-    int ignoreglobalmouse; // same for mouse
+    bool ignoreconfkeys{}; // can be set globally if you don't want to override keybinds with config file keys
+    bool ignoreglobalkeys{}; // should be set in the config file, if 1, the Keys keys array is ignored
+    bool ignoreconfmouse{}; // same for mouse
+    bool ignoreglobalmouse{}; // same for mouse
 };
 
-struct mo {
-    int output_width; // output width
-    int output_height; // output height
-    int output_xpos; // output x position
-    int output_ypos; // output y position
+struct monitor {
+    int output_width{}; // output width
+    int output_height{}; // output height
+    int output_xpos{}; // output x position
+    int output_ypos{}; // output y position
 };
 
 #if IMAGE
 struct img {
-    int setlines; // actual lines
-    int flip; // %=
-    int longestedge; // MAX(imagewidth, imageheight)
-    int imagewidth; // current image width
-    int imageheight; // current image height
-    int imagegaps; // current image gaps
+    int setlines{}; // actual lines
+    int flip{}; // %=
+    int longestedge{}; // MAX(imagewidth, imageheight)
+    int imagewidth{}; // current image width
+    int imageheight{}; // current image height
+    int imagegaps{}; // current image gaps
 };
 #endif
 
-struct tx {
+struct strings {
     char modetext[64]; // mode text
     char text[BUFSIZ]; // input text
     char numbers[NUMBERSBUFSIZE]; // number text
@@ -93,24 +94,24 @@ struct tx {
 
 #if X11
 struct x11 {
-    int numlockmask;
-    int useargb;
-    int depth;
-    char *embed;
-    int screen;
-    Visual *visual;
-    Colormap cmap;
+    int numlockmask{};
+    bool useargb{};
+    int depth{};
+    char *embed{};
+    int screen{};
+    Visual *visual{};
+    Colormap cmap{};
 };
 #endif
 
-inline sp sp = {0};
-inline tx tx = {0};
-inline mo mo = {0};
+inline context ctx{};
+inline strings strings{};
+inline monitor monitor{};
 #if IMAGE
-inline img img = {0};
+inline img img{};
 #endif
 #if X11
-inline x11 x11 = {0};
+inline x11 x11{};
 #endif
 
 inline item *items = nullptr;
@@ -125,7 +126,7 @@ inline item *nextitem;
 inline item *selecteditem;
 inline item *mouseitem;
 
-inline limhamn::primitive::draw_manager draw;
+inline limhamn::primitive::draw_manager draw{};
 
 inline int hplength = 0;
 inline char **hpitems = nullptr;
@@ -139,23 +140,23 @@ inline unsigned int sel_size = 0;
 inline int itemn = 0;
 
 #if RTL
-inline int isrtl = 1;
+inline bool isrtl = true;
 #else
-inline int isrtl = 0;
+inline bool isrtl = false;
 #endif
 
 int is_selected(size_t index);
-void calcoffsets(void);
-void recalculatenumbers(void);
+void calcoffsets();
+void recalculatenumbers();
 void insert(const char *str, ssize_t n);
-void cleanup(void);
-void resizeclient(void);
-void get_width(void);
-void get_mh(void);
-void set_mode(void);
-void handle(void);
+void cleanup();
+void resizeclient();
+void get_width();
+void get_mh();
+void set_mode();
+void handle();
 void appenditem(struct item *item, struct item **list, struct item **last);
-int max_textw(void);
+int max_textw();
 size_t nextrune(int inc);
 
 char * cistrstr(const char *s, const char *sub);
@@ -242,8 +243,8 @@ inline WlMouse wl_buttons[] = {
 #endif
 
 int is_selected(size_t index);
-void appenditem(struct item *item, struct item **list, struct item **last);
-void recalculatenumbers(void);
+void appenditem(item *item, struct item **list, struct item **last);
+void recalculatenumbers();
 void calcoffsets();
 int max_textw();
 void cleanup();

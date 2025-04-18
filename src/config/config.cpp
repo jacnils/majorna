@@ -20,7 +20,7 @@ int bind_init() {
     const char *dest;
     int ret = 0;
 
-    if (!bindsfile || !strcmp(bindsfile, "nullptr")) {
+    if (bindsfile.empty() || bindsfile == "nullptr" || bindsfile == "NULL") {
         if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
             home = getenv("HOME");
 
@@ -141,7 +141,7 @@ int bind_init() {
             }
 
             config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
-            config_setting_lookup_int(conf, "ignoreglobalkeys", &sp.ignoreglobalkeys);
+            config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
         }
     }
 
@@ -209,7 +209,7 @@ int bind_init() {
 #endif
             }
 
-            config_setting_lookup_int(conf, "ignoreglobalmouse", &sp.ignoreglobalmouse);
+            config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
             config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
         }
     }
@@ -228,7 +228,7 @@ void conf_init() {
     const char *dest;
 
     // get path for configuration file
-    if (!configfile) {
+    if (configfile.empty()) {
         if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
             // ~/.config/majorna/majorna.conf
             home = getenv("HOME");
@@ -310,7 +310,7 @@ void conf_init() {
 
             // look up
             config_setting_lookup_string(conf, "class", &dest); // majorna.properties.class
-            _class = strdup(dest);
+            window_class = strdup(dest);
 
             config_setting_lookup_int(conf, "dock", &dockproperty); // majorna.properties.dock
         }
@@ -918,7 +918,7 @@ void conf_init() {
             }
 
             config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
-            config_setting_lookup_int(conf, "ignoreglobalkeys", &sp.ignoreglobalkeys);
+            config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
         }
     }
 
@@ -987,7 +987,7 @@ void conf_init() {
 #endif
             }
 
-            config_setting_lookup_int(conf, "ignoreglobalmouse", &sp.ignoreglobalmouse);
+            config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
             config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
         }
     }
@@ -998,10 +998,6 @@ void conf_init() {
     // load the theme now
     if (loadtheme) {
         theme_load();
-    }
-
-    if (bindsfile) {
-        free(bindsfile);
     }
 }
 
@@ -1016,7 +1012,7 @@ void theme_load() {
         return;
 
     // get path for configuration file
-    if (!themefile || !strcmp(themefile, "nullptr")) {
+    if (themefile.empty() || themefile == "nullptr" || themefile == "NULL") {
         if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
             // ~/.config/majorna/theme.conf
             home = getenv("HOME");

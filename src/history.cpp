@@ -68,7 +68,7 @@ void navigatehistfile(int dir) {
         return;
 
     if (histsz == histpos) {
-        strncpy(def, tx.text, sizeof(def));
+        strncpy(def, strings.text, sizeof(def));
     }
 
     switch (dir) {
@@ -92,9 +92,9 @@ void navigatehistfile(int dir) {
     }
 
     len = MIN(strlen(p), BUFSIZ - 1);
-    sp_strncpy(tx.text, p, sizeof(tx.text));
-    tx.text[len] = '\0';
-    sp.cursor = len;
+    sp_strncpy(strings.text, p, sizeof(strings.text));
+    strings.text[len] = '\0';
+    ctx.cursor = len;
     match();
 }
 

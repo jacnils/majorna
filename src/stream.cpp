@@ -7,12 +7,12 @@
 #include <filesystem>
 
 void readstdin() {
-    char buf[sizeof tx.text], *p;
+    char buf[sizeof strings.text], *p;
     size_t i, itemsiz = 0;
     unsigned int tmpmax = 0;
 
     if (passwd) {
-        sp.inputw = lines = 0;
+        ctx.inputw = lines = 0;
         return;
     }
 
@@ -36,8 +36,8 @@ void readstdin() {
             die("majorna: cannot strdup %u bytes:", strlen(buf) + 1);
         items[i].hp = arrayhas(hpitems, hplength, items[i].text);
         const auto tmpmax = draw.get_font_manager().estimate_length(buf, true).first; // width
-        if (tmpmax > sp.inputw) {
-            sp.inputw = tmpmax;
+        if (tmpmax > ctx.inputw) {
+            ctx.inputw = tmpmax;
         }
 
         items[i].index = i;
@@ -70,7 +70,7 @@ void readstdin() {
 
 void readfile() {
     if (passwd){
-        sp.inputw = lines = 0;
+        ctx.inputw = lines = 0;
         return;
     }
 
@@ -138,12 +138,12 @@ void readfile() {
         if (!o) img.longestedge = img.imagegaps = 0;
 #endif
 
-        if (i == sp.listcount) {
-            sp.listchanged = 0;
-            sp.listcount = i;
+        if (i == ctx.listcount) {
+            ctx.listchanged = 0;
+            ctx.listcount = i;
         } else {
-            sp.listcount = i;
-            sp.listchanged = 1;
+            ctx.listcount = i;
+            ctx.listchanged = 1;
 
             // prevents state->buffer from being nullptr
             if (!protocol) {

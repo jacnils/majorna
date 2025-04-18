@@ -32,7 +32,7 @@ void fuzzymatch() {
     lhpprefix = hpprefixend = nullptr;
     char c;
     int number_of_matches = 0, i, pidx, sidx, eidx;
-    int text_len = strlen(tx.text), itext_len;
+    int text_len = strlen(strings.text), itext_len;
 
     matches = matchend = nullptr;
 
@@ -45,7 +45,7 @@ void fuzzymatch() {
 
             // walk through item text
             for (i = 0; i < itext_len && (c = it->text[i]); i++) {
-                if (!fstrncmp(&tx.text[pidx], &c, 1)) {
+                if (!fstrncmp(&strings.text[pidx], &c, 1)) {
                     if(sidx == -1)
                         sidx = i;
                     pidx++;
@@ -53,7 +53,7 @@ void fuzzymatch() {
                         eidx = i;
                         break;
                     }
-                } else if (matchregex(tx.text, it->text) && regex) {
+                } else if (matchregex(strings.text, it->text) && regex) {
                     eidx = i;
                     break;
                 }
@@ -120,13 +120,13 @@ void match() {
     static char **tokv = nullptr;
     static int tokn = 0;
 
-    char buf[sizeof tx.text], *s;
+    char buf[sizeof strings.text], *s;
     int i, tokc = 0;
     size_t len, textsize;
     struct item *item, *lhpprefix, *lprefix, *lsubstr, *hpprefixend, *prefixend, *substrend;
 
 
-    sp_strncpy(buf, tx.text, sizeof(tx.text));
+    sp_strncpy(buf, strings.text, sizeof(strings.text));
     // separate input text into tokens to be matched individually
     for (s = strtok(buf, " "); s; tokv[tokc - 1] = s, s = strtok(nullptr, " "))
         if (++tokc > tokn && !(tokv = static_cast<char**>(realloc(tokv, ++tokn * sizeof *tokv))))
@@ -135,13 +135,13 @@ void match() {
     len = tokc ? strlen(tokv[0]) : 0;
 
     matches = lhpprefix = lprefix = lsubstr = matchend = hpprefixend = prefixend = substrend = nullptr;
-    textsize = strlen(tx.text) + 1;
+    textsize = strlen(strings.text) + 1;
     for (item = items; item && item->text; item++) {
         for (i = 0; i < tokc; i++)
             if (!fstrstr(item->text, tokv[i]))
                 break;
         if (i != tokc) // not all tokens match
-            if (!(matchregex(tx.text, item->text) && regex)) {
+            if (!(matchregex(strings.text, item->text) && regex)) {
                 continue;
             }
 
@@ -149,7 +149,7 @@ void match() {
             appenditem(item, &matches, &matchend);
         else {
             // exact matches go first, then prefixes with high priority, then prefixes, then substrings
-            if (!tokc || !fstrncmp(tx.text, item->text, textsize))
+            if (!tokc || !fstrncmp(strings.text, item->text, textsize))
                 appenditem(item, &matches, &matchend);
             else if (item->hp && !fstrncmp(tokv[0], item->text, len))
                 appenditem(item, &lhpprefix, &hpprefixend);

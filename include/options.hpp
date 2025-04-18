@@ -2,10 +2,8 @@
 
 #include <string>
 
-/* See LICENSE file for copyright and license details. */
-
 /* majorna options */
-inline std::string _class                     = "majorna"; /* Class for majorna */
+inline std::string window_class        = "majorna"; /* Class for majorna */
 inline int protocol                    = 1; /* Protocol to try first (0: X11, 1: Wayland) */
 inline int fast                        = 0; /* Grab keyboard first */
 inline int xresources                  = 1; /* Enable .Xresources support */
@@ -21,9 +19,9 @@ inline int scrolldistance              = 512; /* Distance to scroll for a scroll
 
 /* Config file options */
 #if CONFIG
-inline char *configfile                = nullptr; /* Config file path. Default is ~/.config/majorna/majorna.conf */
-inline char *themefile                 = nullptr; /* Theme file path. Default is ~/.config/majorna/theme.conf */
-inline char *bindsfile                 = nullptr; /* Keybind file path. Default is ~/.config/majorna/binds.conf */
+inline std::string configfile                = {}; /* Config file path. Default is ~/.config/majorna/majorna.conf */
+inline std::string themefile                 = {}; /* Theme file path. Default is ~/.config/majorna/theme.conf */
+inline std::string bindsfile                 = {}; /* Keybind file path. Default is ~/.config/majorna/binds.conf */
 #endif
 
 /* Window options */
