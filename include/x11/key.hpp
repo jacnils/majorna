@@ -5,7 +5,7 @@
 #include <functional>
 
 struct Key {
-    unsigned int mode{};
+    int mode{};
     unsigned int mod{};
     KeySym keysym{};
     std::function <void(Arg&)> func{};
@@ -25,5 +25,5 @@ void keypress_x11(XEvent& e);
 void grabkeyboard_x11();
 void getcapsstate();
 
-inline Key ckeys[256];
-inline Key hkeys[1] = { { static_cast<unsigned int>(-1), Ctrl|Alt, XK_Delete, quit, {0} } };
+inline std::vector<Key> ckeys;
+inline Key hkeys[1] = { { -1, Ctrl|Alt, XK_Delete, quit, {0} } };

@@ -7,31 +7,33 @@
 #include <xkbcommon/xkbcommon.h>
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 #include <functional>
+#include <string>
+#include <vector>
 
 struct output {
-    struct state *state;
-    struct wl_output *output;
+    struct state *state{};
+    wl_output* output{};
 
-    int32_t scale;
+    int32_t scale{};
 };
 
-typedef struct {
-    unsigned int mode;
-    char *modifier;
-    xkb_keysym_t keysym;
-    std::function<void(Arg&)> func;
-    Arg arg;
-} WlKey;
+struct WlKey {
+    int mode{};
+    std::string mod{};
+    xkb_keysym_t keysym{};
+    std::function<void(Arg&)> func{};
+    Arg arg{};
+};
 
-typedef struct {
-    unsigned int click;
-    unsigned int button;
-    std::function<void(Arg&)> func;
-    Arg arg;
-} WlMouse;
+struct WlMouse {
+    unsigned int click{};
+    unsigned int button{};
+    std::function<void(Arg&)> func{};
+    Arg arg{};
+};
 
-inline WlKey wl_ckeys[256];
-inline WlMouse wl_cbuttons[256];
+inline std::vector<WlKey> wl_ckeys;
+inline std::vector<WlMouse> wl_cbuttons;
 
 #define WL_CtrlShift "CtrlShift"
 #define WL_CtrlShiftSuper "CtrlShiftSuper"
@@ -58,7 +60,7 @@ inline WlMouse wl_cbuttons[256];
 #define WL_Up 1
 #define WL_Down 0
 
-inline WlKey wlhkeys[1] = { { static_cast<unsigned int>(-1), WL_CtrlAlt, XKB_KEY_Delete, quit, {0} } };
+inline WlKey wlhkeys[1] = { { static_cast<int>(-1), WL_CtrlAlt, XKB_KEY_Delete, quit, {0} } };
 
 struct state {
     struct output *output;
@@ -95,7 +97,7 @@ struct state {
     struct wl_buffer *buffer;
 };
 
-inline state state = { 0 };
+inline state state{};
 
 inline int output_physical_width = 0;
 inline int output_physical_height = 0;
@@ -129,7 +131,7 @@ void pointer_button_handler(void *data, struct wl_pointer *pointer, uint32_t ser
 void pointer_motion_handler(void *data, struct wl_pointer *pointer, uint32_t time, wl_fixed_t x, wl_fixed_t y);
 void pointer_axis_handler(void *data, struct wl_pointer *pointer, uint32_t time, uint32_t axis, wl_fixed_t value);
 void buttonpress_wl(uint32_t button, double ex, double ey);
-int is_correct_modifier(struct state *state, char *modifier);
+int is_correct_modifier(struct state *state, const std::string& modifier);
 int roundtrip(struct state *state);
 int init_disp(struct state *state);
 int connect_display(struct state *state);
@@ -151,29 +153,29 @@ wl_buffer *create_buffer(struct state *state);
 /* Set to 0 if the connection was successful
  * You can use this for say, X11 compatibility mode.
  */
-inline int no_display = 1;
+inline bool no_display = true;
 
 /* Note that you MUST override this before calling create_layer() because
  * otherwise nothing will be drawn. Do not forget to do this.
  */
-inline int allow_draw = 0;
+inline bool allow_draw = false;
 
 /* Set automatically */
-inline int has_keys = 0;
+inline bool has_keys = false;
 
 /* See global_handler */
-inline const struct wl_registry_listener registry_listener = {
+inline constexpr wl_registry_listener registry_listener = {
     .global = global_handler,
     .global_remove = [](void *, struct wl_registry*, uint32_t) {},
 };
 
 /* See surface_enter */
-inline const struct wl_surface_listener surface_listener = {
+inline constexpr wl_surface_listener surface_listener = {
     .enter = surface_enter,
     .leave = [](void *, struct wl_surface*, struct wl_output*) {},
 };
 
-inline const struct wl_keyboard_listener keyboard_listener = {
+inline constexpr wl_keyboard_listener keyboard_listener = {
 	.keymap = keyboard_keymap,
 	.enter = [](void *, struct wl_keyboard*, uint32_t, wl_surface*, struct wl_array*) {},
 	.leave = [](void *, struct wl_keyboard*, uint32_t, wl_surface*) {},
@@ -182,7 +184,7 @@ inline const struct wl_keyboard_listener keyboard_listener = {
 	.repeat_info = keyboard_repeat_info,
 };
 
-inline const struct wl_pointer_listener pointer_listener = {
+inline constexpr wl_pointer_listener pointer_listener = {
     .enter = [](void *, struct wl_pointer*, uint32_t, struct wl_surface*, wl_fixed_t, wl_fixed_t) {},
     .leave = [](void *, struct wl_pointer*, uint32_t, struct wl_surface*) {},
     .motion = pointer_motion_handler,
@@ -190,7 +192,7 @@ inline const struct wl_pointer_listener pointer_listener = {
     .axis = pointer_axis_handler,
 };
 
-inline struct wl_output_listener output_listener = {
+inline wl_output_listener output_listener = {
     .geometry = output_geometry,
     .mode = output_mode,
     .done = [](void *, struct wl_output*) {},
@@ -199,17 +201,17 @@ inline struct wl_output_listener output_listener = {
     .description = [](void *, struct wl_output*, const char *) {},
 };
 
-inline struct zwlr_layer_surface_v1_listener layer_surface_listener = {
+inline zwlr_layer_surface_v1_listener layer_surface_listener = {
     .configure = layer_surface_configure,
     .closed = layer_surface_closed,
 };
 
-inline struct wl_seat_listener seat_listener = {
+inline wl_seat_listener seat_listener = {
     .capabilities = seat_capabilities,
     .name = [](void *, struct wl_seat*, const char *) {},
 };
 
-inline const struct wl_buffer_listener buffer_listener = {
+inline constexpr wl_buffer_listener buffer_listener = {
     .release = [](void *data, struct wl_buffer *buffer) {},
 };
 

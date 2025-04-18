@@ -6,47 +6,39 @@
 #include <cstring>
 #include <cstdlib>
 #include <macros.hpp>
-#include <unistd.h>
 #include <x11/key.hpp>
 #include <wl/wayland.hpp>
 #include <x11/mouse.hpp>
 #include <majorna.hpp>
 #include <schemes.hpp>
+#include <filesystem>
+#include <iostream>
 
 int bind_init() {
-    char *xdg_conf;
-    char *bindfile = nullptr;
-    char *home = nullptr;
+    std::string bnfile{};
     const char *dest;
     int ret = 0;
 
-    if (bindsfile.empty() || bindsfile == "nullptr" || bindsfile == "NULL") {
-        if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
-            home = getenv("HOME");
-
-            if (!(bindfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, ".config/majorna/binds.conf") + 1)))) {
-                die("majorna: failed to malloc bindfile");
+    // get path for configuration file
+    if (bindsfile.empty()) {
+        const char* xdg_conf = getenv("XDG_CONFIG_HOME");
+        if (!xdg_conf) {
+            // ~/.config/majorna/binds.conf
+            const char* home = getenv("HOME");
+            if (!home) {
+                die("majorna: HOME environment variable is not set");
             }
-
-            sprintf(bindfile, "%s/%s", home, ".config/majorna/binds.conf");
+            bnfile = std::string(home) + "/.config/majorna/binds.conf";
         } else {
-            if (!(bindfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", xdg_conf, "majorna/binds.conf") + 1)))) {
-                die("majorna: failed to malloc bindfile");
-            }
-
-            sprintf(bindfile, "%s/%s", xdg_conf, "majorna/binds.conf");
+            // XDG_CONFIG_HOME is set, so let's use that instead
+            bnfile = std::string(xdg_conf) + "/majorna/binds.conf";
         }
-    } else { // custom keys path
-        if (!(bindfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", bindsfile) + 1)))) {
-            die("majorna: failed to malloc bindfile");
-        }
-
-        sprintf(bindfile, "%s", bindsfile);
+    } else { // custom config path
+        bnfile = bindsfile;
     }
 
-    // don't bother trying to load if it doesn't exist.
-    if (access(bindfile, F_OK) != 0) {
-        return ret;
+    if (!std::filesystem::is_regular_file(bnfile)) {
+        return 0;
     }
 
     // init config
@@ -55,9 +47,9 @@ int bind_init() {
     config_init(&bind);
 
     // attempt to read config file to cfg
-    if (!config_read_file(&bind, bindfile)) {
+    if (!config_read_file(&bind, bnfile.c_str())) {
         // invalid configuration, but let's try to read it anyway
-        fprintf(stderr, "majorna: Invalid keys file.\n");
+        std::cerr << "majorna: Invalid keys file." << std::endl;
     }
 
     // load options bind.keys
@@ -74,95 +66,120 @@ int bind_init() {
             config_setting_lookup_string(conf, "modifier", &dest);
 
 #if X11
-            for (int j = 0; j < LENGTH(ml); j++) {
-                if (!strcmp(ml[j].mod, strdup(dest))) {
-                    ckeys[i].mod = ml[j].modifier;
+            Key key{};
+#endif
+#if WAYLAND
+            WlKey wl_key{};
+#endif
+
+#if X11
+            for (const auto& it : ml) {
+                if (it.mod == dest) {
+                    key.mod = it.modifier;
                 }
             }
 #endif
 
 #if WAYLAND
-            for (int j = 0; j < LENGTH(wml); j++) {
-                if (!strcmp(wml[j].mod, strdup(dest))) {
-                    wl_ckeys[i].modifier = wml[j].modifier;
+            for (const auto& it : wml) {
+                if (it.mod == dest) {
+                    wl_key.mod = it.modifier;
                 }
             }
 #endif
 
             if (config_setting_lookup_int(conf, "mode", &nmode)) {
+                if (nmode < 0) nmode = -1;
+                if (nmode > 1) nmode = 1;
+
 #if X11
-                ckeys[i].mode = nmode;
+                key.mode = nmode;
 #endif
 #if WAYLAND
-                wl_ckeys[i].mode = nmode;
+                wl_key.mode = nmode;
 #endif
             }
 
             config_setting_lookup_string(conf, "key", &dest);
 
 #if X11
-            for (int j = 0; j < LENGTH(kl); j++) {
-                if (!strcmp(kl[j].key, strdup(dest))) {
-                    ckeys[i].keysym = kl[j].keysym;
+            for (const auto& it : kl) {
+                if (it.key == dest) {
+                    key.keysym = it.keysym;
                 }
             }
 #endif
 
 #if WAYLAND
-            for (int j = 0; j < LENGTH(wkl); j++) {
-                if (!strcmp(wkl[j].key, strdup(dest))) {
-                    wl_ckeys[i].keysym = wkl[j].keysym;
+            for (const auto& it : wkl) {
+                if (it.key == dest) {
+                    wl_key.keysym = it.keysym;
                 }
             }
 #endif
 
             config_setting_lookup_string(conf, "function", &dest);
 
-            for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
+            for (const auto& it : fl) {
+                if (it.function == dest) {
 #if X11
-                    ckeys[i].func = fl[j].func;
+                    key.func = it.func;
 #endif
 #if WAYLAND
-                    wl_ckeys[i].func = fl[j].func;
+                    wl_key.func = it.func;
 #endif
                 }
             }
 
             config_setting_lookup_string(conf, "argument", &dest);
 
+            // TODO: More types
             if (strdup(dest)) {
 #if X11
-                ckeys[i].arg.i = atoi(strdup(dest));
+                key.arg.i = std::stoi(dest);
 #endif
 #if WAYLAND
-                wl_ckeys[i].arg.i = atoi(strdup(dest));
+                wl_key.arg.i = std::stoi(dest);
 #endif
             }
 
             config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
             config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
+
+#if X11
+            std::cerr << "X11 key: " << "Keysym: " << key.keysym << " Mod: " << key.mod << " Mode: " << key.mode << std::endl;
+            ckeys.emplace_back(key);
+#endif
+#if WAYLAND
+            wl_ckeys.emplace_back(wl_key);
+#endif
         }
     }
 
     // load options bind.mouse
     config_setting_t *mouse_bind = config_lookup(&bind, "bind.mouse");
     if (mouse_bind != nullptr && loadbinds) {
-#if X11
         ret = 1;
-#endif
+
         for (unsigned int i = 0; i < config_setting_length(mouse_bind); ++i) {
             config_setting_t *conf = config_setting_get_elem(mouse_bind, i);
 
             config_setting_lookup_string(conf, "click", &dest);
 
-            for (int j = 0; j < LENGTH(ctp); j++) {
-                if (!strcmp(ctp[j].tclick, strdup(dest))) {
 #if X11
-                    cbuttons[i].click = ctp[j].click;
+            Mouse mouse{};
 #endif
 #if WAYLAND
-                    wl_cbuttons[i].click = ctp[j].click;
+            WlMouse wl_mouse{};
+#endif
+
+            for (const auto& it : ctp) {
+                if (it.tclick == dest) {
+#if X11
+                    mouse.click = it.click;
+#endif
+#if WAYLAND
+                    mouse.click = it.click;
 #endif
                 }
             }
@@ -170,30 +187,29 @@ int bind_init() {
             config_setting_lookup_string(conf, "button", &dest);
 
 #if X11
-            for (int j = 0; j < LENGTH(btp); j++) {
-                if (!strcmp(btp[j].click, strdup(dest))) {
-                    cbuttons[i].button = btp[j].button;
+            for (const auto& it : btp) {
+                if (it.click == dest) {
+                    mouse.button = it.button;
                 }
             }
 #endif
-
 #if WAYLAND
-            for (int j = 0; j < LENGTH(w_btp); j++) {
-                if (!strcmp(w_btp[j].click, strdup(dest))) {
-                    wl_cbuttons[i].button = w_btp[j].button;
+            for (const auto& it : w_btp) {
+                if (it.click == dest) {
+                    wl_mouse.button = it.button;
                 }
             }
 #endif
 
             config_setting_lookup_string(conf, "function", &dest);
 
-            for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
+            for (const auto& it : fl) {
+                if (it.function == dest) {
 #if X11
-                    cbuttons[i].func = fl[j].func;
+                    mouse.func = it.func;
 #endif
 #if WAYLAND
-                    wl_cbuttons[i].func = fl[j].func;
+                    wl_mouse.func = it.func;
 #endif
                 }
             }
@@ -202,17 +218,26 @@ int bind_init() {
 
             if (strdup(dest)) {
 #if X11
-                cbuttons[i].arg.i = atoi(strdup(dest));
+                mouse.arg.i = std::stoi(strdup(dest));
 #endif
 #if WAYLAND
-                wl_cbuttons[i].arg.i = atoi(strdup(dest));
+                wl_mouse.arg.i = std::stoi(strdup(dest));
 #endif
             }
 
             config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
             config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
+
+#if X11
+            cbuttons.push_back(mouse);
+#endif
+#if WAYLAND
+            wl_cbuttons.push_back(wl_mouse);
+#endif
         }
     }
+
+    std::cerr << ret << std::endl;
 
     // finally done
     config_destroy(&bind);
@@ -222,42 +247,32 @@ int bind_init() {
 
 
 void conf_init() {
-    char *xdg_conf;
-    char *cfgfile = nullptr;
-    char *home = nullptr;
+    if (!loadconfig) {
+        return;
+    }
+
+    std::string cfgfile{};
     const char *dest;
 
     // get path for configuration file
     if (configfile.empty()) {
-        if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
+        const char* xdg_conf = getenv("XDG_CONFIG_HOME");
+        if (!xdg_conf) {
             // ~/.config/majorna/majorna.conf
-            home = getenv("HOME");
-
-            // malloc
-            if (!(cfgfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, ".config/majorna/majorna.conf") + 1)))) {
-                die("majorna: failed to malloc cfgfile");
+            const char* home = getenv("HOME");
+            if (!home) {
+                die("majorna: HOME environment variable is not set");
             }
-
-            sprintf(cfgfile, "%s/%s", home, ".config/majorna/majorna.conf");
+            cfgfile = std::string(home) + "/.config/majorna/majorna.conf";
         } else {
-            // malloc
-            if (!(cfgfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", xdg_conf, "majorna/majorna.conf") + 1)))) {
-                die("majorna: failed to malloc cfgfile");
-            }
-
             // XDG_CONFIG_HOME is set, so let's use that instead
-            sprintf(cfgfile, "%s/%s", xdg_conf, "majorna/majorna.conf");
+            cfgfile = std::string(xdg_conf) + "/majorna/majorna.conf";
         }
     } else { // custom config path
-        if (!(cfgfile = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", configfile) + 1)))) {
-            die("majorna: failed to malloc cfgfile");
-        }
-
-        sprintf(cfgfile, "%s", configfile);
+        cfgfile = configfile;
     }
 
-    // don't bother trying to load if it doesn't exist.
-    if (access(cfgfile, F_OK) != 0) {
+    if (!std::filesystem::is_regular_file(cfgfile)) {
         loadconfig = 0;
     }
 
@@ -267,7 +282,7 @@ void conf_init() {
 
     // attempt to read config file to cfg
     if (loadconfig) {
-        if (!config_read_file(&cfg, cfgfile)) {
+        if (!config_read_file(&cfg, cfgfile.c_str())) {
             // invalid configuration, but let's try to read it anyway
             fprintf(stderr, "majorna: Invalid configuration.\n");
         }
@@ -675,15 +690,15 @@ void conf_init() {
             }
 #endif
 
-            if (config_setting_lookup_string(conf, "screenshotfile", &dest) && strcmp(dest, "nullptr")) {
+            if (config_setting_lookup_string(conf, "screenshotfile", &dest) && dest != "nullptr" && dest != "NULL") {
                 screenshotfile = strdup(dest);
             }
 
-            if (config_setting_lookup_string(conf, "screenshotname", &dest) && strcmp(dest, "nullptr")) {
+            if (config_setting_lookup_string(conf, "screenshotname", &dest) && dest != "nullptr" && dest != "NULL") {
                 screenshotname = strdup(dest);
             }
 
-            if (config_setting_lookup_string(conf, "screenshotdir", &dest) && strcmp(dest, "nullptr")) {
+            if (config_setting_lookup_string(conf, "screenshotdir", &dest) && dest != "nullptr" && dest != "NULL") {
                 screenshotdir = strdup(dest);
             }
         }
@@ -754,9 +769,11 @@ void conf_init() {
             config_setting_lookup_int(conf, "mark", &mark); // majorna.match.mark
             config_setting_lookup_string(conf, "delimiters", &dest); // majorna.match.delimiters
             worddelimiters = strdup(dest);
-            if (config_setting_lookup_string(conf, "listfile", &dest)) // majorna.match.listfile
-                if (dest && strcmp(strdup(dest), "nullptr"))
+            if (config_setting_lookup_string(conf, "listfile", &dest)) { // majorna.match.listfile
+                if (dest != "nullptr" && dest != "NULL") {
                     listfile = strdup(dest);
+                }
+            }
         }
     }
 
@@ -833,162 +850,184 @@ void conf_init() {
         }
     }
 
-    int ret = bind_init();
+    if (!bind_init()) {
+        config_setting_t *key_setting = config_lookup(&cfg, "majorna.keys");
+        if (key_setting != nullptr && loadconfig) {
+            int nmode{0};
 
-    // load options majorna.keys
-    config_setting_t *key_setting = config_lookup(&cfg, "majorna.keys");
-    if (key_setting != nullptr && loadconfig) {
-        int nmode = 0;
+            for (unsigned int i = 0; i < config_setting_length(key_setting); ++i) {
+                config_setting_t *conf = config_setting_get_elem(key_setting, i);
 
-        for (unsigned int i = 0; i < config_setting_length(key_setting); ++i) {
-            if (ret) {
-                break;
-            }
-
-            config_setting_t *conf = config_setting_get_elem(key_setting, i);
-
-            // look up
-            config_setting_lookup_string(conf, "modifier", &dest);
+                // look up
+                config_setting_lookup_string(conf, "modifier", &dest);
 
 #if X11
-            for (int j = 0; j < LENGTH(ml); j++) {
-                if (!strcmp(ml[j].mod, strdup(dest))) {
-                    ckeys[i].mod = ml[j].modifier;
+                Key key{};
+#endif
+#if WAYLAND
+                WlKey wl_key{};
+#endif
+
+#if X11
+                for (const auto& it : ml) {
+                    if (it.mod == dest) {
+                        key.mod = it.modifier;
+                    }
                 }
-            }
 #endif
 
 #if WAYLAND
-            for (int j = 0; j < LENGTH(wml); j++) {
-                if (!strcmp(wml[j].mod, strdup(dest))) {
-                    wl_ckeys[i].modifier = wml[j].modifier;
+                for (const auto& it : wml) {
+                    if (it.mod == dest) {
+                        wl_key.mod = it.modifier;
+                    }
                 }
-            }
 #endif
 
-            if (config_setting_lookup_int(conf, "mode", &nmode)) {
-#if X11
-                ckeys[i].mode = nmode;
-#endif
-#if WAYLAND
-                wl_ckeys[i].mode = nmode;
-#endif
-            }
-
-            config_setting_lookup_string(conf, "key", &dest);
+                if (config_setting_lookup_int(conf, "mode", &nmode)) {
+                    if (nmode < 0) nmode = -1;
+                    if (nmode > 1) nmode = 1;
 
 #if X11
-            for (int j = 0; j < LENGTH(kl); j++) {
-                if (!strcmp(kl[j].key, strdup(dest))) {
-                    ckeys[i].keysym = kl[j].keysym;
-                }
-            }
+                    key.mode = nmode;
 #endif
-
 #if WAYLAND
-            for (int j = 0; j < LENGTH(wkl); j++) {
-                if (!strcmp(wkl[j].key, strdup(dest))) {
-                    wl_ckeys[i].keysym = wkl[j].keysym;
-                }
-            }
+                    wl_key.mode = nmode;
 #endif
+                }
 
-            config_setting_lookup_string(conf, "function", &dest);
+                config_setting_lookup_string(conf, "key", &dest);
 
-            for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
 #if X11
-                    ckeys[i].func = fl[j].func;
+                for (const auto& it : kl) {
+                    if (it.key == dest) {
+                        key.keysym = it.keysym;
+                    }
+                }
+#endif
+
+#if WAYLAND
+                for (const auto& it : wkl) {
+                    if (it.key == dest) {
+                        wl_key.keysym = it.keysym;
+                    }
+                }
+#endif
+
+                config_setting_lookup_string(conf, "function", &dest);
+
+                for (const auto& it : fl) {
+                    if (it.function == dest) {
+#if X11
+                        key.func = it.func;
 #endif
 #if WAYLAND
-                    wl_ckeys[i].func = fl[j].func;
+                        wl_key.func = it.func;
+#endif
+                    }
+                }
+
+                config_setting_lookup_string(conf, "argument", &dest);
+
+                if (strdup(dest)) {
+#if X11
+                    key.arg.i = std::stoi(dest);
+#endif
+#if WAYLAND
+                    wl_key.arg.i = std::stoi(dest);
 #endif
                 }
-            }
 
-            config_setting_lookup_string(conf, "argument", &dest);
+                config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
+                config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
 
-            if (strdup(dest)) {
 #if X11
-                ckeys[i].arg.i = atoi(strdup(dest));
+                ckeys.emplace_back(key);
 #endif
 #if WAYLAND
-                wl_ckeys[i].arg.i = atoi(strdup(dest));
+                wl_ckeys.emplace_back(wl_key);
 #endif
             }
-
-            config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
-            config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
         }
-    }
 
-    // load options majorna.mouse
-    config_setting_t *mouse_setting = config_lookup(&cfg, "majorna.mouse");
-    if (mouse_setting != nullptr && loadconfig) {
-        for (unsigned int i = 0; i < config_setting_length(mouse_setting); ++i) {
-            if (ret) {
-                break;
-            }
-
-            config_setting_t *conf = config_setting_get_elem(mouse_setting, i);
-
-            config_setting_lookup_string(conf, "click", &dest);
-
-            for (int j = 0; j < LENGTH(ctp); j++) {
-                if (!strcmp(ctp[j].tclick, strdup(dest))) {
-#if X11
-                    cbuttons[i].click = ctp[j].click;
-#endif
-#if WAYLAND
-                    wl_cbuttons[i].click = ctp[j].click;
-#endif
-                }
-            }
-
-            config_setting_lookup_string(conf, "button", &dest);
+        // load options majorna.mouse
+        config_setting_t *mouse_setting = config_lookup(&cfg, "majorna.mouse");
+        if (mouse_setting != nullptr && loadconfig) {
+            for (unsigned int i = 0; i < config_setting_length(mouse_setting); ++i) {
+                config_setting_t *conf = config_setting_get_elem(mouse_setting, i);
 
 #if X11
-            for (int j = 0; j < LENGTH(btp); j++) {
-                if (!strcmp(btp[j].click, strdup(dest))) {
-                    cbuttons[i].button = btp[j].button;
-                }
-            }
+                Mouse mouse{};
 #endif
-
 #if WAYLAND
-            for (int j = 0; j < LENGTH(w_btp); j++) {
-                if (!strcmp(w_btp[j].click, strdup(dest))) {
-                    wl_cbuttons[i].button = w_btp[j].button;
-                }
-            }
+                WlMouse wl_mouse{};
 #endif
 
-            config_setting_lookup_string(conf, "function", &dest);
+                config_setting_lookup_string(conf, "click", &dest);
 
-            for (int j = 0; j < LENGTH(fl); j++) {
-                if (!strcmp(fl[j].function.c_str(), strdup(dest))) {
+                for (const auto& it : ctp) {
+                    if (it.tclick == dest) {
 #if X11
-                    cbuttons[i].func = fl[j].func;
+                        mouse.click = it.click;
 #endif
 #if WAYLAND
-                    wl_cbuttons[i].func = fl[j].func;
+                        wl_mouse.click = it.click;
+#endif
+                    }
+                }
+
+                config_setting_lookup_string(conf, "button", &dest);
+
+#if X11
+                for (const auto& it : btp) {
+                    if (it.click == dest) {
+                        mouse.button = it.button;
+                    }
+                }
+#endif
+
+#if WAYLAND
+                for (const auto& it : w_btp) {
+                    if (it.click == dest) {
+                        wl_mouse.button = it.button;
+                    }
+                }
+#endif
+
+                config_setting_lookup_string(conf, "function", &dest);
+
+                for (const auto& it : fl) {
+                    if (it.function == dest) {
+#if X11
+                        mouse.func = it.func;
+#endif
+#if WAYLAND
+                        wl_mouse.func = it.func;
+#endif
+                    }
+                }
+
+                config_setting_lookup_string(conf, "argument", &dest);
+
+                if (strdup(dest)) {
+#if X11
+                    mouse.arg.i = std::stoi(dest);
+#endif
+#if WAYLAND
+                    wl_mouse.arg.i = std::stoi(dest);
 #endif
                 }
-            }
 
-            config_setting_lookup_string(conf, "argument", &dest);
+                config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
+                config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
 
-            if (strdup(dest)) {
 #if X11
-                cbuttons[i].arg.i = atoi(strdup(dest));
+                cbuttons.emplace_back(mouse);
 #endif
 #if WAYLAND
-                wl_cbuttons[i].arg.i = atoi(strdup(dest));
+                wl_cbuttons.emplace_back(wl_mouse);
 #endif
             }
-
-            config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
-            config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
         }
     }
 
@@ -1002,47 +1041,32 @@ void conf_init() {
 }
 
 void theme_load() {
-    char* xdg_conf;
-    char* theme = nullptr;
-    char* home = nullptr;
-    const char *dest;
-
-    // don't load configuration
     if (!loadtheme)
         return;
 
+    std::string tmfile{};
+    const char *dest;
+
     // get path for configuration file
-    if (themefile.empty() || themefile == "nullptr" || themefile == "NULL") {
-        if (!(xdg_conf = getenv("XDG_CONFIG_HOME"))) {
+    if (tmfile.empty()) {
+        const char* xdg_conf = getenv("XDG_CONFIG_HOME");
+        if (!xdg_conf) {
             // ~/.config/majorna/theme.conf
-            home = getenv("HOME");
-
-            // malloc
-            if (!(theme = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, ".config/majorna/theme.conf") + 1)))) {
-                die("majorna: failed to malloc theme");
+            const char* home = getenv("HOME");
+            if (!home) {
+                die("majorna: HOME environment variable is not set");
             }
-
-            sprintf(theme, "%s/%s", home, ".config/majorna/theme.conf");
+            tmfile = std::string(home) + "/.config/majorna/theme.conf";
         } else {
-            // malloc
-            if (!(theme = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", xdg_conf, "majorna/theme.conf") + 1)))) {
-                die("majorna: failed to malloc theme");
-            }
-
             // XDG_CONFIG_HOME is set, so let's use that instead
-            sprintf(theme, "%s/%s", xdg_conf, "majorna/theme.conf");
+            tmfile = std::string(xdg_conf) + "/majorna/theme.conf";
         }
     } else { // custom config path
-        if (!(theme = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", themefile) + 1)))) {
-            die("majorna: failed to malloc theme");
-        }
-
-        sprintf(theme, "%s", themefile);
+        tmfile = themefile;
     }
 
-    // don't bother trying to load if it doesn't exist.
-    if (access(theme, F_OK) != 0) {
-        return;
+    if (!std::filesystem::is_regular_file(tmfile)) {
+        loadtheme = 0;
     }
 
     // init config
@@ -1050,7 +1074,7 @@ void theme_load() {
     config_init(&cfg);
 
     // attempt to read theme
-    if (!config_read_file(&cfg, theme)) {
+    if (!config_read_file(&cfg, tmfile.c_str())) {
         fprintf(stderr, "majorna: Invalid theme.\n"); // invalid configuration, but let's try to read it anyway
     }
 

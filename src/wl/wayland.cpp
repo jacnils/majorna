@@ -50,50 +50,45 @@ struct wl_buffer *create_buffer(struct state *state) {
  *
  * PLEASE submit a patch if you have an improvement.
  */
-int is_correct_modifier(struct state *state, char *modifier) {
-	    int alt_pressed = xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_ALT, static_cast<xkb_state_component>(XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED));
-	    int shift_pressed = xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_SHIFT, static_cast<xkb_state_component>(XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED));
-	    int ctrl_pressed = xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_CTRL, static_cast<xkb_state_component>(XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED));
-	    int logo_pressed = xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_LOGO, static_cast<xkb_state_component>(XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED));
+int is_correct_modifier(struct state *state, const std::string& modifier) {
+    bool alt_pressed = xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_ALT, static_cast<xkb_state_component>(XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED));
+    bool shift_pressed = xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_SHIFT, static_cast<xkb_state_component>(XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED));
+    bool ctrl_pressed = xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_CTRL, static_cast<xkb_state_component>(XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED));
+    bool logo_pressed = xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_LOGO, static_cast<xkb_state_component>(XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED));
 
-	    if (!strcmp(modifier, WL_CtrlShift) && shift_pressed && ctrl_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_CtrlShiftSuper) && shift_pressed && ctrl_pressed && logo_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_CtrlSuper) && ctrl_pressed && logo_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_CtrlAlt) && alt_pressed && ctrl_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_CtrlAltShift) && ctrl_pressed && alt_pressed && shift_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_CtrlAltShiftSuper) && ctrl_pressed && alt_pressed && shift_pressed && logo_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_CtrlAltSuper) && ctrl_pressed && alt_pressed && logo_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_AltShift) && alt_pressed && shift_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_Shift) && shift_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_Ctrl) && ctrl_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_Alt) && alt_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_Super) && logo_pressed) {
-		return 0;
-	    } else if (!strcmp(modifier, WL_None) && !alt_pressed && !shift_pressed && !ctrl_pressed && !logo_pressed) {
-		return 0;
-	    }
+    std::unordered_map<std::string, std::function<bool()>> modifier_conditions = {
+        {"WL_CtrlShift", [&]() { return shift_pressed && ctrl_pressed; }},
+        {"WL_CtrlShiftSuper", [&]() { return shift_pressed && ctrl_pressed && logo_pressed; }},
+        {"WL_CtrlSuper", [&]() { return ctrl_pressed && logo_pressed; }},
+        {"WL_CtrlAlt", [&]() { return alt_pressed && ctrl_pressed; }},
+        {"WL_CtrlAltShift", [&]() { return ctrl_pressed && alt_pressed && shift_pressed; }},
+        {"WL_CtrlAltShiftSuper", [&]() { return ctrl_pressed && alt_pressed && shift_pressed && logo_pressed; }},
+        {"WL_CtrlAltSuper", [&]() { return ctrl_pressed && alt_pressed && logo_pressed; }},
+        {"WL_AltShift", [&]() { return alt_pressed && shift_pressed; }},
+        {"WL_Shift", [&]() { return shift_pressed; }},
+        {"WL_Ctrl", [&]() { return ctrl_pressed; }},
+        {"WL_Alt", [&]() { return alt_pressed; }},
+        {"WL_Super", [&]() { return logo_pressed; }},
+        {"WL_None", [&]() { return !alt_pressed && !shift_pressed && !ctrl_pressed && !logo_pressed; }}
+    };
 
-	    return 1;
-	}
+    auto it = modifier_conditions.find(modifier);
+    if (it != modifier_conditions.end() && it->second()) {
+        return true;
+    }
 
-	/* This function is pretty garbage. However I don't feel like implementing all the garbage necessary to paste properly.
-	 * If anyone wants to do it, feel free to pull request.
-	 */
-	char *wl_clipboard(void) {
-	    FILE *fp;
-	    char output_text[1024];
-	    char *clipboard = static_cast<char*>(malloc(sizeof(output_text)));
+    return false;
+}
+
+/* This function is pretty garbage. However I don't feel like implementing all the garbage necessary to paste properly.
+ * If anyone wants to do it, feel free to pull request.
+ */
+char *wl_clipboard() {
+    FILE *fp;
+
+    char output_text[1024];
+    char *clipboard = static_cast<char*>(malloc(sizeof(output_text)));
+
     clipboard[0] = '\0';
 
     fp = popen("which wl-paste > /dev/null && wl-paste -t text/plain", "r");
@@ -112,7 +107,7 @@ int is_correct_modifier(struct state *state, char *modifier) {
     return clipboard;
 }
 
-void paste_wl(void) {
+void paste_wl() {
     char *p, *q;
 
     p = wl_clipboard();
@@ -130,32 +125,32 @@ void keypress_wl(struct state *state, enum wl_keyboard_key_state key_state, xkb_
         return;
     }
 
-    if (xkb_keysym_to_lower(sym) == wlhkeys[0].keysym && !is_correct_modifier(state, wlhkeys[0].modifier) && wlhkeys[0].func) {
+    if (xkb_keysym_to_lower(sym) == wlhkeys[0].keysym && !is_correct_modifier(state, wlhkeys[0].mod) && wlhkeys[0].func) {
         wlhkeys[0].func(wlhkeys[0].arg);
     }
 
-    for (i = 0; i < LENGTH(wl_keys); i++) {
+    for (auto& it : wl_keys) {
         if (ctx.ignoreglobalkeys) break;
 
-        if (xkb_keysym_to_lower(sym) == wl_keys[i].keysym && !is_correct_modifier(state, wl_keys[i].modifier) && wl_keys[i].func) {
-            if ((wl_keys[i].mode && ctx.mode) || wl_keys[i].mode == -1) {
-                wl_keys[i].func(wl_keys[i].arg);
+        if (xkb_keysym_to_lower(sym) == it.keysym && !is_correct_modifier(state, it.mod) && it.func) {
+            if ((it.mode && ctx.mode) || it.mode == -1) {
+                it.func(it.arg);
                 return;
-            } else if (!wl_keys[i].mode && !ctx.mode) {
-                wl_keys[i].func(wl_keys[i].arg);
+            } else if (!it.mode && !ctx.mode) {
+                it.func(it.arg);
             }
         }
     }
 
-    for (i = 0; i < LENGTH(wl_ckeys); i++) {
+    for (auto& it : wl_ckeys) {
         if (ctx.ignoreconfkeys) break;
 
-        if (xkb_keysym_to_lower(sym) == wl_ckeys[i].keysym && !is_correct_modifier(state, wl_ckeys[i].modifier) && wl_ckeys[i].func) {
-            if ((wl_ckeys[i].mode && ctx.mode) || wl_ckeys[i].mode == -1) {
-                wl_ckeys[i].func(wl_ckeys[i].arg);
+        if (xkb_keysym_to_lower(sym) == it.keysym && !is_correct_modifier(state, it.mod) && it.func) {
+            if ((it.mode && ctx.mode) || it.mode == -1) {
+                it.func(it.arg);
                 return;
-            } else if (!wl_ckeys[i].mode && !ctx.mode) {
-                wl_ckeys[i].func(wl_ckeys[i].arg);
+            } else if (!it.mode && !ctx.mode) {
+                it.func(it.arg);
             }
         }
     }

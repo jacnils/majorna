@@ -11,5 +11,5 @@ struct Mouse {
     Arg arg{};
 };
 
-inline Mouse cbuttons[256];
+inline std::vector<Mouse> cbuttons;
 void buttonpress_x11(XEvent& e);
