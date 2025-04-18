@@ -124,9 +124,9 @@ void complete(const Arg& arg) {
         return;
     }
 
-    strncpy(strings.text, selecteditem->nsgrtext, sizeof strings.text - 1);
-    strings.text[sizeof strings.text - 1] = '\0';
-    ctx.cursor = strlen(strings.text);
+    strncpy(strings.input_text, selecteditem->text_without_sequences, sizeof strings.input_text - 1);
+    strings.input_text[sizeof strings.input_text - 1] = '\0';
+    ctx.cursor = strlen(strings.input_text);
 
     match();
     drawmenu();
@@ -175,8 +175,8 @@ void movestart(const Arg& arg) {
 }
 
 void moveend(const Arg& arg) {
-    if (strings.text[ctx.cursor] != '\0') {
-        ctx.cursor = strlen(strings.text);
+    if (strings.input_text[ctx.cursor] != '\0') {
+        ctx.cursor = strlen(strings.input_text);
         drawmenu();
         return;
     }
@@ -222,7 +222,7 @@ void viewhist(const Arg& arg) {
             }
 
             for (i = 0; i < histsz; i++) {
-                items[i].text = history[i];
+                items[i].raw_text = history[i];
             }
         } else {
             free(items);
@@ -238,9 +238,9 @@ void viewhist(const Arg& arg) {
 void deleteword(const Arg& arg) {
     if (ctx.cursor == 0) return;
 
-    while (ctx.cursor > 0 && strchr(worddelimiters.c_str(), strings.text[nextrune(-1)])) {
+    while (ctx.cursor > 0 && strchr(worddelimiters.c_str(), strings.input_text[nextrune(-1)])) {
         insert(nullptr, nextrune(-1) - ctx.cursor);
-    } while (ctx.cursor > 0 && !strchr(worddelimiters.c_str(), strings.text[nextrune(-1)])) {
+    } while (ctx.cursor > 0 && !strchr(worddelimiters.c_str(), strings.input_text[nextrune(-1)])) {
         insert(nullptr, nextrune(-1) - ctx.cursor);
     }
 
@@ -249,15 +249,15 @@ void deleteword(const Arg& arg) {
 
 void moveword(const Arg& arg) {
     if (arg.i < 0) { // move sp.cursor to the start of the word
-        while (ctx.cursor > 0 && strchr(worddelimiters.c_str(), strings.text[nextrune(-1)])) {
+        while (ctx.cursor > 0 && strchr(worddelimiters.c_str(), strings.input_text[nextrune(-1)])) {
             ctx.cursor = nextrune(-1);
-        } while (ctx.cursor > 0 && !strchr(worddelimiters.c_str(), strings.text[nextrune(-1)])) {
+        } while (ctx.cursor > 0 && !strchr(worddelimiters.c_str(), strings.input_text[nextrune(-1)])) {
             ctx.cursor = nextrune(-1);
         }
     } else { // move sp.cursor to the end of the word
-        while (strings.text[ctx.cursor] && strchr(worddelimiters.c_str(), strings.text[ctx.cursor])) {
+        while (strings.input_text[ctx.cursor] && strchr(worddelimiters.c_str(), strings.input_text[ctx.cursor])) {
             ctx.cursor = nextrune(+1);
-        } while (strings.text[ctx.cursor] && !strchr(worddelimiters.c_str(), strings.text[ctx.cursor])) {
+        } while (strings.input_text[ctx.cursor] && !strchr(worddelimiters.c_str(), strings.input_text[ctx.cursor])) {
             ctx.cursor = nextrune(+1);
         }
     }
@@ -271,7 +271,7 @@ void movecursor(const Arg& arg) {
             ctx.cursor = nextrune(-1);
         }
     } else {
-        if (strings.text[ctx.cursor]) {
+        if (strings.input_text[ctx.cursor]) {
             ctx.cursor = nextrune(+1);
         }
     }
@@ -321,14 +321,14 @@ void selectitem(const Arg& arg) {
 
     // selected item or input?
     if (selecteditem && arg.i && !hideitem) {
-        selection = selecteditem->text;
+        selection = selecteditem->raw_text;
     } else {
-        selection = strings.text;
+        selection = strings.input_text;
     }
 
     for (int i = 0; i < sel_size; i++) {
         if (sel_index[i] != -1 && (!selecteditem || selecteditem->index != sel_index[i])) {
-            puts(items[sel_index[i]].text);
+            puts(items[sel_index[i]].raw_text);
         }
     }
 
@@ -348,7 +348,7 @@ void navhistory(const Arg& arg) {
 }
 
 void restoresel(const Arg& arg) {
-    strings.text[ctx.cursor] = '\0';
+    strings.input_text[ctx.cursor] = '\0';
     match();
     drawmenu();
 }
@@ -362,8 +362,8 @@ void clearins(const Arg& arg) {
     insert(nullptr, 0 - ctx.cursor);
 
     ctx.mode = 1;
-    ctx.allowkeys = 0;
-    strncpy(strings.modetext, instext.c_str(), 15);
+    ctx.allow_input = 0;
+    strncpy(strings.mode_text, instext.c_str(), 15);
 
     calcoffsets();
     drawmenu();
@@ -376,7 +376,7 @@ void quit(const Arg& arg) {
 
 void setlineheight(const Arg& arg) {
     lineheight += arg.i;
-    ctx.bh = std::max(draw.get_font_manager().get_height(), draw.get_font_manager().get_height() + 2 + lineheight);
+    ctx.item_height = std::max(draw.get_font_manager().get_height(), draw.get_font_manager().get_height() + 2 + lineheight);
 
     resizeclient();
     drawmenu();
@@ -384,7 +384,7 @@ void setlineheight(const Arg& arg) {
 
 void setimgsize(const Arg& arg) {
 #if IMAGE
-    setimagesize(img.imagewidth + arg.i, img.imageheight + arg.i);
+    setimagesize(img.width + arg.i, img.height + arg.i);
     drawmenu();
 #endif
 }
@@ -417,14 +417,14 @@ void setimgpos(const Arg& arg) {
 
 void setimggaps(const Arg& arg) {
 #if IMAGE
-    img.imagegaps += arg.i;
+    img.gaps += arg.i;
 
-    if (img.imagegaps < 0)
-        img.imagegaps = 0;
+    if (img.gaps < 0)
+        img.gaps = 0;
 
     // limitation to make sure we have a reasonable gap size
-    if (img.imagegaps > (ctx.mw - 2 * img.imagegaps) / 3)
-        img.imagegaps -= arg.i;
+    if (img.gaps > (ctx.win_width - 2 * img.gaps) / 3)
+        img.gaps -= arg.i;
 
     drawmenu();
 #endif
@@ -525,9 +525,9 @@ void defaultimg(const Arg& arg) {
 
     if (hideimage || !image) return;
 
-    img.imagewidth = imagewidth;
-    img.imageheight = imageheight;
-    img.imagegaps = imagegaps;
+    img.width = imagewidth;
+    img.height = imageheight;
+    img.gaps = imagegaps;
 
     drawmenu();
 #endif
@@ -619,9 +619,9 @@ void switchmode(const Arg& arg) {
 
     if (!type) ctx.mode = 0; // only normal mode allowed
 
-    ctx.allowkeys = !ctx.mode;
+    ctx.allow_input = !ctx.mode;
 
-    strncpy(strings.modetext, ctx.mode ? instext.c_str() : normtext.c_str(), 15);
+    strncpy(strings.mode_text, ctx.mode ? instext.c_str() : normtext.c_str(), 15);
     drawmenu();
 }
 
@@ -638,11 +638,11 @@ void outputhover(const Arg& arg) {
         exit(0);
     }
 
-    selection = mouseitem->text;
+    selection = mouseitem->raw_text;
 
     for (int i = 0; i < sel_size; i++) {
         if (sel_index[i] != -1 && (!mouseitem || mouseitem->index != sel_index[i])) {
-            puts(items[sel_index[i]].text);
+            puts(items[sel_index[i]].raw_text);
         }
     }
 

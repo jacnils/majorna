@@ -7,12 +7,12 @@
 #include <filesystem>
 
 void readstdin() {
-    char buf[sizeof strings.text], *p;
+    char buf[sizeof strings.input_text], *p;
     size_t i, itemsiz = 0;
     unsigned int tmpmax = 0;
 
     if (passwd) {
-        ctx.inputw = lines = 0;
+        ctx.input_width = lines = 0;
         return;
     }
 
@@ -32,12 +32,12 @@ void readstdin() {
         }
         if ((p = strchr(buf, '\n')))
             *p = '\0';
-        if (!(items[i].text = strdup(buf)))
+        if (!(items[i].raw_text = strdup(buf)))
             die("majorna: cannot strdup %u bytes:", strlen(buf) + 1);
-        items[i].hp = arrayhas(hpitems, hplength, items[i].text);
+        items[i].high_priority = arrayhas(hpitems, hplength, items[i].raw_text);
         const auto tmpmax = draw.get_font_manager().estimate_length(buf, true).first; // width
-        if (tmpmax > ctx.inputw) {
-            ctx.inputw = tmpmax;
+        if (tmpmax > ctx.input_width) {
+            ctx.input_width = tmpmax;
         }
 
         items[i].index = i;
@@ -54,12 +54,12 @@ void readstdin() {
     }
 
 #if IMAGE
-    if (!o) img.longestedge = img.imagegaps = 0;
+    if (!o) img.longest_edge = img.gaps = 0;
 #endif
 
     // clean
     if (items) {
-        items[i].text = nullptr;
+        items[i].raw_text = nullptr;
 #if IMAGE
         items[i].image = nullptr;
 #endif
@@ -70,7 +70,7 @@ void readstdin() {
 
 void readfile() {
     if (passwd){
-        ctx.inputw = lines = 0;
+        ctx.input_width = lines = 0;
         return;
     }
 
@@ -119,7 +119,7 @@ void readfile() {
         int o = 0;
 
         for (i = 0; i < listsize; i++) {
-            items[i].text = list[i];
+            items[i].raw_text = list[i];
 
             if (parsemarkup(i)) {
                 o = 1;
@@ -135,15 +135,15 @@ void readfile() {
         lines = MAX(columns == 1 ? i : MIN(i, lines), minlines);
 
 #if IMAGE
-        if (!o) img.longestedge = img.imagegaps = 0;
+        if (!o) img.longest_edge = img.gaps = 0;
 #endif
 
-        if (i == ctx.listcount) {
-            ctx.listchanged = 0;
-            ctx.listcount = i;
+        if (i == ctx.line_count) {
+            ctx.list_changed = 0;
+            ctx.line_count = i;
         } else {
-            ctx.listcount = i;
-            ctx.listchanged = 1;
+            ctx.line_count = i;
+            ctx.list_changed = 1;
 
             // prevents state->buffer from being nullptr
             if (!protocol) {
@@ -165,13 +165,13 @@ int parsemarkup(int index) {
 
     // parse image markup
 #if IMAGE
-    if (!strncmp("IMG:", items[index].text, strlen("IMG:")) || !strncmp("img://", items[index].text, strlen("img://"))) {
-        if(!(items[index].image = static_cast<char*>(malloc(strlen(items[index].text)+1))))
-            fprintf(stderr, "majorna: cannot malloc %lu bytes\n", strlen(items[index].text));
-        if (sscanf(items[index].text, "IMG:%[^\t]", items[index].image)) {
-            items[index].text += strlen("IMG:")+strlen(items[index].image)+1;
-        } else if (sscanf(items[index].text, "img://%[^\t]", items[index].image)) {
-            items[index].text += strlen("img://")+strlen(items[index].image)+1;
+    if (!strncmp("IMG:", items[index].raw_text, strlen("IMG:")) || !strncmp("img://", items[index].raw_text, strlen("img://"))) {
+        if(!(items[index].image = static_cast<char*>(malloc(strlen(items[index].raw_text)+1))))
+            fprintf(stderr, "majorna: cannot malloc %lu bytes\n", strlen(items[index].raw_text));
+        if (sscanf(items[index].raw_text, "IMG:%[^\t]", items[index].image)) {
+            items[index].raw_text += strlen("IMG:")+strlen(items[index].image)+1;
+        } else if (sscanf(items[index].raw_text, "img://%[^\t]", items[index].image)) {
+            items[index].raw_text += strlen("img://")+strlen(items[index].image)+1;
         } else {
             free(items[index].image);
             items[index].image = nullptr;
@@ -181,7 +181,7 @@ int parsemarkup(int index) {
     }
 
     // load image cache (or generate)
-    if (generatecache && img.longestedge <= maxcache && items[index].image && strcmp(items[index].image, limg ? limg : "")) {
+    if (generatecache && img.longest_edge <= maxcache && items[index].image && strcmp(items[index].image, limg ? limg : "")) {
         loadimagecache(items[index].image, &w, &h);
     }
 

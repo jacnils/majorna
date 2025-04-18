@@ -82,38 +82,38 @@ void resizeclient_x11(void) {
     int ic = 0; // item count
 
     // walk through all items
-    for (item = items; item && item->text; item++)
+    for (item = items; item && item->raw_text; item++)
         ic++;
 
     lines = MAX(MIN(ic, MAX(lines, 0)), minlines);
 #if IMAGE
-    img.setlines = lines;
+    img.set_lines = lines;
 
     // resize client to image height
-    if (image) resizetoimageheight(img.imageheight);
+    if (image) resizetoimageheight(img.height);
 #endif
 
     get_mh();
 
     if (hideprompt && hideinput && hidemode && hidematchcount && hidecaps) {
-        ctx.mh -= ctx.bh;
+        ctx.win_height -= ctx.item_height;
     }
 
     if (menuposition == 2) { // centered
-        ctx.mw = MIN(MAX(max_textw() + ctx.promptw, centerwidth), monitor.output_width);
-        x = monitor.output_xpos + ((monitor.output_width  - ctx.mw) / 2 + xpos);
-        y = monitor.output_ypos + ((monitor.output_height - ctx.mh) / 2 - ypos);
+        ctx.win_width = MIN(MAX(max_textw() + ctx.prompt_width, centerwidth), monitor.output_width);
+        x = monitor.output_xpos + ((monitor.output_width  - ctx.win_width) / 2 + xpos);
+        y = monitor.output_ypos + ((monitor.output_height - ctx.win_height) / 2 - ypos);
     } else { // top or bottom
         x = monitor.output_xpos + xpos;
-        y = monitor.output_ypos + menuposition ? (-ypos) : (monitor.output_height - ctx.mh - ypos);
-        ctx.mw = (menuwidth > 0 ? menuwidth : monitor.output_width);
+        y = monitor.output_ypos + menuposition ? (-ypos) : (monitor.output_height - ctx.win_height - ypos);
+        ctx.win_width = (menuwidth > 0 ? menuwidth : monitor.output_width);
     }
 
     if (win) {
-        XMoveResizeWindow(dpy, win, x + ctx.sp, y + ctx.vp, ctx.mw - 2 * ctx.sp - borderwidth * 2, ctx.mh);
+        XMoveResizeWindow(dpy, win, x + ctx.hpadding, y + ctx.vpadding, ctx.win_width - 2 * ctx.hpadding - borderwidth * 2, ctx.win_height);
         draw.resize({
-            .w = ctx.mw - 2 * ctx.sp - borderwidth * 2,
-            .h = ctx.mh,
+            .w = ctx.win_width - 2 * ctx.hpadding - borderwidth * 2,
+            .h = ctx.win_height,
         });
     }
 }
@@ -145,7 +145,7 @@ void xinitvisual(void) {
             x11.visual = infos[i].visual;
             x11.depth = infos[i].depth;
             x11.cmap = XCreateColormap(dpy, root, x11.visual, AllocNone);
-            x11.useargb = 1;
+            x11.use_argb = 1;
             break;
         }
     }

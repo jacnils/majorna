@@ -59,7 +59,7 @@ void recalculatenumbers() {
             numer++;
     }
 
-    for (item = items; item && item->text; item++) {
+    for (item = items; item && item->raw_text; item++) {
         denom++;
     }
 
@@ -72,9 +72,9 @@ void recalculatenumbers() {
     }
 
     if (selected) {
-        snprintf(strings.numbers, NUMBERSBUFSIZE, "%d/%d/%d", numer, denom, selected);
+        snprintf(strings.number_text, NUMBERSBUFSIZE, "%d/%d/%d", numer, denom, selected);
     } else {
-        snprintf(strings.numbers, NUMBERSBUFSIZE, "%d/%d", numer, denom);
+        snprintf(strings.number_text, NUMBERSBUFSIZE, "%d/%d", numer, denom);
     }
 }
 
@@ -86,35 +86,35 @@ void calcoffsets() {
     int rarroww = 0;
     int capsw = 0;
 
-    if (!hidematchcount) numberw = pango_numbers ? TEXTWM(strings.numbers) : TEXTW(strings.numbers);
-    if (!hidemode) modew = pango_mode ? TEXTWM(strings.modetext) : TEXTW(strings.modetext);
+    if (!hidematchcount) numberw = pango_numbers ? TEXTWM(strings.number_text) : TEXTW(strings.number_text);
+    if (!hidemode) modew = pango_mode ? TEXTWM(strings.mode_text) : TEXTW(strings.mode_text);
     if (!hidelarrow) larroww = pango_leftarrow ? TEXTWM(leftarrow) : TEXTW(leftarrow);
     if (!hiderarrow) rarroww = pango_rightarrow ? TEXTWM(rightarrow) : TEXTW(rightarrow);
-    if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.capstext) : TEXTW(strings.capstext);
+    if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.caps_text) : TEXTW(strings.caps_text);
 
-    if (!strcmp(strings.capstext, "")) {
+    if (!strcmp(strings.caps_text, "")) {
         capsw = 0;
     }
 
     if (lines > 0) {
-        offset = lines * columns * ctx.bh;
-        ctx.maxlen = ctx.mw - (ctx.promptw + modew + numberw + capsw + menumarginh);
+        offset = lines * columns * ctx.item_height;
+        ctx.max_length = ctx.win_width - (ctx.prompt_width + modew + numberw + capsw + menumarginh);
     } else { /* no lines, therefore the size of items must be decreased to fit the menu elements */
-        offset = ctx.mw - (ctx.promptw + ctx.inputw + larroww + rarroww + modew + numberw + capsw + menumarginh);
-        ctx.maxlen = selecteditem ? ctx.inputw : ctx.mw - (ctx.promptw + modew + numberw + capsw + (selecteditem ? larroww : 0) + (selecteditem ? rarroww : 0));
+        offset = ctx.win_width - (ctx.prompt_width + ctx.input_width + larroww + rarroww + modew + numberw + capsw + menumarginh);
+        ctx.max_length = selecteditem ? ctx.input_width : ctx.win_width - (ctx.prompt_width + modew + numberw + capsw + (selecteditem ? larroww : 0) + (selecteditem ? rarroww : 0));
     }
 
     for (i = 0, nextitem = currentitem; nextitem; nextitem = nextitem->right) { // next page
-        nextitem->nsgrtext = get_text_n_sgr(nextitem);
+        nextitem->text_without_sequences = get_text_n_sgr(nextitem);
 
-        if ((i += (lines > 0) ? ctx.bh : MIN(TEXTWM(nextitem->nsgrtext) + (powerlineitems ? !lines ? 3 * ctx.plw : 0 : 0), offset)) > offset)
+        if ((i += (lines > 0) ? ctx.item_height : MIN(TEXTWM(nextitem->text_without_sequences) + (powerlineitems ? !lines ? 3 * ctx.powerline_width : 0 : 0), offset)) > offset)
             break;
     }
 
     for (i = 0, previousitem = currentitem; previousitem && previousitem->left; previousitem = previousitem->left) { // previous page
-        previousitem->nsgrtext = get_text_n_sgr(previousitem);
+        previousitem->text_without_sequences = get_text_n_sgr(previousitem);
 
-        if ((i += (lines > 0) ? ctx.bh : MIN(TEXTWM(previousitem->left->nsgrtext) + (powerlineitems ? !lines ? 3 * ctx.plw : 0 : 0), offset)) > offset)
+        if ((i += (lines > 0) ? ctx.item_height : MIN(TEXTWM(previousitem->left->text_without_sequences) + (powerlineitems ? !lines ? 3 * ctx.powerline_width : 0 : 0), offset)) > offset)
             break;
     }
 }
@@ -122,8 +122,8 @@ void calcoffsets() {
 int max_textw() {
     int len = 0;
 
-    for (struct item *item = items; item && item->text; item++)
-        len = MAX(TEXTW(item->text), len);
+    for (struct item *item = items; item && item->raw_text; item++)
+        len = MAX(TEXTW(item->raw_text), len);
 
     return len;
 }
@@ -167,38 +167,38 @@ char * cistrstr(const char *h, const char *n) {
 }
 
 void insert(const char *str, ssize_t n) {
-    if (strlen(strings.text) + n > sizeof strings.text - 1)
+    if (strlen(strings.input_text) + n > sizeof strings.input_text - 1)
         return;
 
     static char l[BUFSIZ] = "";
 
     if (requirematch) {
-        memcpy(l, strings.text, BUFSIZ);
+        memcpy(l, strings.input_text, BUFSIZ);
     }
 
     // move existing text out of the way, insert new text, and update cursor
     memmove(
-            &strings.text[ctx.cursor + n],
-            &strings.text[ctx.cursor],
-            sizeof strings.text - ctx.cursor - MAX(n, 0)
+            &strings.input_text[ctx.cursor + n],
+            &strings.input_text[ctx.cursor],
+            sizeof strings.input_text - ctx.cursor - MAX(n, 0)
     );
 
     if (n > 0 && str && n) {
-        memcpy(&strings.text[ctx.cursor], str, n);
+        memcpy(&strings.input_text[ctx.cursor], str, n);
     }
 
     ctx.cursor += n;
     match();
 
     if (!matches && requirematch) {
-        memcpy(strings.text, l, BUFSIZ);
+        memcpy(strings.input_text, l, BUFSIZ);
         ctx.cursor -= n;
         match();
     }
 
     // output on insertion
     if (incremental) {
-        puts(strings.text);
+        puts(strings.input_text);
         fflush(stdout);
     }
 }
@@ -207,7 +207,7 @@ size_t nextrune(int inc) {
     ssize_t rune;
 
     // return location of next utf8 rune in the given direction (+1 or -1)
-    for (rune = ctx.cursor + inc; rune + inc >= 0 && (strings.text[rune] & 0xc0) == 0x80; rune += inc)
+    for (rune = ctx.cursor + inc; rune + inc >= 0 && (strings.input_text[rune] & 0xc0) == 0x80; rune += inc)
         ;
 
     return rune;
@@ -232,28 +232,28 @@ void resizeclient() {
  * items.
  */
 void get_width() {
-    ctx.inputw = ctx.mw * inputwidth;
+    ctx.input_width = ctx.win_width * inputwidth;
 }
 
 void get_mh() {
     int epad;
 
-    ctx.mh = (lines + 1) * ctx.bh;
-    ctx.mh += 2 * menumarginv;
+    ctx.win_height = (lines + 1) * ctx.item_height;
+    ctx.win_height += 2 * menumarginv;
 
     // subtract 1 line if there's nothing to draw on the top line
     if ((hideprompt && hideinput && hidemode && hidematchcount && hidecaps) && lines) {
-        ctx.mh -= ctx.bh;
+        ctx.win_height -= ctx.item_height;
     }
 
     epad = 2 * menupaddingv;
 
     // the majorna window should not exceed the screen resolution height
     if (monitor.output_height && !xpos && !ypos) {
-        ctx.mh = MIN(ctx.mh, monitor.output_height - epad);
+        ctx.win_height = MIN(ctx.win_height, monitor.output_height - epad);
 
-        if (ctx.mh == monitor.output_height - epad) {
-            lines = ((monitor.output_height - epad) / ctx.bh);
+        if (ctx.win_height == monitor.output_height - epad) {
+            lines = ((monitor.output_height - epad) / ctx.item_height);
         }
     }
 }
@@ -266,19 +266,19 @@ void set_mode() {
     // set default mode, must be done before the event loop or keybindings will not work
     if (mode) {
         ctx.mode = 1;
-        ctx.allowkeys = 1;
+        ctx.allow_input = 1;
 
-        sp_strncpy(strings.modetext, instext.c_str(), sizeof(strings.modetext));
+        sp_strncpy(strings.mode_text, instext.c_str(), sizeof(strings.mode_text));
     } else {
         ctx.mode = 0;
-        ctx.allowkeys = !ctx.mode;
+        ctx.allow_input = !ctx.mode;
 
-        sp_strncpy(strings.modetext, normtext.c_str(), sizeof(strings.modetext));
+        sp_strncpy(strings.mode_text, normtext.c_str(), sizeof(strings.mode_text));
     }
 
     if (forceinsertmode) {
         ctx.mode = 1;
-        ctx.allowkeys = 1;
+        ctx.allow_input = 1;
     }
 }
 

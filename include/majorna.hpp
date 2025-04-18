@@ -25,46 +25,44 @@ enum {
 };
 
 struct item {
-    char *text{};
-    char *nsgrtext{};
+    char *raw_text{};
+    char *text_without_sequences{};
     char *image{};
-    char *ex{};
     item* left{}, *right{};
-    int hp{};
+    bool high_priority{};
     int index{};
     double distance{};
 };
 
-struct context
-{
-    int bh{}; // height of each menu item
-    int mw{}; // width
-    int mh{}; // height
-    int vp{}; // vertical padding for bar
-    int sp{}; // side padding for bar
+struct context {
+    int item_height{}; // height of each menu item
+    int win_width{}; // width
+    int win_height{}; // height
+    int vpadding{}; // vertical padding for bar
+    int hpadding{}; // side padding for bar
     int lrpad{}; // sum of left and right padding
 
-    int mode{}; // current mode
-    int allowkeys{}; // interpret a keypress as an insertion?
-    bool capslockstate{}; // caps lock state
-    bool isdrawing{};
+    bool mode{}; // current mode
+    int allow_input{}; // interpret a keypress as an insertion?
+    bool caps_state{}; // caps lock state
+    bool is_drawing{};
 
-    int inputw{}; // input width
-    int promptw{}; // prompt width
-    int plw{}; // powerline width
+    int input_width{}; // input width
+    int prompt_width{}; // prompt width
+    int powerline_width{}; // powerline width
 
-    int itemnumber{}; // item number
-    int listcount{};
-    bool listchanged{};
+    int item_number{}; // item number
+    int line_count{};
+    bool list_changed{};
 
-    int maxlen{}; // max length of text
+    int max_length{}; // max length of text
 
     std::size_t cursor{}; // cursor width
 
-    bool ignoreconfkeys{}; // can be set globally if you don't want to override keybinds with config file keys
-    bool ignoreglobalkeys{}; // should be set in the config file, if 1, the Keys keys array is ignored
-    bool ignoreconfmouse{}; // same for mouse
-    bool ignoreglobalmouse{}; // same for mouse
+    bool ignore_conf_keys{}; // can be set globally if you don't want to override keybinds with config file keys
+    bool ignore_global_keys{}; // should be set in the config file, if 1, the Keys keys array is ignored
+    bool ignore_conf_mouse{}; // same for mouse
+    bool ignore_global_mouse{}; // same for mouse
 };
 
 struct monitor {
@@ -76,26 +74,26 @@ struct monitor {
 
 #if IMAGE
 struct img {
-    int setlines{}; // actual lines
+    int set_lines{}; // actual lines
     int flip{}; // %=
-    int longestedge{}; // MAX(imagewidth, imageheight)
-    int imagewidth{}; // current image width
-    int imageheight{}; // current image height
-    int imagegaps{}; // current image gaps
+    int longest_edge{}; // MAX(imagewidth, imageheight)
+    int width{}; // current image width
+    int height{}; // current image height
+    int gaps{}; // current image gaps
 };
 #endif
 
 struct strings {
-    char modetext[64]; // mode text
-    char text[BUFSIZ]; // input text
-    char numbers[NUMBERSBUFSIZE]; // number text
-    char capstext[64]; // caps lock text
+    char mode_text[64]; // mode text
+    char input_text[BUFSIZ]; // input text
+    char number_text[NUMBERSBUFSIZE]; // number text
+    char caps_text[64]; // caps lock text
 };
 
 #if X11
 struct x11 {
     int numlockmask{};
-    bool useargb{};
+    bool use_argb{};
     int depth{};
     char *embed{};
     int screen{};

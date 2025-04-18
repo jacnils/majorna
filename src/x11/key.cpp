@@ -40,7 +40,7 @@ void keypress_x11(XEvent& e) {
     if (keysym == hkeys[0].keysym && CLEANMASK(hkeys[0].mod) == CLEANMASK(ev->state) && hkeys[0].func) hkeys[0].func(hkeys[0].arg);
 
     for (auto& it : keys) {
-        if (ctx.ignoreglobalkeys) break;
+        if (ctx.ignore_global_keys) break;
 
         if (keysym == it.keysym && CLEANMASK(it.mod) == CLEANMASK(ev->state) && it.func) {
             if ((it.mode && ctx.mode) || it.mode == -1) {
@@ -53,7 +53,7 @@ void keypress_x11(XEvent& e) {
     }
 
     for (auto& it : ckeys) {
-        if (ctx.ignoreconfkeys) break;
+        if (ctx.ignore_conf_keys) break;
 
         if (keysym == it.keysym && CLEANMASK(it.mod) == CLEANMASK(ev->state) && it.func) {
             if ((it.mode && ctx.mode) || it.mode == -1) {
@@ -66,10 +66,10 @@ void keypress_x11(XEvent& e) {
     }
 
     if (!iscntrl(*buf) && type && ctx.mode ) {
-        if (ctx.allowkeys) {
+        if (ctx.allow_input) {
             insert(buf, len);
         } else {
-            ctx.allowkeys = !ctx.allowkeys;
+            ctx.allow_input = !ctx.allow_input;
         }
 
         drawmenu();
@@ -98,7 +98,7 @@ void getcapsstate() {
     unsigned int cs = 0;
 
     XkbGetIndicatorState(dpy, XkbUseCoreKbd, &cs);
-    ctx.capslockstate = (cs & 0x01) == 1;
+    ctx.caps_state = (cs & 0x01) == 1;
 
-    strncpy(strings.capstext, ctx.capslockstate ? capslockontext.c_str() : capslockofftext.c_str(), 15);
+    strncpy(strings.caps_text, ctx.caps_state ? capslockontext.c_str() : capslockofftext.c_str(), 15);
 }

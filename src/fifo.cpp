@@ -33,13 +33,13 @@ void execute_fifo_cmd() {
      * by outputting text to the FIFO.
      */
     if (!strcmp(fifot, "drawmenu")) {
-        if (!ctx.isdrawing) {
+        if (!ctx.is_drawing) {
             drawmenu();
         }
     } else if (!strcmp(fifot, "match")) {
         match();
     } else if (!strcmp(fifot, "update")) {
-        if (!ctx.isdrawing) {
+        if (!ctx.is_drawing) {
             match();
             drawmenu();
         }
@@ -56,7 +56,7 @@ void execute_fifo_cmd() {
         if (selecteditem) {
             for (int i = 0; i < sel_size; i++) {
                 if (sel_index[i] != -1 && (!selecteditem || selecteditem->index != sel_index[i])) {
-                    puts(items[sel_index[i]].text);
+                    puts(items[sel_index[i]].raw_text);
                 }
             }
         }

@@ -13,12 +13,12 @@
 #include <filesystem>
 
 void setimagesize(int width, int height) {
-    if (!image || hideimage || height < 5 || width < 5 || width > ctx.mw - ctx.bh) {
+    if (!image || hideimage || height < 5 || width < 5 || width > ctx.win_width - ctx.item_height) {
         return;
     }
 
-    img.imageheight = height;
-    img.imagewidth = width;
+    img.height = height;
+    img.width = width;
 }
 
 void flipimage() {
@@ -53,7 +53,7 @@ void drawimage() {
 
     // load image cache
     if (selecteditem && selecteditem->image && strcmp(selecteditem->image, limg ? limg : "")) {
-        if (img.longestedge)
+        if (img.longest_edge)
             loadimagecache(selecteditem->image, &width, &height);
     } else if ((!selecteditem || !selecteditem->image) && image) { // free image
         cleanupimage();
@@ -64,25 +64,25 @@ void drawimage() {
     }
 
     // render the image
-    if (img.longestedge && width && height) {
+    if (img.longest_edge && width && height) {
         flipimage();
 
-        int leftmargin = img.imagegaps; // gaps between image and menu
+        int leftmargin = img.gaps; // gaps between image and menu
         int wtr = 0; // remove from w
         int wta = 0; // add to w
         int xta = 0; // add to x
 
         if (hideprompt && hideinput && hidemode && hidematchcount && hidecaps) {
-            wtr = ctx.bh;
+            wtr = ctx.item_height;
         } else {
-            wta = ctx.bh;
+            wta = ctx.item_height;
         }
 
         // margin
         xta += menumarginh;
         wta += menumarginv;
 
-        if (ctx.mh != ctx.bh + height + leftmargin * 2 - wtr && imageresize) { // menu height cannot be smaller than image height
+        if (ctx.win_height != ctx.item_height + height + leftmargin * 2 - wtr && imageresize) { // menu height cannot be smaller than image height
             resizetoimageheight(imlib_image_get_height());
         }
 
@@ -93,7 +93,7 @@ void drawimage() {
 
             //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, wta + leftmargin);
             draw.draw_image(imlib_image_get_data(), {
-                .x = leftmargin + (img.imagewidth - width) / 2 + xta,
+                .x = leftmargin + (img.width - width) / 2 + xta,
                 .y = wta + leftmargin,
                 .w = width,
                 .h = height,
@@ -104,24 +104,24 @@ void drawimage() {
 
             //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, sp.mh - height - leftmargin);
             draw.draw_image(imlib_image_get_data(), {
-                .x = leftmargin + (img.imagewidth - width) / 2 + xta,
-                .y = ctx.mh - height - leftmargin,
+                .x = leftmargin + (img.width - width) / 2 + xta,
+                .y = ctx.win_height - height - leftmargin,
                 .w = width,
                 .h = height,
             });
         } else if (imageposition == 2) { // center mode = 2
             //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (sp.mh - wta - height) / 2 + wta);
             draw.draw_image(imlib_image_get_data(), {
-                .x = leftmargin + (img.imagewidth - width) / 2 + xta,
-                .y = (ctx.mh - wta - height) / 2 + wta,
+                .x = leftmargin + (img.width - width) / 2 + xta,
+                .y = (ctx.win_height - wta - height) / 2 + wta,
                 .w = width,
                 .h = height,
             });
         } else { // top center
-            int minh = MIN(height, ctx.mh - ctx.bh - leftmargin * 2);
+            int minh = MIN(height, ctx.win_height - ctx.item_height - leftmargin * 2);
             //draw_img(draw, leftmargin + (img.imagewidth - width) / 2 + xta, (minh - height) / 2 + wta + leftmargin);
             draw.draw_image(imlib_image_get_data(), {
-                .x = leftmargin + (img.imagewidth - width) / 2 + xta,
+                .x = leftmargin + (img.width - width) / 2 + xta,
                 .y = (minh - height) / 2 + wta + leftmargin,
                 .w = width,
                 .h = height,
@@ -190,10 +190,10 @@ void scaleimage(int *width, int *height) {
     float aspect = 1.0f;
 
     // depending on what size, we determine aspect ratio
-    if (img.imagewidth > *width) {
-        aspect = (float)(*width)/img.imagewidth;
+    if (img.width > *width) {
+        aspect = (float)(*width)/img.width;
     } else {
-        aspect = (float)img.imagewidth/(*width);
+        aspect = (float)img.width/(*width);
     }
 
     new_width = *width * aspect;
@@ -213,8 +213,6 @@ void scaleimage(int *width, int *height) {
 
     *width = new_width;
     *height = new_height;
-
-    return;
 }
 
 void loadimagecache(const char *file, int *width, int *height) {
@@ -225,7 +223,7 @@ void loadimagecache(const char *file, int *width, int *height) {
     struct passwd *user_id = nullptr;
 
     // just load and don't store or try cache
-    if (img.longestedge > maxcache) {
+    if (img.longest_edge > maxcache) {
         loadimage(file, width, height);
         if (image)
             scaleimage(width, height);
@@ -247,7 +245,7 @@ void loadimagecache(const char *file, int *width, int *height) {
 
         // which cache do we try?
         cachesize = "normal";
-        if (img.longestedge > 128)
+        if (img.longest_edge > 128)
             cachesize = "large";
 
         slen = snprintf(nullptr, 0, "file://%s", file)+1;
@@ -298,10 +296,10 @@ void loadimagecache(const char *file, int *width, int *height) {
 
         loadimage(buf, width, height);
 
-        if (image && *width < img.imagewidth && *height < img.imageheight) {
+        if (image && *width < img.width && *height < img.height) {
             imlib_free_image();
             image = nullptr;
-        } else if(image && (*width > img.imagewidth || *height > img.imageheight)) {
+        } else if(image && (*width > img.width || *height > img.height)) {
             scaleimage(width, height);
         }
 
@@ -356,35 +354,35 @@ void resizetoimageheight(int imageheight) {
 
 #if X11
 void resizetoimageheight_x11(int imageheight) {
-    int mh = ctx.mh, olines = lines;
-    lines = img.setlines;
+    int mh = ctx.win_height, olines = lines;
+    lines = img.set_lines;
 
     int x, y;
 
-    if (lines * ctx.bh < imageheight + img.imagegaps * 2) {
-        lines = (imageheight + img.imagegaps * 2) / ctx.bh;
+    if (lines * ctx.item_height < imageheight + img.gaps * 2) {
+        lines = (imageheight + img.gaps * 2) / ctx.item_height;
     }
 
     get_mh();
 
     if (menuposition == 2) { // centered
-        ctx.mw = MIN(MAX(max_textw() + ctx.promptw, centerwidth), monitor.output_width);
-        x = monitor.output_xpos + ((monitor.output_width  - ctx.mw) / 2 + xpos);
-        y = monitor.output_ypos + ((monitor.output_height - ctx.mh) / 2 - ypos);
+        ctx.win_width = MIN(MAX(max_textw() + ctx.prompt_width, centerwidth), monitor.output_width);
+        x = monitor.output_xpos + ((monitor.output_width  - ctx.win_width) / 2 + xpos);
+        y = monitor.output_ypos + ((monitor.output_height - ctx.win_height) / 2 - ypos);
     } else { // top or bottom
         x = monitor.output_xpos + xpos;
-        y = monitor.output_ypos + menuposition ? (-ypos) : (monitor.output_height - ctx.mh - ypos);
-        ctx.mw = (menuwidth > 0 ? menuwidth : monitor.output_width);
+        y = monitor.output_ypos + menuposition ? (-ypos) : (monitor.output_height - ctx.win_height - ypos);
+        ctx.win_width = (menuwidth > 0 ? menuwidth : monitor.output_width);
     }
 
-    if (!win || mh == ctx.mh) {
+    if (!win || mh == ctx.win_height) {
         return;
     }
 
-    XMoveResizeWindow(dpy, win, x + ctx.sp, y + ctx.vp, ctx.mw - 2 * ctx.sp - borderwidth * 2, ctx.mh);
+    XMoveResizeWindow(dpy, win, x + ctx.hpadding, y + ctx.vpadding, ctx.win_width - 2 * ctx.hpadding - borderwidth * 2, ctx.win_height);
     draw.resize({
-        .w = ctx.mw - 2 * ctx.sp - borderwidth * 2,
-        .h = ctx.mh,
+        .w = ctx.win_width - 2 * ctx.hpadding - borderwidth * 2,
+        .h = ctx.win_height,
     });
 
     if (olines != lines) {
@@ -404,16 +402,16 @@ void resizetoimageheight_x11(int imageheight) {
 
 #if WAYLAND
 void resizetoimageheight_wl(int imageheight) {
-    int mh = ctx.mh, olines = lines;
-    lines = img.setlines;
+    int mh = ctx.win_height, olines = lines;
+    lines = img.set_lines;
 
-    if (lines * ctx.bh < imageheight + img.imagegaps * 2) {
-        lines = (imageheight + img.imagegaps * 2) / ctx.bh;
+    if (lines * ctx.item_height < imageheight + img.gaps * 2) {
+        lines = (imageheight + img.gaps * 2) / ctx.item_height;
     }
 
     get_mh();
 
-    if (mh == ctx.mh) {
+    if (mh == ctx.win_height) {
         return;
     }
 
@@ -428,8 +426,8 @@ void resizetoimageheight_wl(int imageheight) {
         jumptoindex(i);
     }
 
-    state.width = ctx.mw;
-    state.height = ctx.mh;
+    state.width = ctx.win_width;
+    state.height = ctx.win_height;
 
     state.buffer = create_buffer(&state);
 
@@ -450,10 +448,10 @@ void resizetoimageheight_wl(int imageheight) {
 #endif
 
 void store_image_vars(void) {
-    img.imagewidth = imagewidth;
-    img.imageheight = imageheight;
-    img.imagegaps = imagegaps;
+    img.width = imagewidth;
+    img.height = imageheight;
+    img.gaps = imagegaps;
 
-    img.longestedge = MAX(img.imagewidth, img.imageheight);
+    img.longest_edge = MAX(img.width, img.height);
 }
 #endif

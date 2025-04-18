@@ -23,11 +23,11 @@ void setupdisplay_x11() {
 
     // resize client to image height if deemed necessary
 #if IMAGE
-    if (image) resizetoimageheight(img.imageheight);
+    if (image) resizetoimageheight(img.height);
 #endif
 
     // set prompt width based on prompt size
-    ctx.promptw = !prompt.empty() ? pango_prompt ? TEXTWM(prompt) : TEXTW(prompt) - ctx.lrpad / 4 : 0; // prompt width
+    ctx.prompt_width = !prompt.empty() ? pango_prompt ? TEXTWM(prompt) : TEXTW(prompt) - ctx.lrpad / 4 : 0; // prompt width
 
     // init xinerama screens
 #if XINERAMA
@@ -81,21 +81,21 @@ void setupdisplay_x11() {
     get_mh();
 
     if (menuposition == 2) { // centered
-        ctx.mw = MIN(MAX(max_textw() + ctx.promptw, centerwidth), monitor.output_width);
-        x = monitor.output_xpos + ((monitor.output_width  - ctx.mw) / 2 + xpos);
-        y = monitor.output_ypos + ((monitor.output_height - ctx.mh) / 2 - ypos);
+        ctx.win_width = MIN(MAX(max_textw() + ctx.prompt_width, centerwidth), monitor.output_width);
+        x = monitor.output_xpos + ((monitor.output_width  - ctx.win_width) / 2 + xpos);
+        y = monitor.output_ypos + ((monitor.output_height - ctx.win_height) / 2 - ypos);
     } else { // top or bottom
         x = monitor.output_xpos + xpos;
-        y = monitor.output_ypos + menuposition ? (-ypos) : (monitor.output_height - ctx.mh - ypos);
-        ctx.mw = (menuwidth > 0 ? menuwidth : monitor.output_width);
+        y = monitor.output_ypos + menuposition ? (-ypos) : (monitor.output_height - ctx.win_height - ypos);
+        ctx.win_width = (menuwidth > 0 ? menuwidth : monitor.output_width);
     }
 
     // create menu window and set properties for it
     create_window_x11(
-            x + ctx.sp,
-            y + ctx.vp - (menuposition == 1 ? 0 : menuposition == 2 ? borderwidth : borderwidth * 2),
-            ctx.mw - 2 * ctx.sp - borderwidth * 2,
-            ctx.mh
+            x + ctx.hpadding,
+            y + ctx.vpadding - (menuposition == 1 ? 0 : menuposition == 2 ? borderwidth : borderwidth * 2),
+            ctx.win_width - 2 * ctx.hpadding - borderwidth * 2,
+            ctx.win_height
     );
 
     set_window_x11();
@@ -131,8 +131,8 @@ void setupdisplay_x11() {
 
     // resize window and draw
     draw.resize({
-        .w = ctx.mw - 2 * ctx.sp - borderwidth * 2,
-        .h = ctx.mh,
+        .w = ctx.win_width - 2 * ctx.hpadding - borderwidth * 2,
+        .h = ctx.win_height,
     });
 
     match();
@@ -140,13 +140,13 @@ void setupdisplay_x11() {
 }
 
 void prepare_window_size_x11() {
-    ctx.sp = menupaddingh;
-    ctx.vp = (menuposition == 1) ? menupaddingv : - menupaddingv;
+    ctx.hpadding = menupaddingh;
+    ctx.vpadding = (menuposition == 1) ? menupaddingv : - menupaddingv;
 
-    ctx.bh = std::max(ctx.bh, static_cast<int>(draw.get_font_manager().get_height() + 2 + lineheight));
+    ctx.item_height = std::max(ctx.item_height, static_cast<int>(draw.get_font_manager().get_height() + 2 + lineheight));
     lines = MAX(lines, 0);
 #if IMAGE
-    img.setlines = lines;
+    img.set_lines = lines;
 #endif
 
     ctx.lrpad = draw.get_font_manager().get_height() + textpadding;

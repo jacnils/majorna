@@ -144,7 +144,7 @@ int bind_init() {
             }
 
             config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
-            config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
+            config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignore_global_keys));
 
 #if X11
             std::cerr << "X11 key: " << "Keysym: " << key.keysym << " Mod: " << key.mod << " Mode: " << key.mode << std::endl;
@@ -225,7 +225,7 @@ int bind_init() {
 #endif
             }
 
-            config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
+            config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignore_global_mouse));
             config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
 
 #if X11
@@ -937,7 +937,7 @@ void conf_init() {
                 }
 
                 config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
-                config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignoreglobalkeys));
+                config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignore_global_keys));
 
 #if X11
                 ckeys.emplace_back(key);
@@ -1016,7 +1016,7 @@ void conf_init() {
 #endif
                 }
 
-                config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignoreglobalmouse));
+                config_setting_lookup_bool(conf, "ignoreglobalmouse", reinterpret_cast<int*>(&ctx.ignore_global_mouse));
                 config_setting_lookup_int(conf, "scrolldistance", &scrolldistance);
 
 #if X11
