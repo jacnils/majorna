@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 
-#if FIFO
 #include <fifo.hpp>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -239,4 +238,3 @@ void init_fifo() {
     pthread_t tid;
     pthread_create(&tid, NULL, &fifocmd, NULL);
 }
-#endif

@@ -144,9 +144,7 @@ void cleanup() {
     }
 #endif
 
-#if FIFO
     std::filesystem::remove(fifofile);
-#endif
 
     free(sel_index);
 }
@@ -320,9 +318,7 @@ void handle() {
         init_appearance(); // init colorschemes by reading arrays
 
         setupdisplay_x11(); // set up display and create window
-#if FIFO
         init_fifo();
-#endif
         eventloop_x11(); // function is a loop which checks X11 events and calls other functions accordingly
 #endif
 #if WAYLAND
@@ -347,9 +343,7 @@ void handle() {
         set_mode();
         init_appearance();
 
-#if FIFO
         init_fifo();
-#endif
 
         handle_wl();
 #endif

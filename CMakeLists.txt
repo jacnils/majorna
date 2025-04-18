@@ -11,9 +11,6 @@ option(OPENSSL "Enable OpenSSL support" ON)
 option(FRIBIDI "Enable Fribidi support" ON)
 option(XINERAMA "Enable Xinerama support" ON)
 option(LIBCONFIG "Enable Libconfig support" ON)
-option(XRESOURCES "Enable Xresources support" ON)
-option(REGEX "Enable Regex support" ON)
-option(FIFO "Enable FIFO support" ON)
 
 include_directories(include)
 include_directories(libs/limhamn/include)
@@ -131,18 +128,6 @@ if(LIBCONFIG)
     pkg_check_modules(LIBCONFIG REQUIRED libconfig)
     list(APPEND PROJECT_DEPENDENCIES ${LIBCONFIG_LIBRARIES})
     list(APPEND BUILD_ARGS -DCONFIG)
-endif()
-
-if(XRESOURCES AND X11)
-    list(APPEND BUILD_ARGS -DXRESOURCES)
-endif()
-
-if(REGEX)
-    list(APPEND BUILD_ARGS -DREGEX)
-endif()
-
-if(FIFO)
-    list(APPEND BUILD_ARGS -DFIFO)
 endif()
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})

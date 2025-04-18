@@ -7,50 +7,56 @@
 #include <cstdio>
 #include <cstring>
 
-#if XRESOURCES
-void resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst) {
-    char *sdst = nullptr;
-    int *idst = nullptr;
-    float *fdst = nullptr;
-    sdst = static_cast<char*>(dst);
-    idst = static_cast<int*>(dst);
-    fdst = static_cast<float*>(dst);
-    char fullname[256];
-    char *type;
+#if X11
+
+void resource_load(XrmDatabase db, const std::string& name, resource_type rtype, std::any& dst) {
+    std::string fullname = "majorna." + name;
+    char* type = nullptr;
     XrmValue ret;
-    snprintf(fullname, sizeof(fullname), "%s.%s", "majorna", name);
-    fullname[sizeof(fullname) - 1] = '\0';
-    XrmGetResource(db, fullname, "*", &type, &ret);
-    if (!xresources) return;
-    if (!(ret.addr == nullptr || strncmp("String", type, 64))) {
-        switch (rtype) { // type
-            case STRING:
-                sp_strncpy(sdst, ret.addr, strlen(sdst));
-                break;
-            case INTEGER:
-                *idst = strtoul(ret.addr, nullptr, 10);
-                break;
-            case FLOAT:
-                *fdst = strtof(ret.addr, nullptr);
+
+    XrmGetResource(db, fullname.c_str(), "*", &type, &ret);
+    if (!xresources || ret.addr == nullptr || strncmp("String", type, 64) != 0) {
+        return;
+    }
+
+    try {
+        switch (rtype) {
+        case String: {
+                auto& sdst = std::any_cast<std::string&>(dst);
+                sdst = std::string(ret.addr);
                 break;
         }
+        case Integer: {
+                auto& idst = std::any_cast<int&>(dst);
+                idst = std::stoi(ret.addr);
+                break;
+        }
+        case Float: {
+                auto& fdst = std::any_cast<float&>(dst);
+                fdst = std::stof(ret.addr);
+                break;
+        }
+        }
+    } catch (const std::bad_any_cast& e) {
+        fprintf(stderr, "Error: %s\n", e.what());
     }
 }
 
-void load_xresources(void) {
-    Display *display;
-    char *resm;
-    XrmDatabase db;
-    ResourcePref *p;
-    display = XOpenDisplay(nullptr);
-    resm = XResourceManagerString(display);
+void load_xresources() {
+    Display* display = XOpenDisplay(nullptr);
+
+    char* resm = XResourceManagerString(display);
+
     if (!resm || !xresources)
         return;
-    db = XrmGetStringDatabase(resm);
 
-    for (p = cols; p < cols + LENGTH(cols); p++)
-        resource_load(db, p->name, p->type, p->dst);
+    XrmDatabase db = XrmGetStringDatabase(resm);
+
+    for (auto& it : cols) {
+        resource_load(db, it.name, it.type, it.dst);
+    }
 
     XCloseDisplay(display);
 }
+
 #endif

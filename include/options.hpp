@@ -64,9 +64,7 @@ inline int maxcache                    = 512; /* Max image size to cache */
 inline std::string cachedir            = "default"; /* Cache directory. Default means majorna will determine automatically */
 
 /* FIFO options */
-#if FIFO
 inline std::string fifofile                  = "/tmp/majorna.fifo"; /* majorna FIFO path */
-#endif
 
 /* Screenshot options */
 inline std::string screenshotfile            = {}; /* Screenshot file path. If set to nullptr, the default path will be used. */

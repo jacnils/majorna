@@ -684,11 +684,9 @@ void conf_init() {
                 bindsfile = strdup(dest);
             }
 
-#if FIFO
             if (config_setting_lookup_string(conf, "fifofile", &dest)) {
                 fifofile = strdup(dest);
             }
-#endif
 
             if (config_setting_lookup_string(conf, "screenshotfile", &dest) && dest != "nullptr" && dest != "NULL") {
                 screenshotfile = strdup(dest);

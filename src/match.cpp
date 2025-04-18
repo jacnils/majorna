@@ -1,15 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 
-#if REGEX
 #include <regex/regex.h>
-#endif
 
 #include <match.hpp>
 #include <majorna.hpp>
 #include <math.h>
 
 int matchregex(const char *t, const char *itt) {
-#if REGEX
     re_t reg = re_compile(t);
     int len;
 
@@ -20,9 +17,6 @@ int matchregex(const char *t, const char *itt) {
     } else {
         return 0;
     }
-#else
-    return 0;
-#endif
 }
 
 void fuzzymatch() {

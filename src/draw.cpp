@@ -996,11 +996,9 @@ void drawmenu_layer() {
 
     sp_strncpy(strings.modetext, ctx.mode ? instext.c_str() : normtext.c_str(), sizeof(strings.modetext));
 
-#if REGEX
     if (regex && !regextext.empty() && ctx.mode) {
         sp_strncpy(strings.modetext, regextext.c_str(), sizeof(strings.modetext));
     }
-#endif
 
     // draw menu first using menu scheme
     //draw_rect(draw, 0, 0, sp.mw, sp.mh, 1, 1, col_menu, col_menu, alpha_menu, alpha_menu);

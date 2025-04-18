@@ -491,13 +491,10 @@ void togglehighlight(const Arg& arg) {
 }
 
 void toggleregex(const Arg& arg) {
-#if REGEX
     regex = !regex;
 
     match();
     drawmenu();
-
-#endif
 }
 
 void togglefuzzy(const Arg& arg) {

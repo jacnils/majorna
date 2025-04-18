@@ -10,6 +10,4 @@
 #if XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif
-#if XRESOURCES
 #include <X11/Xresource.h>
-#endif

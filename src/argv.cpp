@@ -104,12 +104,8 @@ void readargs(int argc, char *argv[]) {
     // init/read xrdb
 #if X11
     if (xresources && !protocol) {
-#if XRESOURCES
         XrmInitialize();
         load_xresources();
-#else
-        ; // avoids a warning
-#endif
     }
 #endif
 
@@ -604,21 +600,6 @@ void comp_opts(void) {
 #else
     fprintf(stdout, "Config: Unsupported\n");
 #endif
-#if XRESOURCES
-    fprintf(stdout, "xrdb: Supported\n");
-#else
-    fprintf(stdout, "xrdb: Unsupported\n");
-#endif
-#if REGEX
-    fprintf(stdout, "Regex: Supported\n");
-#else
-    fprintf(stdout, "Regex: Unsupported\n");
-#endif
-#if FIFO
-    fprintf(stdout, "FIFO: Supported\n");
-#else
-    fprintf(stdout, "FIFO: Unsupported\n");
-#endif
 }
 */
 void readargs(int argc, char** argv) {
@@ -735,12 +716,8 @@ void readargs(int argc, char** argv) {
     // init/read xrdb
 #if X11
     if (xresources && !protocol) {
-#if XRESOURCES
         XrmInitialize();
         load_xresources();
-#else
-        ; // avoids a warning
-#endif
     }
 #endif
 
