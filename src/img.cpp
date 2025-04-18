@@ -45,7 +45,7 @@ void cleanupimage() {
     }
 }
 
-void drawimage(void) {
+void drawimage() {
     int width = 0, height = 0;
     char *limg = nullptr;
 
@@ -274,8 +274,8 @@ void loadimagecache(const char *file, int *width, int *height) {
             sprintf(&md5[i*2], "%02x", (unsigned int)digest[i]);
 
         // path for cached thumbnail
-        if (!cachedir || !strcmp(cachedir, "default")) {
-            if (xdg_cache || !strcmp(cachedir, "xdg"))
+        if (cachedir.empty() || cachedir == "default") {
+            if (xdg_cache || cachedir == "xdg")
                 slen = snprintf(nullptr, 0, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5)+1;
             else
                 slen = snprintf(nullptr, 0, "%s/.cache/thumbnails/%s/%s.png", home, cachesize, md5)+1;
@@ -287,7 +287,7 @@ void loadimagecache(const char *file, int *width, int *height) {
             return;
         }
 
-        if (!cachedir || !strcmp(cachedir, "default")) {
+        if (cachedir.empty() || cachedir == "default") {
             if (xdg_cache)
                 sprintf(buf, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5);
             else

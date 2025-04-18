@@ -663,7 +663,7 @@ void readargs(int argc, char** argv) {
     });
 #if CONFIG
     am.push_back("-cf|--config-file|/cf|/config-file|config-file", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -c/--config flag requires a file to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -671,7 +671,7 @@ void readargs(int argc, char** argv) {
         configfile = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-bf|--bind-file|/bf|/bind-file|bind-file", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -b/--bind flag requires a file to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -679,7 +679,7 @@ void readargs(int argc, char** argv) {
         bindsfile = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-tm|--theme|/tm|/theme|theme", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -t/--theme flag requires a file to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -765,7 +765,7 @@ void readargs(int argc, char** argv) {
 
     // add the rest of the arguments
     am.push_back("-mh|--line-height|/mh|/line-height|line-height", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -mh/--line-height flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -773,7 +773,7 @@ void readargs(int argc, char** argv) {
         lineheight = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-cw|--center-width|/cw|/center-width|center-width", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -cw/--center-width flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -781,7 +781,7 @@ void readargs(int argc, char** argv) {
         centerwidth = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-l|--lines|/l|/lines|lines", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -l/--lines flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -789,7 +789,7 @@ void readargs(int argc, char** argv) {
         lines = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-g|--columns|/g|/columns|columns", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -g/--columns flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -797,7 +797,7 @@ void readargs(int argc, char** argv) {
         columns = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-ml|--min-lines|/ml|/min-lines|min-lines", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -ml/--min-lines flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -811,7 +811,7 @@ void readargs(int argc, char** argv) {
         generatecache = false;
     });
     am.push_back("-mc|--max-cache|/mc|/max-cache|max-cache", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -mc/--max-cache flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -819,7 +819,7 @@ void readargs(int argc, char** argv) {
         maxcache = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-cd|--cache-dir|/cd|/cache-dir|cache-dir", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -cd/--cache-dir flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -872,7 +872,7 @@ void readargs(int argc, char** argv) {
         passwd = false;
     });
     am.push_back("-p|--prompt|/p|/prompt|prompt", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -p/--prompt flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -880,7 +880,7 @@ void readargs(int argc, char** argv) {
         prompt = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-pt|--pretext|/pt|/pretext|pretext", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -pt/--pretext flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -888,7 +888,7 @@ void readargs(int argc, char** argv) {
         pretext = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-It|--input|/It|/input|input", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -It/--input flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -938,7 +938,7 @@ void readargs(int argc, char** argv) {
         overridecolumns = false;
     });
     am.push_back("-x|--x-position|/x|/x-position|x-position", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -x/--x-position flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -946,7 +946,7 @@ void readargs(int argc, char** argv) {
         xpos = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-y|--y-position|/y|/y-position|y-position", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -y/--y-position flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -954,7 +954,7 @@ void readargs(int argc, char** argv) {
         ypos = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-n|--preselect|/n|/preselect|preselect", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -n/--preselect flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -962,7 +962,7 @@ void readargs(int argc, char** argv) {
         preselected = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-z|--width|/z|/width|width", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -z/--width flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -970,7 +970,7 @@ void readargs(int argc, char** argv) {
         menuwidth = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-nmt|--normal-mode-text|/nmt|/normal-mode-text|normal-mode-text", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nmt/--normal-mode-text flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -978,7 +978,7 @@ void readargs(int argc, char** argv) {
         normtext = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-imt|--insert-mode-text|/imt|/insert-mode-text|insert-mode-text", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -imt/--insert-mode-text flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -986,7 +986,7 @@ void readargs(int argc, char** argv) {
         instext = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-clon|--caps-lock-on-text|/clon|/caps-lock-on-text|caps-lock-on-text", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -clon/--caps-lock-on-text flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -994,7 +994,7 @@ void readargs(int argc, char** argv) {
         capslockontext = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-clof|--caps-lock-off-text|/clof|/caps-lock-off-text|caps-lock-off-text", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -clof/--caps-lock-off-text flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1002,7 +1002,7 @@ void readargs(int argc, char** argv) {
         capslockofftext = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-bw|--border-width|/bw|/border-width|border-width", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -bw/--border-width flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1015,12 +1015,12 @@ void readargs(int argc, char** argv) {
     am.push_back("-nsort|--no-sort|/nsort|/no-sort|no-sort", [](limhamn::argument_manager::collection&) {
         sortmatches = false;
     });
-    am.push_back("-p|--priority|/p|/priority|priority", [](limhamn::argument_manager::collection& collection) {
+    am.push_back("-pri|--priority|/pri|/priority|priority", [](limhamn::argument_manager::collection& collection) {
         /*
         } else if (!strcmp(argv[i], "-pri") || (!strcmp(argv[i], "--priority"))) { // high priority (csv format)
             hpitems = tokenize(argv[++i], ",", &hplength);
             */
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -p/--priority flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1187,7 +1187,7 @@ void readargs(int argc, char** argv) {
         hidecaps = false;
     });
     am.push_back("-m|--monitor|/m|/monitor|monitor", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -m/--monitor flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1195,7 +1195,7 @@ void readargs(int argc, char** argv) {
         mon = stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-w|--embed|/w|/embed|embed", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -w/--embed flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1203,7 +1203,7 @@ void readargs(int argc, char** argv) {
         x11.embed = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-H|--hist-file|/H|/hist-file|hist-file", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -H/--hist-file flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1211,7 +1211,7 @@ void readargs(int argc, char** argv) {
         histfile = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-lf|--list-file|/lf|/list-file|list-file", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -lf/--list-file flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1219,7 +1219,7 @@ void readargs(int argc, char** argv) {
         listfile = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-ig|--image-gaps|/ig|/image-gaps|image-gaps", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -ig/--image-gaps flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1227,7 +1227,7 @@ void readargs(int argc, char** argv) {
         imagegaps = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-txp|--text-padding|/txp|/text-padding|text-padding", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -txp/--text-padding flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1235,7 +1235,7 @@ void readargs(int argc, char** argv) {
         textpadding = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-lp|--vertical-padding|/lp|/vertical-padding|vertical-padding", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -lp/--vertical-padding flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1243,7 +1243,7 @@ void readargs(int argc, char** argv) {
         menupaddingv = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-hp|--horizontal-padding|/hp|/horizontal-padding|horizontal-padding", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -hp/--horizontal-padding flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1251,7 +1251,7 @@ void readargs(int argc, char** argv) {
         menupaddingh = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-vem|--vertical-margin|/vem|/vertical-margin|vertical-margin", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -vem/--vertical-margin flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1259,7 +1259,7 @@ void readargs(int argc, char** argv) {
         menumarginv = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-hom|--horizontal-margin|/hom|/horizontal-margin|horizontal-margin", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -hom/--horizontal-margin flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1267,7 +1267,7 @@ void readargs(int argc, char** argv) {
         menumarginh = std::stoi(collection.arguments.at(++collection.index));
     });
     am.push_back("-la|--left-arrow-symbol|/la|/left-arrow-symbol|left-arrow-symbol", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -la/--left-arrow-symbol flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1275,7 +1275,7 @@ void readargs(int argc, char** argv) {
         leftarrow = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-ra|--right-arrow-symbol|/ra|/right-arrow-symbol|right-arrow-symbol", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -ra/--right-arrow-symbol flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1283,19 +1283,24 @@ void readargs(int argc, char** argv) {
         rightarrow = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-is|--image-size|/is|/image-size|image-size", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
-            std::cerr << "The -is/--image-size flag requires a value to be specified.\n";
+        if (collection.arguments.size() <= collection.index + 1) {
+            std::cerr << "The -is/--image-size flag requires a value to be specified. Either WIDTHxHEIGHT or SIZE.\n";
             std::exit(EXIT_FAILURE);
         }
 
         // split the value by 'x'
         const auto& items = tokenize(collection.arguments.at(++collection.index), "x");
         if (items.size() != 2) {
-            std::cerr << "The -is/--image-size flag requires a value in the format <width>x<height>.\n";
-            std::exit(EXIT_FAILURE);
+            try {
+                imagewidth = imageheight = std::stoi(collection.arguments.at(collection.index));
+            } catch (const std::invalid_argument&) {
+                std::cerr << "The -is/--image-size flag requires a value to be specified. The argument specified is invalid. Either WIDTHxHEIGHT or SIZE.\n";
+                std::exit(EXIT_FAILURE);
+            }
+        } else {
+            imagewidth = std::stoi(items.at(0));
+            imageheight = std::stoi(items.at(1));
         }
-        imagewidth = std::stoi(items.at(0));
-        imageheight = std::stoi(items.at(1));
     });
     am.push_back("-it|--image-top|/it|/image-top|image-top", [](limhamn::argument_manager::collection&) {
         imageposition = 0;
@@ -1334,7 +1339,7 @@ void readargs(int argc, char** argv) {
         grabkeyboard = false;
     });
     am.push_back("-fn|--font|/fn|/font|font", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -fn/--font flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1342,7 +1347,7 @@ void readargs(int argc, char** argv) {
         font = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nif|--normal-item-foreground|/nif|/normal-item-foreground|normal-item-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nif/--normal-item-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1350,7 +1355,7 @@ void readargs(int argc, char** argv) {
         col_itemnormfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nib|--normal-item-background|/nib|/normal-item-background|normal-item-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nib/--normal-item-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1358,7 +1363,7 @@ void readargs(int argc, char** argv) {
         col_itemnormbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nnif|--normal-next-item-foreground|/nnif|/normal-next-item-foreground|normal-next-item-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nnif/--normal-next-item-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1366,7 +1371,7 @@ void readargs(int argc, char** argv) {
         col_itemnormfg2 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nnib|--normal-next-item-background|/nnib|/normal-next-item-background|normal-next-item-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nnib/--normal-next-item-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1374,7 +1379,7 @@ void readargs(int argc, char** argv) {
         col_itemnormbg2 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sif|--selected-item-foreground|/sif|/selected-item-foreground|selected-item-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sif/--selected-item-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1382,7 +1387,7 @@ void readargs(int argc, char** argv) {
         col_itemselfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sib|--selected-item-background|/sib|/selected-item-background|selected-item-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sib/--selected-item-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1390,7 +1395,7 @@ void readargs(int argc, char** argv) {
         col_itemselbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-npf|--normal-item-priority-foreground|/npf|/normal-item-priority-foreground|normal-item-priority-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -npf/--normal-item-priority-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1398,7 +1403,7 @@ void readargs(int argc, char** argv) {
         col_itemnormprifg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-npb|--normal-item-priority-background|/npb|/normal-item-priority-background|normal-item-priority-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -npb/--normal-item-priority-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1406,7 +1411,7 @@ void readargs(int argc, char** argv) {
         col_itemnormpribg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-spf|--selected-item-priority-foreground|/spf|/selected-item-priority-foreground|selected-item-priority-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -spf/--selected-item-priority-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1414,7 +1419,7 @@ void readargs(int argc, char** argv) {
         col_itemselprifg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-spb|--selected-item-priority-background|/spb|/selected-item-priority-background|selected-item-priority-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -spb/--selected-item-priority-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1422,7 +1427,7 @@ void readargs(int argc, char** argv) {
         col_itemselpribg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-pfg|--prompt-foreground|/pfg|/prompt-foreground|prompt-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -pfg/--prompt-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1430,7 +1435,7 @@ void readargs(int argc, char** argv) {
         col_promptfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-pbg|--prompt-background|/pbg|/prompt-background|prompt-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -pbg/--prompt-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1438,7 +1443,7 @@ void readargs(int argc, char** argv) {
         col_promptbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-ifg|--input-foreground|/ifg|/input-foreground|input-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -ifg/--input-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1446,7 +1451,7 @@ void readargs(int argc, char** argv) {
         col_inputfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-ibg|--input-background|/ibg|/input-background|input-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -ibg/--input-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1454,7 +1459,7 @@ void readargs(int argc, char** argv) {
         col_inputbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-ptfg|--pretext-foreground|/ptfg|/pretext-foreground|pretext-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -ptfg/--pretext-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1462,7 +1467,7 @@ void readargs(int argc, char** argv) {
         col_pretextfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-ptbg|--pretext-background|/ptbg|/pretext-background|pretext-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -ptbg/--pretext-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1470,7 +1475,7 @@ void readargs(int argc, char** argv) {
         col_pretextbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-mnbg|--menu-background|/mnbg|/menu-background|menu-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -mnbg/--menu-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1478,7 +1483,7 @@ void readargs(int argc, char** argv) {
         col_menu = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nhf|--normal-highlight-foreground|/nhf|/normal-highlight-foreground|normal-highlight-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nhf/--normal-highlight-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1486,7 +1491,7 @@ void readargs(int argc, char** argv) {
         col_hlnormfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nhb|--normal-highlight-background|/nhb|/normal-highlight-background|normal-highlight-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nhb/--normal-highlight-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1494,7 +1499,7 @@ void readargs(int argc, char** argv) {
         col_hlnormbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-shf|--selected-highlight-foreground|/shf|/selected-highlight-foreground|selected-highlight-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -shf/--selected-highlight-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1502,7 +1507,7 @@ void readargs(int argc, char** argv) {
         col_hlselfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-shb|--selected-highlight-background|/shb|/selected-highlight-background|selected-highlight-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -shb/--selected-highlight-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1510,23 +1515,23 @@ void readargs(int argc, char** argv) {
         col_hlselbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nfg|--number-foreground|/nfg|/number-foreground|number-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nfg/--number-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
 
-        col_numberfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_numfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nbg|--number-background|/nbg|/number-background|number-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nbg/--number-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
 
-        col_numberbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_numbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-mfg|--mode-foreground|/mfg|/mode-foreground|mode-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -mfg/--mode-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1534,7 +1539,7 @@ void readargs(int argc, char** argv) {
         col_modefg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-mbg|--mode-background|/mbg|/mode-background|mode-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -mbg/--mode-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1542,7 +1547,7 @@ void readargs(int argc, char** argv) {
         col_modebg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-laf|--left-arrow-foreground|/laf|/left-arrow-foreground|left-arrow-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -laf/--left-arrow-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1550,7 +1555,7 @@ void readargs(int argc, char** argv) {
         col_larrowfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-raf|--right-arrow-foreground|/raf|/right-arrow-foreground|right-arrow-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -raf/--right-arrow-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1558,7 +1563,7 @@ void readargs(int argc, char** argv) {
         col_rarrowfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-lab|--left-arrow-background|/lab|/left-arrow-background|left-arrow-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -lab/--left-arrow-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1566,7 +1571,7 @@ void readargs(int argc, char** argv) {
         col_larrowbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-rab|--right-arrow-background|/rab|/right-arrow-background|right-arrow-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -rab/--right-arrow-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1574,7 +1579,7 @@ void readargs(int argc, char** argv) {
         col_rarrowbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-cfc|--caret-foreground|/cfc|/caret-foreground|caret-foreground", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -cfc/--caret-foreground flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1582,7 +1587,7 @@ void readargs(int argc, char** argv) {
         col_caretfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-cbc|--caret-background|/cbc|/caret-background|caret-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -cbc/--caret-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1590,7 +1595,7 @@ void readargs(int argc, char** argv) {
         col_caretbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-bc|--border-background|/bc|/border-background|border-background", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -bc/--border-background flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1598,7 +1603,7 @@ void readargs(int argc, char** argv) {
         col_border = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr0|--sgr0|/sgr0|/sgr0|sgr0", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr0/--sgr0 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1606,7 +1611,7 @@ void readargs(int argc, char** argv) {
         col_sgr1 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr1|--sgr1|/sgr1|/sgr1|sgr1", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr1/--sgr1 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1614,7 +1619,7 @@ void readargs(int argc, char** argv) {
         col_sgr1 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr2|--sgr2|/sgr2|/sgr2|sgr2", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr2/--sgr2 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1622,7 +1627,7 @@ void readargs(int argc, char** argv) {
         col_sgr2 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr3|--sgr3|/sgr3|/sgr3|sgr3", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr3/--sgr3 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1630,7 +1635,7 @@ void readargs(int argc, char** argv) {
         col_sgr3 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr4|--sgr4|/sgr4|/sgr4|sgr4", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr4/--sgr4 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1638,7 +1643,7 @@ void readargs(int argc, char** argv) {
         col_sgr4 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr5|--sgr5|/sgr5|/sgr5|sgr5", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr5/--sgr5 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1646,7 +1651,7 @@ void readargs(int argc, char** argv) {
         col_sgr5 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr6|--sgr6|/sgr6|/sgr6|sgr6", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr6/--sgr6 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1654,7 +1659,7 @@ void readargs(int argc, char** argv) {
         col_sgr6 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr7|--sgr7|/sgr7|/sgr7|sgr7", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr7/--sgr7 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1662,7 +1667,7 @@ void readargs(int argc, char** argv) {
         col_sgr7 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr8|--sgr8|/sgr8|/sgr8|sgr8", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr8/--sgr8 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1670,7 +1675,7 @@ void readargs(int argc, char** argv) {
         col_sgr8 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr9|--sgr9|/sgr9|/sgr9|sgr9", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr9/--sgr9 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1678,7 +1683,7 @@ void readargs(int argc, char** argv) {
         col_sgr9 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr10|--sgr10|/sgr10|/sgr10|sgr10", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr10/--sgr10 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1686,7 +1691,7 @@ void readargs(int argc, char** argv) {
         col_sgr10 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr11|--sgr11|/sgr11|/sgr11|sgr11", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr11/--sgr11 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1694,7 +1699,7 @@ void readargs(int argc, char** argv) {
         col_sgr11 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr12|--sgr12|/sgr12|/sgr12|sgr12", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr12/--sgr12 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1702,7 +1707,7 @@ void readargs(int argc, char** argv) {
         col_sgr12 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr13|--sgr13|/sgr13|/sgr13|sgr13", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr13/--sgr13 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1710,7 +1715,7 @@ void readargs(int argc, char** argv) {
         col_sgr13 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr14|--sgr14|/sgr14|/sgr14|sgr14", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr14/--sgr14 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1718,7 +1723,7 @@ void readargs(int argc, char** argv) {
         col_sgr14 = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sgr15|--sgr15|/sgr15|/sgr15|sgr15", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sgr15/--sgr15 flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1734,7 +1739,7 @@ void readargs(int argc, char** argv) {
 
     // TODO: Fix up the following flags
     am.push_back("-nb", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nb flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1742,7 +1747,7 @@ void readargs(int argc, char** argv) {
         col_menu = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-nf", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -nf flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1750,7 +1755,7 @@ void readargs(int argc, char** argv) {
         col_itemnormfg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sb", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sb flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
@@ -1758,12 +1763,17 @@ void readargs(int argc, char** argv) {
         col_itemselbg = strdup(collection.arguments.at(++collection.index).c_str());
     });
     am.push_back("-sf", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= 1) {
+        if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -sf flag requires a value to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
 
         col_itemselfg = strdup(collection.arguments.at(++collection.index).c_str());
+    });
+
+    am.execute([](const std::string& arg) {
+        std::cerr << "Unknown argument(s) provided: " << arg << "\n";
+        std::exit(EXIT_FAILURE);
     });
 }
 

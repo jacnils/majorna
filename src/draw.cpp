@@ -131,44 +131,44 @@ int drawitemtext(item *item, int x, int y, int w) {
 
     // memcpy the correct scheme
     if (item == selecteditem) {
-        bgcol = col_itemselbg;
-        fgcol = col_itemselfg;
+        bgcol = strdup(col_itemselbg.c_str());
+        fgcol = strdup(col_itemselfg.c_str());
         bga = alpha_itemselbg;
         fga = alpha_itemselfg;
 
         if (item->hp) {
             priitem = 1;
-            bgcol = col_itemselpribg;
-            fgcol = col_itemselprifg;
+            bgcol = strdup(col_itemselpribg.c_str());
+            fgcol = strdup(col_itemselprifg.c_str());
 
             fga = alpha_itemselprifg;
             bga = alpha_itemselpribg;
         }
     } else {
         if (itemn) {
-            bgcol = col_itemnormbg2;
-            fgcol = col_itemnormfg2;
+            bgcol = strdup(col_itemnormbg2.c_str());
+            fgcol = strdup(col_itemnormfg2.c_str());
             fga = alpha_itemnormfg2;
             bga = alpha_itemnormbg2;
         } else {
-            bgcol = col_itemnormbg;
-            fgcol = col_itemnormfg;
+            bgcol = strdup(col_itemnormbg.c_str());
+            fgcol = strdup(col_itemnormfg.c_str());
             fga = alpha_itemnormfg;
             bga = alpha_itemnormbg;
         }
 
         if (item->hp) {
             priitem = 1;
-            bgcol = col_itemnormpribg;
-            fgcol = col_itemnormprifg;
+            bgcol = strdup(col_itemnormpribg.c_str());
+            fgcol = strdup(col_itemnormprifg.c_str());
             fga = alpha_itemnormprifg;
             bga = alpha_itemnormpribg;
         }
     }
 
     if (is_selected(item->index)) {
-        bgcol = col_itemmarkedbg;
-        fgcol = col_itemmarkedfg;
+        bgcol = strdup(col_itemmarkedbg.c_str());
+        fgcol = strdup(col_itemmarkedfg.c_str());
         fga = alpha_itemmarkedfg;
         bga = alpha_itemmarkedbg;
     }
@@ -184,8 +184,8 @@ int drawitemtext(item *item, int x, int y, int w) {
 
     // don't color
     if (!coloritems) {
-        bgcol = itemn ? col_itemnormbg2 : col_itemnormbg;
-        fgcol = itemn ? col_itemnormfg2 : col_itemnormfg;
+        bgcol = itemn ? strdup(col_itemnormbg2.c_str()) : strdup(col_itemnormbg.c_str());
+        fgcol = itemn ? strdup(col_itemnormfg2.c_str()) : strdup(col_itemnormfg.c_str());
         bga = itemn ? alpha_itemnormbg2 : alpha_itemnormbg;
         fga = itemn ? alpha_itemnormfg2 : alpha_itemnormfg;
     }
@@ -228,7 +228,6 @@ int drawitemtext(item *item, int x, int y, int w) {
 
 #if IMAGE
     if (!hideimage && !imagetype) {
-        //draw_rect(draw, x, y, w, sp.bh, 1, 1, fgcol, bgcol, fga, bga);
         draw.draw_rect({
             .x = x,
             .y = y,
@@ -239,6 +238,8 @@ int drawitemtext(item *item, int x, int y, int w) {
             .background = bgcol,
             .foreground_alpha = fga,
             .background_alpha = bga,
+            .invert = 1, /* this line */
+            .filled = 1, /* and this line */
         });
         int nx = draw_icon(item, x, y + sp.lrpad / 4, sp.bh - sp.lrpad / 2, sp.bh - sp.lrpad / 2);
 
@@ -542,7 +543,7 @@ int drawitem(int x, int y, int w) {
 }
 
 int drawprompt(int x, int y, int w) {
-    if (prompt && *prompt && !hideprompt) {
+    if (!prompt.empty() && !hideprompt) {
         //x = draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, prompt, 0, pango_prompt ? True : False, col_promptfg, col_promptbg, alpha_promptfg, alpha_promptbg);
         x = draw.draw_text({
             .x = x,
@@ -593,7 +594,7 @@ int drawprompt(int x, int y, int w) {
 }
 
 int drawinput(int x, int y, int w) {
-    char *censort;
+    std::string censort;
     unsigned int curpos = 0;
     int fh = caretheight;
     int fw = MAX(2, caretwidth);
@@ -606,10 +607,9 @@ int drawinput(int x, int y, int w) {
     }
 
     if (passwd && !hideinput) {
-        censort = static_cast<char*>(ecalloc(1, sizeof(tx.text)));
-
-        for (int i = 0; i < strlen(tx.text); i++)
-            memcpy(&censort[i], password, strlen(tx.text));
+        for (int i = 0; i < strlen(tx.text); i++) {
+            censort += password;
+        }
 
         apply_fribidi(censort);
         //draw_text(draw, x, y, w, sp.bh, sp.lrpad / 2, isrtl ? fribidi_text : censort, 0, pango_password ? True : False, col_inputfg, col_inputbg, alpha_inputfg, alpha_inputbg);
@@ -626,8 +626,6 @@ int drawinput(int x, int y, int w) {
         });
 
         curpos = TEXTW(censort) - TEXTW(&tx.text[sp.cursor]);
-
-        free(censort);
     } else if (!passwd) {
         if (strlen(tx.text) && !hideinput) {
             char ptext[BUFSIZ];
@@ -658,7 +656,7 @@ int drawinput(int x, int y, int w) {
             });
 
             curpos = TEXTW(ptext) - TEXTW(&ptext[sp.cursor]);
-        } else if (pretext != nullptr) {
+        } else if (!pretext.empty()) {
             if (hidepretext) {
                 pretext = "";
             }
@@ -939,7 +937,7 @@ void drawmenu() {
     sp.isdrawing = 1;
 #if WAYLAND
     if (protocol) {
-        if (listfile) {
+        if (!listfile.empty()) {
             readstdin();
 
             if (sp.listchanged) {
@@ -964,7 +962,7 @@ void drawmenu() {
     } else {
 #endif
 #if X11
-        if (listfile) {
+        if (!listfile.empty()) {
             readstdin();
 
             if (sp.listchanged) {
@@ -983,7 +981,6 @@ void drawmenu() {
 #if IMAGE
         drawimage();
 #endif
-        //draw_map(draw, win, 0, 0, sp.mw, sp.mh);
         draw.map(win);
 #endif
 #if WAYLAND
@@ -997,11 +994,11 @@ void drawmenu_layer() {
     int x = 0, y = 0, w = 0;
     sp.plw = hidepowerline ? 0 : draw.get_font_manager().get_height() / 2 + 1; // powerline size
 
-    sp_strncpy(tx.modetext, sp.mode ? instext : normtext, sizeof(tx.modetext));
+    sp_strncpy(tx.modetext, sp.mode ? instext.c_str() : normtext.c_str(), sizeof(tx.modetext));
 
 #if REGEX
-    if (regex && regextext && sp.mode) {
-        sp_strncpy(tx.modetext, regextext, sizeof(tx.modetext));
+    if (regex && !regextext.empty() && sp.mode) {
+        sp_strncpy(tx.modetext, regextext.c_str(), sizeof(tx.modetext));
     }
 #endif
 
@@ -1017,6 +1014,7 @@ void drawmenu_layer() {
         .background = col_menu,
         .foreground_alpha = alpha_menu,
         .background_alpha = alpha_menu,
+        .filled = 1,
     });
 
     int numberw = 0;
@@ -1148,8 +1146,8 @@ int draw_icon(item *item, int x, int y, int w, int h) {
             for (i = 0; i < digest_len; ++i)
                 sprintf(&md5sum[i*2], "%02x", (unsigned int)digest[i]);
 
-            if (!cachedir || !strcmp(cachedir, "default")) { // "default" here is from the config file
-                if (xdg_cache || !strcmp(cachedir, "xdg"))
+            if (cachedir.empty() || cachedir == "default") { // "default" here is from the config file
+                if (xdg_cache || cachedir == "xdg")
                     slen = snprintf(nullptr, 0, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5sum)+1;
                 else
                     slen = snprintf(nullptr, 0, "%s/.cache/thumbnails/%s/%s.png", home, cachesize, md5sum)+1;
@@ -1161,7 +1159,7 @@ int draw_icon(item *item, int x, int y, int w, int h) {
                 return x;
             }
 
-            if (!cachedir || !strcmp(cachedir, "default")) { // "default" here is from the config file
+            if (cachedir.empty() || cachedir == "default") { // "default" here is from the config file
                 if (xdg_cache)
                     sprintf(buf, "%s/thumbnails/%s/%s.png", xdg_cache, cachesize, md5sum);
                 else

@@ -270,12 +270,12 @@ void set_mode() {
         sp.mode = 1;
         sp.allowkeys = 1;
 
-        sp_strncpy(tx.modetext, instext, sizeof(tx.modetext));
+        sp_strncpy(tx.modetext, instext.c_str(), sizeof(tx.modetext));
     } else {
         sp.mode = 0;
         sp.allowkeys = !sp.mode;
 
-        sp_strncpy(tx.modetext, normtext, sizeof(tx.modetext));
+        sp_strncpy(tx.modetext, normtext.c_str(), sizeof(tx.modetext));
     }
 
     if (forceinsertmode) {
