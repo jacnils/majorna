@@ -143,11 +143,11 @@ int bind_init() {
 #endif
             }
 
-            config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
+            config_setting_lookup_bool(conf, "forceinsertmode", reinterpret_cast<int*>(&forceinsertmode));
             config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignore_global_keys));
 
 #if X11
-            std::cerr << "X11 key: " << "Keysym: " << key.keysym << " Mod: " << key.mod << " Mode: " << key.mode << std::endl;
+            std::cerr << "global" << ctx.ignore_global_keys << "\n";
             ckeys.emplace_back(key);
 #endif
 #if WAYLAND
@@ -936,7 +936,7 @@ void conf_init() {
 #endif
                 }
 
-                config_setting_lookup_int(conf, "forceinsertmode", &forceinsertmode);
+                config_setting_lookup_bool(conf, "forceinsertmode", reinterpret_cast<int*>(forceinsertmode));
                 config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignore_global_keys));
 
 #if X11

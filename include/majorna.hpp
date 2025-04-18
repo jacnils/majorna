@@ -84,10 +84,10 @@ struct img {
 #endif
 
 struct strings {
-    char mode_text[64]; // mode text
-    char input_text[BUFSIZ]; // input text
-    char number_text[NUMBERSBUFSIZE]; // number text
-    char caps_text[64]; // caps lock text
+    std::string mode_text; // mode text
+    std::string input_text; // input text
+    std::string number_text; // number text
+    std::string caps_text; // caps lock text
 };
 
 #if X11
@@ -95,7 +95,7 @@ struct x11 {
     int numlockmask{};
     bool use_argb{};
     int depth{};
-    char *embed{};
+    std::string embed{};
     int screen{};
     Visual *visual{};
     Colormap cmap{};

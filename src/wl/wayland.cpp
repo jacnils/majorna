@@ -181,13 +181,13 @@ void keyboard_modifiers(void *data, struct wl_keyboard *keyboard, uint32_t seria
 	xkb_state_update_mask(state->xkb_state, mods_depressed, mods_latched, mods_locked, 0, 0, group);
 
     if (xkb_state_mod_name_is_active(state->xkb_state, XKB_MOD_NAME_CAPS, XKB_STATE_MODS_EFFECTIVE)) {
-        ctx.caps_state = 1;
+        ctx.caps_state = true;
     } else {
-        ctx.caps_state = 0;
+        ctx.caps_state = false;
     }
 
     if (ocapslockstate != ctx.caps_state) {
-        strncpy(strings.caps_text, ctx.caps_state ? capslockontext.c_str() : capslockofftext.c_str(), 15);
+        strings.caps_text = ctx.caps_state ? capslockontext : capslockofftext;
         drawmenu();
     }
 }
@@ -220,7 +220,7 @@ void keyboard_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, 
 
 	wl_keyboard_key_state key_state = static_cast<wl_keyboard_key_state>(_key_state);
 
-    strncpy(strings.caps_text, ctx.caps_state ? capslockontext.c_str() : capslockofftext.c_str(), 15);
+    strings.caps_text = ctx.caps_state ? capslockontext : capslockofftext;
 
 	xkb_keysym_t sym = xkb_state_key_get_one_sym(state->xkb_state, key + 8);
 	keypress_wl(state, key_state, sym);
@@ -294,8 +294,7 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
     if (!hidemode) modew = pango_mode ? TEXTWM(strings.mode_text) : TEXTW(strings.mode_text);
     if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.caps_text) : TEXTW(strings.caps_text);
 
-    if (!strcmp(strings.caps_text, ""))
-        capsw = 0;
+    if (strings.caps_text.empty()) capsw = 0;
 
     if ((hideprompt && hideinput && hidemode && hidematchcount && hidecaps) && lines) {
         yp = 1;

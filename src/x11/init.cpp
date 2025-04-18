@@ -116,7 +116,7 @@ void setupdisplay_x11() {
     }
 
     // embed majorna inside parent window
-    if (x11.embed) {
+    if (!x11.embed.empty()) {
         XReparentWindow(dpy, win, parentwin, x, y);
         XSelectInput(dpy, parentwin, FocusChangeMask | SubstructureNotifyMask);
 
@@ -173,14 +173,14 @@ void handle_x11() {
     if (!XSetLocaleModifiers(""))
         fputs("warning: no locale modifiers support\n", stderr);
 
-    if (!(dpy = opendisplay_x11(NULL)))
+    if (!(dpy = opendisplay_x11(nullptr)))
         die("majorna: cannot open display"); // failed to open display
 
     // set screen and root window
     set_screen_x11(dpy);
 
     // parent window is the root window (ie. window manager) because we're not embedding
-    if (!x11.embed || !(parentwin = strtol(x11.embed, NULL, 0)))
+    if (x11.embed.empty() || !(parentwin = strtol(x11.embed.c_str(), nullptr, 0)))
         parentwin = root;
 
     if (!XGetWindowAttributes(dpy, parentwin, &wa)) {

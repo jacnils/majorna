@@ -16,11 +16,11 @@ void drawhighlights(item *item, int x, int y, int w, int p, char *itemtext) {
 	char restorechar, text[sizeof strings.input_text], *highlight,  *ctext;
 	int indent, highlightlen;
 
-    if ((columns > 5 && lines > 1) || (!(strlen(itemtext) && strlen(strings.input_text))) || strstr(itemtext, "</") || is_selected(item->index)) {
+    if ((columns > 5 && lines > 1) || (!(strlen(itemtext) && strings.input_text.length())) || strstr(itemtext, "</") || is_selected(item->index)) {
         return;
     }
 
-	strcpy(text, strings.input_text);
+	strcpy(text, strings.input_text.c_str());
 
 	for (ctext = text; ctext; ctext = nullptr) {
 		highlight = fstrstr(itemtext, ctext);
@@ -451,8 +451,7 @@ int drawitem(int x, int y, int w) {
     if (!hidematchcount) numberw = pango_numbers ? TEXTWM(strings.number_text) : TEXTW(strings.number_text);
     if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.caps_text) : TEXTW(strings.caps_text);
 
-    if (!strcmp(strings.caps_text, ""))
-        capsw = 0;
+    if (strings.caps_text.empty()) capsw = 0;
 
 #if IMAGE
     int ox = 0; // original x position
@@ -607,7 +606,7 @@ int drawinput(int x, int y, int w) {
     }
 
     if (passwd && !hideinput) {
-        for (int i = 0; i < strlen(strings.input_text); i++) {
+        for (int i = 0; i < strings.input_text.length(); i++) {
             censort += password;
         }
 
@@ -627,11 +626,11 @@ int drawinput(int x, int y, int w) {
 
         curpos = TEXTW(censort) - TEXTW(&strings.input_text[ctx.cursor]);
     } else if (!passwd) {
-        if (strlen(strings.input_text) && !hideinput) {
+        if (!strings.input_text.empty() && !hideinput) {
             char ptext[BUFSIZ];
             char *p;
 
-            memcpy(ptext, strings.input_text, BUFSIZ);
+            memcpy(ptext, strings.input_text.c_str(), BUFSIZ);
 
             p = ptext;
 
@@ -994,10 +993,10 @@ void drawmenu_layer() {
     int x = 0, y = 0, w = 0;
     ctx.powerline_width = hidepowerline ? 0 : draw.get_font_manager().get_height() / 2 + 1; // powerline size
 
-    sp_strncpy(strings.mode_text, ctx.mode ? instext.c_str() : normtext.c_str(), sizeof(strings.mode_text));
+    strings.mode_text = ctx.mode ? instext : normtext;
 
     if (regex && !regextext.empty() && ctx.mode) {
-        sp_strncpy(strings.mode_text, regextext.c_str(), sizeof(strings.mode_text));
+        strings.mode_text = regextext;
     }
 
     // draw menu first using menu scheme
@@ -1023,8 +1022,7 @@ void drawmenu_layer() {
     if (!hidemode) modew = pango_mode ? TEXTWM(strings.mode_text) : TEXTW(strings.mode_text);
     if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.caps_text) : TEXTW(strings.caps_text);
 
-    if (!strcmp(strings.caps_text, ""))
-        capsw = 0;
+    if (strings.caps_text.empty()) capsw = 0;
 
     // calculate match count
     if (!hidematchcount) {
