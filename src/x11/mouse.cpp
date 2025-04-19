@@ -30,7 +30,8 @@ void buttonpress_x11(XEvent& e) {
     if (!hidemode) modew = pango_mode ? TEXTWM(strings.mode_text) : TEXTW(strings.mode_text);
     if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.caps_text) : TEXTW(strings.caps_text);
 
-    if (strings.caps_text.empty()) capsw = 0;
+    if (!strcmp(strings.caps_text, ""))
+        capsw = 0;
 
     if ((hideprompt && hideinput && hidemode && hidematchcount && hidecaps) && lines) {
         yp = 1;

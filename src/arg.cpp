@@ -6,7 +6,6 @@
 #include <img.hpp>
 #include <history.hpp>
 #include <x11/clipboard.hpp>
-#include <iostream>
 
 void moveleft(const Arg& arg) {
     struct item *tmpsel;
@@ -125,9 +124,9 @@ void complete(const Arg& arg) {
         return;
     }
 
-    strings.input_text = selecteditem->text_without_sequences;
+    strncpy(strings.input_text, selecteditem->text_without_sequences, sizeof strings.input_text - 1);
     strings.input_text[sizeof strings.input_text - 1] = '\0';
-    ctx.cursor = strings.input_text.length();
+    ctx.cursor = strlen(strings.input_text);
 
     match();
     drawmenu();
@@ -177,7 +176,7 @@ void movestart(const Arg& arg) {
 
 void moveend(const Arg& arg) {
     if (strings.input_text[ctx.cursor] != '\0') {
-        ctx.cursor = strings.input_text.length();
+        ctx.cursor = strlen(strings.input_text);
         drawmenu();
         return;
     }
@@ -311,7 +310,7 @@ void markitem(const Arg& arg) {
 }
 
 void selectitem(const Arg& arg) {
-    std::string selection;
+    char *selection;
 
     // print index
     if (printindex && selecteditem && arg.i) {
@@ -333,11 +332,11 @@ void selectitem(const Arg& arg) {
         }
     }
 
-    if (selection.empty())
+    if (!selection)
         return;
 
-    std::cout << selection << std::endl;
-    savehistory(strdup(selection.c_str()));
+    puts(selection);
+    savehistory(selection);
 
     cleanup();
     exit(0);
@@ -364,7 +363,7 @@ void clearins(const Arg& arg) {
 
     ctx.mode = 1;
     ctx.allow_input = 0;
-    strings.mode_text = instext;
+    strncpy(strings.mode_text, instext.c_str(), 15);
 
     calcoffsets();
     drawmenu();
@@ -622,7 +621,7 @@ void switchmode(const Arg& arg) {
 
     ctx.allow_input = !ctx.mode;
 
-    strings.mode_text = ctx.mode ? instext : normtext;
+    strncpy(strings.mode_text, ctx.mode ? instext.c_str() : normtext.c_str(), 15);
     drawmenu();
 }
 

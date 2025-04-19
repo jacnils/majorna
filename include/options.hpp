@@ -73,7 +73,7 @@ inline std::string screenshotdir             = {}; /* Screenshot file directory.
 
 /* Mode options */
 inline int mode                        = 0; /* Mode to start speedwm in (0: Normal mode, 1: Insert mode) */
-inline bool forceinsertmode                  = 1; /* Force insert mode, meaning normal mode will be disabled (0/1) */
+inline bool forceinsertmode             = 1; /* Force insert mode, meaning normal mode will be disabled (0/1) */
 inline std::string normtext                  = "Normal"; /* Text to display for normal mode */
 inline std::string instext                   = "Insert"; /* Text to display for insert mode */
 inline std::string regextext                 = "Regex"; /* Text to display for insert mode when regex is enabled */

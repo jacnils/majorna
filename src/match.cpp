@@ -4,7 +4,7 @@
 
 #include <match.hpp>
 #include <majorna.hpp>
-#include <cmath>
+#include <math.h>
 
 int matchregex(const char *t, const char *itt) {
     re_t reg = re_compile(t);
@@ -26,7 +26,7 @@ void fuzzymatch() {
     lhpprefix = hpprefixend = nullptr;
     char c;
     int number_of_matches = 0, i, pidx, sidx, eidx;
-    int text_len = strings.input_text.length(), itext_len;
+    int text_len = strlen(strings.input_text), itext_len;
 
     matches = matchend = nullptr;
 
@@ -47,7 +47,7 @@ void fuzzymatch() {
                         eidx = i;
                         break;
                     }
-                } else if (matchregex(strings.input_text.c_str(), it->raw_text) && regex) {
+                } else if (matchregex(strings.input_text, it->raw_text) && regex) {
                     eidx = i;
                     break;
                 }
@@ -120,7 +120,7 @@ void match() {
     struct item *item, *lhpprefix, *lprefix, *lsubstr, *hpprefixend, *prefixend, *substrend;
 
 
-    sp_strncpy(buf, strings.input_text.c_str(), strings.input_text.size());
+    sp_strncpy(buf, strings.input_text, sizeof(strings.input_text));
     // separate input text into tokens to be matched individually
     for (s = strtok(buf, " "); s; tokv[tokc - 1] = s, s = strtok(nullptr, " "))
         if (++tokc > tokn && !(tokv = static_cast<char**>(realloc(tokv, ++tokn * sizeof *tokv))))
@@ -129,13 +129,13 @@ void match() {
     len = tokc ? strlen(tokv[0]) : 0;
 
     matches = lhpprefix = lprefix = lsubstr = matchend = hpprefixend = prefixend = substrend = nullptr;
-    textsize = strings.input_text.length() + 1;
+    textsize = strlen(strings.input_text) + 1;
     for (item = items; item && item->raw_text; item++) {
         for (i = 0; i < tokc; i++)
             if (!fstrstr(item->raw_text, tokv[i]))
                 break;
         if (i != tokc) // not all tokens match
-            if (!(matchregex(strings.input_text.c_str(), item->raw_text) && regex)) {
+            if (!(matchregex(strings.input_text, item->raw_text) && regex)) {
                 continue;
             }
 
@@ -143,7 +143,7 @@ void match() {
             appenditem(item, &matches, &matchend);
         else {
             // exact matches go first, then prefixes with high priority, then prefixes, then substrings
-            if (!tokc || !fstrncmp(strings.input_text.c_str(), item->raw_text, textsize))
+            if (!tokc || !fstrncmp(strings.input_text, item->raw_text, textsize))
                 appenditem(item, &matches, &matchend);
             else if (item->high_priority && !fstrncmp(tokv[0], item->raw_text, len))
                 appenditem(item, &lhpprefix, &hpprefixend);

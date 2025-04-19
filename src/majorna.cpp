@@ -26,7 +26,6 @@
 #include <match.hpp>
 #include <cctype>
 #include <filesystem>
-#include <iostream>
 
 int is_selected(size_t index) {
     for (int i = 0; i < sel_size; i++) {
@@ -73,9 +72,9 @@ void recalculatenumbers() {
     }
 
     if (selected) {
-        strings.number_text = std::to_string(numer) + "/" + std::to_string(denom) + "/" + std::to_string(selected);
+        snprintf(strings.number_text, NUMBERSBUFSIZE, "%d/%d/%d", numer, denom, selected);
     } else {
-        strings.number_text = std::to_string(numer) + "/" + std::to_string(denom);
+        snprintf(strings.number_text, NUMBERSBUFSIZE, "%d/%d", numer, denom);
     }
 }
 
@@ -93,7 +92,9 @@ void calcoffsets() {
     if (!hiderarrow) rarroww = pango_rightarrow ? TEXTWM(rightarrow) : TEXTW(rightarrow);
     if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.caps_text) : TEXTW(strings.caps_text);
 
-    if (strings.caps_text.empty()) capsw = 0;
+    if (!strcmp(strings.caps_text, "")) {
+        capsw = 0;
+    }
 
     if (lines > 0) {
         offset = lines * columns * ctx.item_height;
@@ -166,35 +167,39 @@ char * cistrstr(const char *h, const char *n) {
 }
 
 void insert(const char *str, ssize_t n) {
-    if (!str || n <= 0) {
+    if (strlen(strings.input_text) + n > sizeof strings.input_text - 1)
         return;
-    }
 
-    if (ctx.cursor < 0 || static_cast<size_t>(ctx.cursor) > strings.input_text.size()) {
-        return;
-    }
+    static char l[BUFSIZ] = "";
 
-    std::string backup;
     if (requirematch) {
-        backup = strings.input_text;
+        memcpy(l, strings.input_text, BUFSIZ);
     }
 
-    try {
-        strings.input_text.insert(ctx.cursor, str, n);
-        ctx.cursor += n;
+    // move existing text out of the way, insert new text, and update cursor
+    memmove(
+            &strings.input_text[ctx.cursor + n],
+            &strings.input_text[ctx.cursor],
+            sizeof strings.input_text - ctx.cursor - MAX(n, 0)
+    );
+
+    if (n > 0 && str && n) {
+        memcpy(&strings.input_text[ctx.cursor], str, n);
+    }
+
+    ctx.cursor += n;
+    match();
+
+    if (!matches && requirematch) {
+        memcpy(strings.input_text, l, BUFSIZ);
+        ctx.cursor -= n;
         match();
+    }
 
-        if (!matches && requirematch) {
-            strings.input_text = backup;
-            ctx.cursor -= n;
-            match();
-        }
-
-        if (incremental) {
-            std::cout << strings.input_text << std::endl;
-        }
-    } catch (const std::exception &e) {
-        std::cerr << "Error during insertion: " << e.what() << std::endl;
+    // output on insertion
+    if (incremental) {
+        puts(strings.input_text);
+        fflush(stdout);
     }
 }
 
@@ -263,12 +268,12 @@ void set_mode() {
         ctx.mode = 1;
         ctx.allow_input = 1;
 
-        strings.mode_text = instext;
+        sp_strncpy(strings.mode_text, instext.c_str(), sizeof(strings.mode_text));
     } else {
         ctx.mode = 0;
         ctx.allow_input = !ctx.mode;
 
-        strings.mode_text = normtext;
+        sp_strncpy(strings.mode_text, normtext.c_str(), sizeof(strings.mode_text));
     }
 
     if (forceinsertmode) {

@@ -78,7 +78,7 @@ void keypress_x11(XEvent& e) {
 
 void grabkeyboard_x11() {
     constexpr timespec ts = { .tv_sec = 0, .tv_nsec = 1000000  };
-    if (!x11.embed.empty() || managed) {
+    if (x11.embed || managed) {
         return;
     }
 
@@ -100,5 +100,5 @@ void getcapsstate() {
     XkbGetIndicatorState(dpy, XkbUseCoreKbd, &cs);
     ctx.caps_state = (cs & 0x01) == 1;
 
-    strings.caps_text = ctx.caps_state ? capslockontext : capslockofftext;
+    strncpy(strings.caps_text, ctx.caps_state ? capslockontext.c_str() : capslockofftext.c_str(), 15);
 }

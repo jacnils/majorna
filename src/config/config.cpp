@@ -143,7 +143,7 @@ int bind_init() {
 #endif
             }
 
-            config_setting_lookup_bool(conf, "forceinsertmode", reinterpret_cast<int*>(&forceinsertmode));
+            config_setting_lookup_int(conf, "forceinsertmode", reinterpret_cast<int*>(&forceinsertmode));
             config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignore_global_keys));
 
 #if X11
@@ -933,7 +933,7 @@ void conf_init() {
 #endif
                 }
 
-                config_setting_lookup_bool(conf, "forceinsertmode", reinterpret_cast<int*>(forceinsertmode));
+                config_setting_lookup_bool(conf, "forceinsertmode", reinterpret_cast<int*>(&forceinsertmode));
                 config_setting_lookup_bool(conf, "ignoreglobalkeys", reinterpret_cast<int*>(&ctx.ignore_global_keys));
 
 #if X11
