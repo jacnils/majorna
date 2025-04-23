@@ -123,12 +123,13 @@ void buttonpress_x11(XEvent& e) {
 
     // go through mouse button array and run function
     for (auto& it : buttons) {
-        if (ctx.ignore_conf_mouse) break;
+        if (ctx.ignore_global_mouse) break;
         if ((click == it.click || it.click == ClickNone) && it.func && it.button == ev->button)
             it.func(it.arg);
     }
-    for (auto& it : wl_buttons) {
-        if (ctx.ignore_global_mouse) break;
+
+    for (auto& it : cbuttons) {
+        if (ctx.ignore_conf_mouse) break;
         if ((click == it.click || it.click == ClickNone) && it.func && it.button == ev->button)
             it.func(it.arg);
     }
