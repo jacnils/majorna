@@ -659,9 +659,9 @@ void readargs(int argc, char** argv) {
 
         bindsfile = strdup(collection.arguments.at(++collection.index).c_str());
     });
-    am.push_back("-tm|--theme|/tm|/theme|theme", [](limhamn::argument_manager::collection& collection) {
+    am.push_back("-tm|--theme-file|/tm|/theme-file|theme-file", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
-            std::cerr << "The -t/--theme flag requires a file to be specified.\n";
+            std::cerr << "The -t/--theme-file flag requires a file to be specified.\n";
             std::exit(EXIT_FAILURE);
         }
 
@@ -690,7 +690,7 @@ void readargs(int argc, char** argv) {
     am.push_back("-wl|--wayland|/wl|/wayland|wayland", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-cf|--config-file|/cf|/config-file|config-file", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-bf|--bind-file|/bf|/bind-file|bind-file", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-tm|--theme|/tm|/theme|theme", [](const limhamn::argument_manager::collection&) {});
+    am.push_back("-tm|--theme-file|/tm|/theme-file|theme-file", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-xrdb|--xrdb|/xrdb|/xrdb|xrdb", [](const limhamn::argument_manager::collection&) {
         xresources = true;
     });
@@ -734,9 +734,9 @@ void readargs(int argc, char** argv) {
     am.push_back("-nlbi|--no-load-binds|/nlbi|/no-load-binds|no-load-binds", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-x11|--x11|/x11|/x11|x11", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-wl|--wayland|/wl|/wayland|wayland", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-cf|--config-file|/cf|/config-file|config-file", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-bf|--bind-file|/bf|/bind-file|bind-file", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-tm|--theme|/tm|/theme|theme", [](const limhamn::argument_manager::collection&) {});
+    am.push_back("-cf|--config-file|/cf|/config-file|config-file", [](limhamn::argument_manager::collection&c) {c.index++;});
+    am.push_back("-bf|--bind-file|/bf|/bind-file|bind-file", [](limhamn::argument_manager::collection&c) {c.index++;});
+    am.push_back("-tm|--theme-file|/tm|/theme-file|theme-file", [](limhamn::argument_manager::collection&c) {c.index++;});
     am.push_back("-xrdb|--xrdb|/xrdb|/xrdb|xrdb", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-nxrdb|--no-xrdb|/nxrdb|/no-xrdb|no-xrdb", [](const limhamn::argument_manager::collection&) {});
 
@@ -1097,10 +1097,10 @@ void readargs(int argc, char** argv) {
     am.push_back("-nhpl|--no-hide-powerline|/nhpl|/no-hide-powerline|no-hide-powerline", [](limhamn::argument_manager::collection&) {
         hidepowerline = false;
     });
-    am.push_back("-hc|--hide-caret|/hc|/hide-caret|hide-caret", [](limhamn::argument_manager::collection&) {
+    am.push_back("-hc|--hide-caret|/hc|/hide-caret|hide-caret|--hide-cursor|/hide-cursor|hide-cursor", [](limhamn::argument_manager::collection&) {
         hidecaret = true;
     });
-    am.push_back("-nhc|--no-hide-caret|/nhc|/no-hide-caret|no-hide-caret", [](limhamn::argument_manager::collection&) {
+    am.push_back("-nhc|--no-hide-caret|/nhc|/no-hide-caret|no-hide-caret|--no-hide-cursor|/no-hide-cursor|no-hide-cursor", [](limhamn::argument_manager::collection&) {
         hidecaret = false;
     });
     am.push_back("-hhl|--hide-highlighting|/hhl|/hide-highlighting|hide-highlighting", [](limhamn::argument_manager::collection&) {
@@ -1151,7 +1151,7 @@ void readargs(int argc, char** argv) {
     am.push_back("-spl|--show-powerline|/spl|/show-powerline|show-powerline", [](limhamn::argument_manager::collection&) {
         hidepowerline = false;
     });
-    am.push_back("-sc|--show-caret|/sc|/show-caret|show-caret", [](limhamn::argument_manager::collection&) {
+    am.push_back("-sc|--show-caret|/sc|/show-caret|show-caret|--show-cursor|/show-cursor|show-cursor", [](limhamn::argument_manager::collection&) {
         hidecaret = false;
     });
     am.push_back("-shl|--show-highlighting|/shl|/show-highlighting|show-highlighting", [](limhamn::argument_manager::collection&) {
@@ -1838,7 +1838,7 @@ void usage(int status) {
             "majorna -hpt,     --hide-pretext                              Hide pretext\n"
             "majorna -hip,     --hide-input                                Hide input\n"
             "majorna -hpl,     --hide-powerline                            Hide powerline\n"
-            "majorna -hc,      --hide-caret, --hide-cursor                 Hide caret\n"
+            "majorna -hc,      --hide-caret                                Hide caret\n"
             "majorna -hhl,     --hide-highlighting                         Hide highlight\n"
             "majorna -hi,      --hide-image                                Hide image\n"
             "majorna -hcl,     --hide-caps                                 Hide caps lock indicator\n"
@@ -1851,7 +1851,7 @@ void usage(int status) {
             "majorna -spt,     --show-pretext                              Show pretext\n"
             "majorna -sin,     --show-input                                Show input\n"
             "majorna -spl,     --show-powerline                            Show powerline\n"
-            "majorna -sc,      --show-caret, --show-cursor                 Show caret\n"
+            "majorna -sc,      --show-caret                                Show caret\n"
             "majorna -shl,     --show-highlighting                         Show highlight\n"
             "majorna -si,      --show-image                                Show image\n"
             "majorna -scl,     --show-caps                                 Show caps lock indicator\n"
@@ -1896,23 +1896,11 @@ void usage(int status) {
             "majorna -bf,      --bind-file <file>                          Exclusively load binds from <file>\n"
             "majorna -lbi,     --load-binds                                Load majorna binds (~/.config/majorna/binds.conf)\n"
             "majorna -nlbi,    --no-load-binds                             Don't load majorna binds (~/.config/majorna/binds.conf)\n"
-            "majorna -tm,      --theme <theme>                             Load theme <theme>\n"
+            "majorna -tm,      --theme-file <theme>                             Load theme <theme>\n"
             "majorna -ltm,     --load-theme                                Load theme\n"
             "majorna -nltm,    --no-load-theme                             Don't load theme\n"
             "majorna -x11,     --x11                                       Run majorna in X11 mode\n"
             "majorna -wl,      --wayland                                   Run majorna in Wayland mode\n"
-            "majorna -cf,      --config-file <file>                        Set config file to load to <file>\n"
-            "majorna -lcfg,    --load-config                               Load majorna configuration (~/.config/majorna/majorna.conf)\n"
-            "majorna -ncfg,    --no-load-config                            Don't load majorna configuration (~/.config/majorna/majorna.conf)\n"
-            "majorna -bf,      --bind-file <file>                          Exclusively load binds from <file>\n"
-            "majorna -lbi,     --load-binds                                Load majorna binds (~/.config/majorna/binds.conf)\n"
-            "majorna -nlbi,    --no-load-binds                             Don't load majorna binds (~/.config/majorna/binds.conf)\n"
-            "majorna -tm,      --theme <theme>                             Load theme <theme>\n"
-            "majorna -ltm,     --load-theme                                Load theme\n"
-            "majorna -nltm,    --no-load-theme                             Don't load theme\n"
-            "majorna -x11,     --x11                                       Run majorna in X11 mode\n"
-            "majorna -wl,      --wayland                                   Run majorna in Wayland mode\n"
-            "majorna -v,       --version                                   Print majorna version to stdout\n"
             "\n", status ? stderr : stdout);
 
     // colors

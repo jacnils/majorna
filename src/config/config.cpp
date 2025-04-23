@@ -245,6 +245,7 @@ int bind_init() {
 
 void conf_init() {
     if (!loadconfig) {
+        theme_load();
         return;
     }
 
@@ -270,7 +271,8 @@ void conf_init() {
     }
 
     if (!std::filesystem::is_regular_file(cfgfile)) {
-        loadconfig = 0;
+        theme_load();
+        return;
     }
 
     // init config
@@ -1061,7 +1063,7 @@ void theme_load() {
     }
 
     if (!std::filesystem::is_regular_file(tmfile)) {
-        loadtheme = 0;
+        return;
     }
 
     // init config
