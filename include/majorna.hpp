@@ -190,7 +190,7 @@ inline std::vector<Key> keys{
 };
 #endif
 #if WAYLAND
-inline WlKey wl_keys[] = {
+inline std::vector<WlKey> wl_keys{
     { -1,      WL_None,              XKB_KEY_Return,    selectitem,      {.i = +1 } },
     { -1,      WL_Shift,             XKB_KEY_Return,    selectitem,      {0} },
     { -1,      WL_Ctrl,              XKB_KEY_Return,    markitem,        {0} },
@@ -216,7 +216,7 @@ inline WlKey wl_keys[] = {
 };
 #endif
 #if X11
-inline Mouse buttons[] = {
+inline std::vector<Mouse> buttons{
     { ClickInput,           Button1,         clear,        {0} },
     { ClickPrompt,          Button1,         clear,        {0} },
     { ClickMode,            Button1,         switchmode,   {0} },
@@ -228,7 +228,7 @@ inline Mouse buttons[] = {
 };
 #endif
 #if WAYLAND
-inline WlMouse wl_buttons[] = {
+inline std::vector<WlMouse> wl_buttons{
     { ClickInput,           WL_Left,         clear,        {0} },
     { ClickPrompt,          WL_Left,         clear,        {0} },
     { ClickMode,            WL_Left,         switchmode,   {0} },
