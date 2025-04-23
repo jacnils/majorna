@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <iomanip>
 #include <algorithm>
+#include <atomic>
 
 void drawhighlights(item *item, int x, int y, int w, int p, char *itemtext) {
 	char restorechar, text[sizeof strings.input_text], *highlight,  *ctext;
@@ -933,7 +934,11 @@ int drawcaps(int x, int y, int w) {
     return x;
 }
 
+std::atomic_flag running_flag = ATOMIC_FLAG_INIT;
 void drawmenu() {
+    if (running_flag.test_and_set(std::memory_order_acquire))
+        return;
+
     ctx.is_drawing = 1;
 #if WAYLAND
     if (protocol) {
@@ -988,6 +993,7 @@ void drawmenu() {
 #endif
 
     ctx.is_drawing = 0;
+    running_flag.clear(std::memory_order_release);
 }
 
 void drawmenu_layer() {
