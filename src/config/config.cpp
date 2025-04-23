@@ -494,14 +494,14 @@ void conf_init() {
                 col_itemnormbg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
-                col_itemnormbg2 = strdup(dest);
+                col_itemnormfg2 = strdup(dest);
             else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
                 col_itemnormfg2 = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
                 col_itemnormbg2 = strdup(dest);
             else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                col_itemnormbg = strdup(dest);
+                col_itemnormbg2 = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemselfg", &dest))
                 col_itemselfg = strdup(dest);
@@ -1263,14 +1263,14 @@ void theme_load() {
                 col_itemnormbg = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
-                col_itemnormbg2 = strdup(dest);
+                col_itemnormfg2 = strdup(dest);
             else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
                 col_itemnormfg2 = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
                 col_itemnormbg2 = strdup(dest);
             else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                col_itemnormbg = strdup(dest);
+                col_itemnormbg2 = strdup(dest);
 
             if (config_setting_lookup_string(conf, "itemselfg", &dest))
                 col_itemselfg = strdup(dest);
