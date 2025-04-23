@@ -91,8 +91,8 @@ if(WAYLAND)
     )
     add_custom_command(
         OUTPUT protocols_generated
-        COMMAND bash protocols/generate.sh
-        DEPENDS protocols/generate.sh
+        COMMAND bash scripts/generate_wayland_c.sh
+        DEPENDS scripts/generate_wayland_c.sh
     )
     list(APPEND PROJECT_SOURCE_FILES
         src/wl/wlr-layer-shell-unstable-v1-protocol.c
@@ -155,3 +155,4 @@ install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
+install(FILES ${PROJECT_NAME}.1 TYPE MAN)
