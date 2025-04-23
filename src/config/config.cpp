@@ -245,6 +245,7 @@ int bind_init() {
 
 void conf_init() {
     if (!loadconfig) {
+        bind_init();
         theme_load();
         return;
     }
@@ -271,6 +272,7 @@ void conf_init() {
     }
 
     if (!std::filesystem::is_regular_file(cfgfile)) {
+        bind_init();
         theme_load();
         return;
     }
