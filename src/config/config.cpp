@@ -481,159 +481,155 @@ void conf_init() {
     }
 
     // load options majorna.color
-    for (const auto& color_setting : std::vector<config_setting_t*>{
-        config_lookup(&cfg, "majorna.color"),
-        config_lookup(&cfg, "theme.color"),
-    }) {
-        if (color_setting != nullptr && loadconfig) {
-            for (unsigned int i = 0; i < config_setting_length(color_setting); ++i) {
-                config_setting_t *conf = config_setting_get_elem(color_setting, i);
+    config_setting_t* color_setting = config_lookup(&cfg, "majorna.color");
+    if (color_setting != nullptr && loadconfig) {
+        for (unsigned int i = 0; i < config_setting_length(color_setting); ++i) {
+            config_setting_t *conf = config_setting_get_elem(color_setting, i);
 
-                // items
-                if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                    col_itemnormfg = strdup(dest);
+            // items
+            if (config_setting_lookup_string(conf, "itemnormfg", &dest))
+                col_itemnormfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                    col_itemnormbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemnormbg", &dest))
+                col_itemnormbg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
-                    col_itemnormbg2 = strdup(dest);
-                else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
-                    col_itemnormfg2 = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemnormfg2", &dest))
+                col_itemnormbg2 = strdup(dest);
+            else if (config_setting_lookup_string(conf, "itemnormfg", &dest))
+                col_itemnormfg2 = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
-                    col_itemnormbg2 = strdup(dest);
-                else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
-                    col_itemnormbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemnormbg2", &dest))
+                col_itemnormbg2 = strdup(dest);
+            else if (config_setting_lookup_string(conf, "itemnormbg", &dest))
+                col_itemnormbg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemselfg", &dest))
-                    col_itemselfg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemselfg", &dest))
+                col_itemselfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemselbg", &dest))
-                    col_itemselbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemselbg", &dest))
+                col_itemselbg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemmarkedfg", &dest))
-                    col_itemmarkedfg = strdup(dest);
-                else if (config_setting_lookup_string(conf, "itemselfg", &dest))
-                    col_itemmarkedfg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemmarkedfg", &dest))
+                col_itemmarkedfg = strdup(dest);
+            else if (config_setting_lookup_string(conf, "itemselfg", &dest))
+                col_itemmarkedfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemmarkedbg", &dest))
-                    col_itemmarkedbg = strdup(dest);
-                else if (config_setting_lookup_string(conf, "itemselbg", &dest))
-                    col_itemmarkedbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemmarkedbg", &dest))
+                col_itemmarkedbg = strdup(dest);
+            else if (config_setting_lookup_string(conf, "itemselbg", &dest))
+                col_itemmarkedbg = strdup(dest);
 
-                // items with priority
-                if (config_setting_lookup_string(conf, "itemnormprifg", &dest))
-                    col_itemnormprifg = strdup(dest);
+            // items with priority
+            if (config_setting_lookup_string(conf, "itemnormprifg", &dest))
+                col_itemnormprifg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemnormpribg", &dest))
-                    col_itemnormpribg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemnormpribg", &dest))
+                col_itemnormpribg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemselprifg", &dest))
-                    col_itemselprifg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemselprifg", &dest))
+                col_itemselprifg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "itemselpribg", &dest))
-                    col_itemselpribg = strdup(dest);
+            if (config_setting_lookup_string(conf, "itemselpribg", &dest))
+                col_itemselpribg = strdup(dest);
 
-                // input
-                if (config_setting_lookup_string(conf, "inputfg", &dest))
-                    col_inputfg = strdup(dest);
+            // input
+            if (config_setting_lookup_string(conf, "inputfg", &dest))
+                col_inputfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "inputbg", &dest))
-                    col_inputbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "inputbg", &dest))
+                col_inputbg = strdup(dest);
 
-                // pretext
-                if (config_setting_lookup_string(conf, "pretextfg", &dest))
-                    col_pretextfg = strdup(dest);
-                else if (config_setting_lookup_string(conf, "inputfg", &dest))
-                    col_pretextfg = strdup(dest);
+            // pretext
+            if (config_setting_lookup_string(conf, "pretextfg", &dest))
+                col_pretextfg = strdup(dest);
+            else if (config_setting_lookup_string(conf, "inputfg", &dest))
+                col_pretextfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "pretextbg", &dest))
-                    col_pretextbg = strdup(dest);
-                else if (config_setting_lookup_string(conf, "inputfg", &dest))
-                    col_pretextbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "pretextbg", &dest))
+                col_pretextbg = strdup(dest);
+            else if (config_setting_lookup_string(conf, "inputbg", &dest))
+                col_pretextbg = strdup(dest);
 
-                // menu
-                if (config_setting_lookup_string(conf, "menu", &dest))
-                    col_menu = strdup(dest);
+            // menu
+            if (config_setting_lookup_string(conf, "menu", &dest))
+                col_menu = strdup(dest);
 
-                // prompt
-                if (config_setting_lookup_string(conf, "promptfg", &dest))
-                    col_promptfg = strdup(dest);
+            // prompt
+            if (config_setting_lookup_string(conf, "promptfg", &dest))
+                col_promptfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "promptbg", &dest))
-                    col_promptbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "promptbg", &dest))
+                col_promptbg = strdup(dest);
 
-                // arrows
-                if (config_setting_lookup_string(conf, "larrowfg", &dest))
-                    col_larrowfg = strdup(dest);
+            // arrows
+            if (config_setting_lookup_string(conf, "larrowfg", &dest))
+                col_larrowfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "larrowbg", &dest))
-                    col_larrowbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "larrowbg", &dest))
+                col_larrowbg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "rarrowfg", &dest))
-                    col_rarrowfg = strdup(dest);
+            if (config_setting_lookup_string(conf, "rarrowfg", &dest))
+                col_rarrowfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "rarrowbg", &dest))
-                    col_rarrowbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "rarrowbg", &dest))
+                col_rarrowbg = strdup(dest);
 
-                // highlight
-                if (config_setting_lookup_string(conf, "hlnormfg", &dest))
-                    col_hlnormfg = strdup(dest);
+            // highlight
+            if (config_setting_lookup_string(conf, "hlnormfg", &dest))
+                col_hlnormfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "hlnormbg", &dest))
-                    col_hlnormbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "hlnormbg", &dest))
+                col_hlnormbg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "hlselfg", &dest))
-                    col_hlselfg = strdup(dest);
+            if (config_setting_lookup_string(conf, "hlselfg", &dest))
+                col_hlselfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "hlselbg", &dest))
-                    col_hlselbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "hlselbg", &dest))
+                col_hlselbg = strdup(dest);
 
-                // number
-                if (config_setting_lookup_string(conf, "numfg", &dest))
-                    col_numfg = strdup(dest);
+            // number
+            if (config_setting_lookup_string(conf, "numfg", &dest))
+                col_numfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "numbg", &dest))
-                    col_numbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "numbg", &dest))
+                col_numbg = strdup(dest);
 
-                // mode
-                if (config_setting_lookup_string(conf, "modefg", &dest))
-                    col_modefg = strdup(dest);
+            // mode
+            if (config_setting_lookup_string(conf, "modefg", &dest))
+                col_modefg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "modebg", &dest))
-                    col_modebg = strdup(dest);
+            if (config_setting_lookup_string(conf, "modebg", &dest))
+                col_modebg = strdup(dest);
 
-                // caps
-                if (config_setting_lookup_string(conf, "capsfg", &dest))
-                    col_capsfg = strdup(dest);
+            // caps
+            if (config_setting_lookup_string(conf, "capsfg", &dest))
+                col_capsfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "capsbg", &dest))
-                    col_capsbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "capsbg", &dest))
+                col_capsbg = strdup(dest);
 
-                // border
-                if (config_setting_lookup_string(conf, "border", &dest))
-                    col_border = strdup(dest);
+            // border
+            if (config_setting_lookup_string(conf, "border", &dest))
+                col_border = strdup(dest);
 
-                // caret
-                if (config_setting_lookup_string(conf, "caretfg", &dest))
-                    col_caretfg = strdup(dest);
+            // caret
+            if (config_setting_lookup_string(conf, "caretfg", &dest))
+                col_caretfg = strdup(dest);
 
-                if (config_setting_lookup_string(conf, "caretbg", &dest))
-                    col_caretbg = strdup(dest);
+            if (config_setting_lookup_string(conf, "caretbg", &dest))
+                col_caretbg = strdup(dest);
 
-                // sgr colors
-                for (int i{}; i <= 15; ++i) {
-                    std::string key = "sgr" + std::to_string(i);
-                    if (config_setting_lookup_string(conf, key.c_str(), &dest)) {
-                        textcolors[i] = dest;
-                    }
+            // sgr colors
+            for (int i{}; i <= 15; ++i) {
+                std::string key = "sgr" + std::to_string(i);
+                if (config_setting_lookup_string(conf, key.c_str(), &dest)) {
+                    textcolors[i] = dest;
                 }
-
-                // coloritems int
-                config_setting_lookup_int(conf, "coloritems", &coloritems);
-                config_setting_lookup_int(conf, "sgr", &sgr);
             }
+
+            // coloritems int
+            config_setting_lookup_int(conf, "coloritems", &coloritems);
+            config_setting_lookup_int(conf, "sgr", &sgr);
         }
     }
 
@@ -1320,7 +1316,7 @@ void theme_load() {
 
             if (config_setting_lookup_string(conf, "pretextbg", &dest))
                 col_pretextbg = strdup(dest);
-            else if (config_setting_lookup_string(conf, "inputfg", &dest))
+            else if (config_setting_lookup_string(conf, "inputbg", &dest))
                 col_pretextbg = strdup(dest);
 
             // menu
