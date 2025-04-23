@@ -10,7 +10,7 @@
 #include <match.hpp>
 #include <x11/xim.hpp>
 #include <x11/focus.hpp>
-#include <iostream>
+#include <thread>
 
 void setupdisplay_x11() {
     int x, y, i;
@@ -136,7 +136,16 @@ void setupdisplay_x11() {
     });
 
     match();
-    drawmenu();
+
+    std::atomic<bool> running = true;
+    std::thread t([&running]() {
+            while (running.load()) {
+                drawmenu();
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }
+    });
+
+    t.detach();
 }
 
 void prepare_window_size_x11() {

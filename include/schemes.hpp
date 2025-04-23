@@ -5,22 +5,6 @@
 #include <string>
 
 inline std::vector<std::string> textcolors{
-    col_sgr0,
-    col_sgr1,
-    col_sgr2,
-    col_sgr3,
-    col_sgr4,
-    col_sgr5,
-    col_sgr6,
-    col_sgr7,
-    col_sgr8,
-    col_sgr9,
-    col_sgr10,
-    col_sgr11,
-    col_sgr12,
-    col_sgr13,
-    col_sgr14,
-    col_sgr15,
     "#00005f",
     "#000087",
     "#0000af",

@@ -52,6 +52,12 @@ void init_appearance() {
         alpha_capsbg = 255;
     }
 
+    for (const auto& it : {
+            col_sgr15, col_sgr14, col_sgr13, col_sgr12, col_sgr11, col_sgr10, col_sgr9, col_sgr8, col_sgr7, col_sgr6, col_sgr5, col_sgr4, col_sgr3, col_sgr2, col_sgr1, col_sgr0 }) {
+
+        textcolors.emplace(textcolors.begin(), it);
+    }
+
     for (; i < 7; i++) {
         snprintf(cbuf, sizeof(cbuf), "#%02x%02x%02x",
                 !!(i & 1) * 0x7f,

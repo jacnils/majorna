@@ -5,6 +5,7 @@
 #include <majorna.hpp>
 #include <img.hpp>
 #include <filesystem>
+#include <iostream>
 
 void readstdin() {
     char buf[sizeof strings.input_text], *p;

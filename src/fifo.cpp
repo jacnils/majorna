@@ -21,12 +21,6 @@ void execute_fifo_cmd() {
 
     fd = open(fifofile.c_str(), O_RDONLY);
     int r = read(fd, _fifot, sizeof(_fifot));
-    std::string fifot = _fifot;
-
-    // remove newlines
-    fifot.erase(std::remove_if(fifot.begin(), fifot.end(), [](char c) {
-        return c == '\n';
-    }));
 
     if (!r) {
         close(fd);
@@ -34,6 +28,13 @@ void execute_fifo_cmd() {
 
         return;
     }
+
+    std::string fifot = _fifot;
+
+    // remove newlines
+    fifot.erase(std::remove_if(fifot.begin(), fifot.end(), [](char c) {
+        return c == '\n';
+    }));
 
     /* These are the different commands that we can run
      * by outputting text to the FIFO.
