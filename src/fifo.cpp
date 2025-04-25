@@ -17,6 +17,8 @@ void execute_fifo_cmd() {
     int fd;
     char _fifot[BUFSIZ];
 
+    std::cerr << "Warning: FIFO is deprecated and will be removed in a future release. Use the Majorna sockets API instead.\n";
+
     done = 0;
 
     fd = open(fifofile.c_str(), O_RDONLY);

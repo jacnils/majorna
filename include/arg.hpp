@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /* structure which may be used to represent any argument type
  * we'll be using them to pass arguments to functions
  */
@@ -8,7 +10,7 @@ struct Arg {
     unsigned int ui{};
     float f{};
     const void *v{};
-    const char *c{};
+    std::string c{};
 };
 
 /* declare keybind functions

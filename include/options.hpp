@@ -66,6 +66,9 @@ inline std::string cachedir            = "default"; /* Cache directory. Default 
 /* FIFO options */
 inline std::string fifofile                  = "/tmp/majorna.fifo"; /* majorna FIFO path */
 
+/* Socket options */
+inline std::string socketfile = "/tmp/majorna.sock";
+
 /* Screenshot options */
 inline std::string screenshotfile            = {}; /* Screenshot file path. If set to nullptr, the default path will be used. */
 inline std::string screenshotname            = {}; /* Screenshot file name. If set to nullptr, the default name will be used. */

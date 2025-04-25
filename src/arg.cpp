@@ -596,8 +596,8 @@ void setw(const Arg& arg) {
 }
 
 void spawn(const Arg& arg) {
-    if (!system(arg.c))
-        die("majorna: failed to execute command '%s'", arg.c);
+    if (!system(arg.c.c_str()))
+        die("majorna: failed to execute command '%s'", arg.c.c_str());
     else
         exit(0);
 }
@@ -712,30 +712,30 @@ void screenshot(const Arg& arg) {
 
             sprintf(file, "%s/%s-%02d-%02d-%02d%s", home, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png");
         } else if (screenshotdir.empty() && !screenshotname.empty()) { // no dir but name
-            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, screenshotname) + 1)))) {
+            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, screenshotname.c_str()) + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
-            sprintf(file, "%s/%s", home, screenshotname);
+            sprintf(file, "%s/%s", home, screenshotname.c_str());
         } else if (!screenshotdir.empty() && screenshotname.empty()) { // dir but no name
-            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s-%02d-%02d-%02d%s", screenshotdir, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
+            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s-%02d-%02d-%02d%s", screenshotdir.c_str(), "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
-            sprintf(file, "%s/%s-%02d-%02d-%02d%s", screenshotdir, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png");
+            sprintf(file, "%s/%s-%02d-%02d-%02d%s", screenshotdir.c_str(), "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png");
         } else { // dir and name
-            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", screenshotdir, screenshotname) + 1)))) {
+            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", screenshotdir.c_str(), screenshotname.c_str()) + 1)))) {
                 die("majorna: failed to malloc screenshot file");
             }
 
-            sprintf(file, "%s/%s", screenshotdir, screenshotname);
+            sprintf(file, "%s/%s", screenshotdir.c_str(), screenshotname.c_str());
         }
     } else { // custom file
-        if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", screenshotfile) + 1)))) {
+        if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", screenshotfile.c_str()) + 1)))) {
             die("majorna: failed to malloc screenshot file");
         }
 
-        sprintf(file, "%s", screenshotfile);
+        sprintf(file, "%s", screenshotfile.c_str());
     }
 
     draw.save_screen(file);

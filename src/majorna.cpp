@@ -23,6 +23,7 @@
 #include <x11/init.hpp>
 #include <x11/event.hpp>
 #include <x11/client.hpp>
+#include <sockets.hpp>
 #include <match.hpp>
 #include <cctype>
 #include <filesystem>
@@ -319,6 +320,7 @@ void handle() {
 
         setupdisplay_x11(); // set up display and create window
         init_fifo();
+        initialize_socket();
         eventloop_x11(); // function is a loop which checks X11 events and calls other functions accordingly
 #endif
 #if WAYLAND
@@ -344,6 +346,7 @@ void handle() {
         init_appearance();
 
         init_fifo();
+        initialize_socket();
 
         handle_wl();
 #endif

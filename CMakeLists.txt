@@ -15,6 +15,8 @@ option(LIBCONFIG "Enable Libconfig support" ON)
 
 include_directories(include)
 include_directories(libs/limhamn/include)
+include_directories(libs/asio/asio/include)
+include_directories(libs/json/include)
 
 if(APPLE)
     include_directories(/usr/local/include)
@@ -38,6 +40,7 @@ set(PROJECT_SOURCE_FILES
         src/schemes.cpp
         src/sort.cpp
         src/stream.cpp
+        src/sockets.cpp
 )
 
 # TODO replace with a more modern alternative

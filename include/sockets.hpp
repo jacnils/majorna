@@ -1,0 +1,70 @@
+#pragma once
+
+#include <string>
+#include <unordered_map>
+#include <functional>
+#include <arg.hpp>
+#include <draw.hpp>
+
+static inline std::unordered_map<std::string, std::function<void(const Arg& arg)>> arg_map {
+    {"moveup", moveup},
+    {"movedown", movedown},
+    {"moveleft", moveleft},
+    {"moveright", moveright},
+    {"moveend", moveend},
+    {"movestart", movestart},
+    {"movenext", movenext},
+    {"moveprev", moveprev},
+    {"moveitem", moveitem},
+    {"moveword", moveword},
+    {"movecursor", movecursor},
+    {"paste", paste},
+    {"restoresel", restoresel},
+    {"clear", clear},
+    {"clearins", clearins},
+    {"deleteword", deleteword},
+    {"backspace", backspace},
+    {"complete", complete},
+    {"viewhist", viewhist},
+    {"navhistory", navhistory},
+    {"markitem", markitem},
+    {"selectitem", selectitem},
+    {"setimgsize", setimgsize},
+    {"defaultimg", defaultimg},
+    {"flipimg", flipimg},
+    {"setimgpos", setimgpos},
+    {"setimggaps", setimggaps},
+    {"setlines", setlines},
+    {"setcolumns", setcolumns},
+    {"spawn", spawn},
+    {"screenshot", screenshot},
+    {"switchmode", switchmode},
+    {"setprofile", setprofile},
+    {"setlineheight", setlineheight},
+    {"setx", setx},
+    {"sety", sety},
+    {"setw", setw},
+    {"quit", quit},
+    {"toggleinput", toggleinput},
+    {"togglepretext", togglepretext},
+    {"togglelarrow", togglelarrow},
+    {"togglerarrow", togglerarrow},
+    {"toggleitem", toggleitem},
+    {"toggleprompt", toggleprompt},
+    {"togglecaps", togglecaps},
+    {"togglepowerline", togglepowerline},
+    {"togglecaret", togglecaret},
+    {"togglematchcount", togglematchcount},
+    {"togglemode", togglemode},
+    {"togglehighlight", togglehighlight},
+    {"toggleregex", toggleregex},
+    {"togglefuzzy", togglefuzzy},
+    {"toggleimg", toggleimg},
+    {"toggleimgtype", toggleimgtype},
+    {"selecthover", selecthover},
+    {"outputhover", outputhover},
+    {"markhover", markhover},
+};
+
+void initialize_socket();
+std::string handler(const std::string&);
