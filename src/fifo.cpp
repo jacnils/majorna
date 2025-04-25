@@ -17,8 +17,6 @@ void execute_fifo_cmd() {
     int fd;
     char _fifot[BUFSIZ];
 
-    std::cerr << "Warning: FIFO is deprecated and will be removed in a future release. Use the Majorna sockets API instead.\n";
-
     done = 0;
 
     fd = open(fifofile.c_str(), O_RDONLY);
@@ -37,6 +35,8 @@ void execute_fifo_cmd() {
     fifot.erase(std::remove_if(fifot.begin(), fifot.end(), [](char c) {
         return c == '\n';
     }));
+
+    std::cerr << "Warning: FIFO is deprecated and will be removed in a future release. Use the Majorna sockets API instead.\n";
 
     /* These are the different commands that we can run
      * by outputting text to the FIFO.
