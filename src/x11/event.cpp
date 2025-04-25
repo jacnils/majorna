@@ -46,7 +46,7 @@ void eventloop_x11() {
                 break;
             case KeyRelease:
                 getcapsstate();
-                drawmenu();
+                draw_menu();
                 break;
         }
     }

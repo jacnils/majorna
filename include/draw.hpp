@@ -12,9 +12,9 @@ int drawlarrow(int x, int y, int w);
 int drawrarrow(int x, int y, int w);
 int drawnumber(int x, int y, int w);
 int drawmode(int x, int y, int w);
-int drawcaps(int x, int y, int w);
-void drawmenu();
-void drawmenu_layer();
+int draw_caps_indicator(int x, int y, int w);
+void draw_menu();
+void draw_menu_layer();
 #if IMAGE
 int draw_icon(struct item *item, int x, int y, int w, int h);
 #endif

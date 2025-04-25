@@ -43,14 +43,14 @@ void execute_fifo_cmd() {
      */
     if (fifot == "drawmenu") {
         if (!ctx.is_drawing) {
-            drawmenu();
+            draw_menu();
         }
     } else if (fifot == "match") {
         match();
     } else if (fifot == "update") {
         if (!ctx.is_drawing) {
             match();
-            drawmenu();
+            draw_menu();
         }
     } else if (fifot == "test") {
         fprintf(stderr, "Test print\n");
@@ -73,146 +73,146 @@ void execute_fifo_cmd() {
         if (printindex && selecteditem) {
             fprintf(stdout, "%d\n", selecteditem->index);
         }
-    } else if (fifot == "toggleinput") {
+    } else if (fifot == "toggle_input") {
         Arg arg;
-        toggleinput(arg);
-    } else if (fifot == "togglelarrow") {
+        toggle_input(arg);
+    } else if (fifot == "toggle_left_arrow") {
         Arg arg;
-        togglelarrow(arg);
-    } else if (fifot == "togglerarrow") {
+        toggle_left_arrow(arg);
+    } else if (fifot == "toggle_right_arrow") {
         Arg arg;
-        togglerarrow(arg);
-    } else if (fifot == "toggleitem") {
+        toggle_right_arrow(arg);
+    } else if (fifot == "toggle_item") {
         Arg arg;
-        toggleitem(arg);
-    } else if (fifot == "toggleprompt") {
+        toggle_item(arg);
+    } else if (fifot == "toggle_prompt") {
         Arg arg;
-        toggleprompt(arg);
-    } else if (fifot == "togglecaps") {
+        toggle_prompt(arg);
+    } else if (fifot == "toggle_caps") {
         Arg arg;
-        togglecaps(arg);
-    } else if (fifot == "togglepowerline") {
+        toggle_caps(arg);
+    } else if (fifot == "toggle_powerline") {
         Arg arg;
-        togglepowerline(arg);
-    } else if (fifot == "togglecaret") {
+        toggle_powerline(arg);
+    } else if (fifot == "toggle_caret") {
         Arg arg;
-        togglecaret(arg);
-    } else if (fifot == "togglehighlight") {
+        toggle_caret(arg);
+    } else if (fifot == "toggle_highlight") {
         Arg arg;
-        togglehighlight(arg);
-    } else if (fifot == "togglematchcount") {
+        toggle_highlight(arg);
+    } else if (fifot == "toggle_match_count") {
         Arg arg;
-        togglematchcount(arg);
-    } else if (fifot == "togglemode") {
+        toggle_match_count(arg);
+    } else if (fifot == "toggle_mode_indicator") {
         Arg arg;
-        togglemode(arg);
-    } else if (fifot == "toggleregex") {
+        toggle_mode_indicator(arg);
+    } else if (fifot == "toggle_regex") {
         Arg arg;
-        toggleregex(arg);
-    } else if (fifot == "togglefuzzy") {
+        toggle_regex(arg);
+    } else if (fifot == "toggle_fuzzy_matching") {
         Arg arg;
-        togglefuzzy(arg);
-    } else if (fifot == "toggleimg") {
+        toggle_fuzzy_matching(arg);
+    } else if (fifot == "toggle_image") {
         Arg arg;
-        toggleimg(arg);
-    } else if (fifot == "toggleimgtype") {
+        toggle_image(arg);
+    } else if (fifot == "toggle_image_type") {
         Arg arg;
-        toggleimgtype(arg);
+        toggle_image_type(arg);
     } else if (fifot == "screenshot") {
         Arg arg;
         screenshot(arg);
-    } else if (fifot == "setprofile") {
+    } else if (fifot == "set_profile") {
         Arg arg;
-        setprofile(arg);
-    } else if (fifot == "setlines+") {
-        Arg arg;
-        arg.i = 1;
-        setlines(arg);
-    } else if (fifot == "setlines-") {
-        Arg arg;
-        arg.i = -1;
-        setlines(arg);
-    } else if (fifot == "setcolumns+") {
+        set_profile(arg);
+    } else if (fifot == "set_lines+") {
         Arg arg;
         arg.i = 1;
-        setcolumns(arg);
-    } else if (fifot == "setcolumns-") {
+        set_lines(arg);
+    } else if (fifot == "set_lines-") {
         Arg arg;
         arg.i = -1;
-        setcolumns(arg);
-    } else if (fifot == "setx+") {
+        set_lines(arg);
+    } else if (fifot == "set_columns+") {
         Arg arg;
         arg.i = 1;
-        setx(arg);
-    } else if (fifot == "setx-") {
+        set_columns(arg);
+    } else if (fifot == "set_columns-") {
         Arg arg;
         arg.i = -1;
-        setx(arg);
-    } else if (fifot == "sety+") {
+        set_columns(arg);
+    } else if (fifot == "set_x+") {
         Arg arg;
         arg.i = 1;
-        sety(arg);
-    } else if (fifot == "sety-") {
+        set_x(arg);
+    } else if (fifot == "set_x-") {
         Arg arg;
         arg.i = -1;
-        sety(arg);
-    } else if (fifot == "setw+") {
+        set_x(arg);
+    } else if (fifot == "set_y+") {
         Arg arg;
         arg.i = 1;
-        setw(arg);
-    } else if (fifot == "setw-") {
+        set_y(arg);
+    } else if (fifot == "set_y-") {
         Arg arg;
         arg.i = -1;
-        setw(arg);
-    } else if (fifot == "moveup") {
+        set_y(arg);
+    } else if (fifot == "set_w+") {
         Arg arg;
-        moveup(arg);
-    } else if (fifot == "movedown") {
+        arg.i = 1;
+        set_w(arg);
+    } else if (fifot == "set_w-") {
         Arg arg;
-        movedown(arg);
-    } else if (fifot == "moveleft") {
+        arg.i = -1;
+        set_w(arg);
+    } else if (fifot == "move_up") {
         Arg arg;
-        moveleft(arg);
-    } else if (fifot == "moveright") {
+        move_up(arg);
+    } else if (fifot == "move_down") {
         Arg arg;
-        moveright(arg);
-    } else if (fifot == "movestart") {
+        move_down(arg);
+    } else if (fifot == "move_left") {
         Arg arg;
-        movestart(arg);
-    } else if (fifot == "moveend") {
+        move_left(arg);
+    } else if (fifot == "move_right") {
         Arg arg;
-        moveend(arg);
-    } else if (fifot == "movenext") {
+        move_right(arg);
+    } else if (fifot == "move_start") {
         Arg arg;
-        movenext(arg);
-    } else if (fifot == "moveprev") {
+        move_start(arg);
+    } else if (fifot == "move_end") {
         Arg arg;
-        moveprev(arg);
-    } else if (fifot == "viewhist") {
+        move_end(arg);
+    } else if (fifot == "move_next") {
         Arg arg;
-        viewhist(arg);
+        move_next(arg);
+    } else if (fifot == "move_prev") {
+        Arg arg;
+        move_prev(arg);
+    } else if (fifot == "view_history") {
+        Arg arg;
+        view_history(arg);
     } else if (fifot == "backspace") {
         Arg arg;
         backspace(arg);
-    } else if (fifot == "deleteword") {
+    } else if (fifot == "delete_word") {
         Arg arg;
-        deleteword(arg);
-    } else if (fifot == "moveword+") {
-        Arg arg;
-        arg.i = +1;
-        moveword(arg);
-    } else if (fifot == "moveword-") {
-        Arg arg;
-        arg.i = -1;
-        moveword(arg);
-    } else if (fifot == "movecursor+") {
+        delete_word(arg);
+    } else if (fifot == "move_word+") {
         Arg arg;
         arg.i = +1;
-        movecursor(arg);
-    } else if (fifot == "movecursor-") {
+        move_word(arg);
+    } else if (fifot == "move_word-") {
         Arg arg;
         arg.i = -1;
-        movecursor(arg);
+        move_word(arg);
+    } else if (fifot == "move_cursor+") {
+        Arg arg;
+        arg.i = +1;
+        move_cursor(arg);
+    } else if (fifot == "move_cursor-") {
+        Arg arg;
+        arg.i = -1;
+        move_cursor(arg);
     } else if (fifot == "clear") {
         Arg arg;
         clear(arg);

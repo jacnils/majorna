@@ -7,14 +7,14 @@
 #include <history.hpp>
 #include <x11/clipboard.hpp>
 
-void moveleft(const Arg& arg) {
+void move_left(const Arg& arg) {
     struct item *tmpsel;
     int i, offscreen = 0;
     int argu = arg.i ? arg.i : 1;
 
-    // If we cannot move left because !lines, moving left should move to the next item. Calling moveup() does this.
+    // If we cannot move left because !lines, moving left should move to the next item. Calling move_up() does this.
     if (!lines) {
-        moveup(arg);
+        move_up(arg);
         return;
     }
 
@@ -27,7 +27,7 @@ void moveleft(const Arg& arg) {
         for (i = 0; i < lines; i++) {
             if (!tmpsel->left || tmpsel->left->right != tmpsel) {
                 if (offscreen)
-                    drawmenu();
+                    draw_menu();
                 return;
             }
             if (tmpsel == currentitem)
@@ -41,18 +41,18 @@ void moveleft(const Arg& arg) {
             }
         }
 
-        drawmenu();
+        draw_menu();
         calcoffsets();
     }
 }
 
-void moveright(const Arg& arg) {
+void move_right(const Arg& arg) {
     struct item *tmpsel;
     int i, offscreen = 0;
     int argu = arg.i ? arg.i : 1;
 
     if (!lines) { // If we cannot move right because !lines, moving right should move to the previous item. Calling down() does this.
-        movedown(arg);
+        move_down(arg);
         return;
     }
 
@@ -63,7 +63,7 @@ void moveright(const Arg& arg) {
         for (i = 0; i < lines; i++) {
             if (!tmpsel->right ||  tmpsel->right->left != tmpsel) {
                 if (offscreen)
-                    drawmenu();
+                    draw_menu();
                 return;
             }
             tmpsel = tmpsel->right;
@@ -78,10 +78,10 @@ void moveright(const Arg& arg) {
         calcoffsets();
     }
 
-    drawmenu();
+    draw_menu();
 }
 
-void movedown(const Arg& arg) {
+void move_down(const Arg& arg) {
     int argu = arg.i ? arg.i : 1;
 
     for (int j = 0; j < argu; j++) {
@@ -91,10 +91,10 @@ void movedown(const Arg& arg) {
     }
 
     calcoffsets();
-    drawmenu();
+    draw_menu();
 }
 
-void moveup(const Arg& arg) {
+void move_up(const Arg& arg) {
     int argu = arg.i ? arg.i : 1;
 
     for (int j = 0; j < argu; j++) {
@@ -104,7 +104,7 @@ void moveup(const Arg& arg) {
     }
 
     calcoffsets();
-    drawmenu();
+    draw_menu();
 }
 
 void complete(const Arg& arg) {
@@ -129,29 +129,29 @@ void complete(const Arg& arg) {
     ctx.cursor = strlen(strings.input_text);
 
     match();
-    drawmenu();
+    draw_menu();
 }
 
-void movenext(const Arg& arg) {
+void move_next(const Arg& arg) {
     if (!nextitem) {
         return;
     }
 
     selecteditem = currentitem = nextitem; // next page
-    drawmenu();
+    draw_menu();
 }
 
-void moveprev(const Arg& arg) {
+void move_prev(const Arg& arg) {
     if (!previousitem) {
         return;
     }
 
     selecteditem = currentitem = previousitem; // previous page
     calcoffsets();
-    drawmenu();
+    draw_menu();
 }
 
-void moveitem(const Arg& arg) {
+void move_item(const Arg& arg) {
     for (int i = 0; i < arg.i; i++) {
         if (selecteditem && selecteditem->right && (selecteditem = selecteditem->right) == nextitem) {
             currentitem = nextitem;
@@ -159,25 +159,25 @@ void moveitem(const Arg& arg) {
         }
     }
 
-    drawmenu();
+    draw_menu();
 }
 
-void movestart(const Arg& arg) {
+void move_start(const Arg& arg) {
     if (selecteditem == matches) {
         ctx.cursor = 0;
-        drawmenu();
+        draw_menu();
         return;
     }
 
     selecteditem = currentitem = matches;
     calcoffsets();
-    drawmenu();
+    draw_menu();
 }
 
-void moveend(const Arg& arg) {
+void move_end(const Arg& arg) {
     if (strings.input_text[ctx.cursor] != '\0') {
         ctx.cursor = strlen(strings.input_text);
-        drawmenu();
+        draw_menu();
         return;
     }
 
@@ -192,7 +192,7 @@ void moveend(const Arg& arg) {
     }
 
     selecteditem = matchend;
-    drawmenu();
+    draw_menu();
 }
 
 void paste(const Arg& arg) {
@@ -209,7 +209,7 @@ void paste(const Arg& arg) {
 #endif
 }
 
-void viewhist(const Arg& arg) {
+void view_history(const Arg& arg) {
     int i;
 
     if (!histfile.empty()) {
@@ -232,10 +232,10 @@ void viewhist(const Arg& arg) {
     }
 
     match();
-    drawmenu();
+    draw_menu();
 }
 
-void deleteword(const Arg& arg) {
+void delete_word(const Arg& arg) {
     if (ctx.cursor == 0) return;
 
     while (ctx.cursor > 0 && strchr(worddelimiters.c_str(), strings.input_text[nextrune(-1)])) {
@@ -244,10 +244,10 @@ void deleteword(const Arg& arg) {
         insert(nullptr, nextrune(-1) - ctx.cursor);
     }
 
-    drawmenu();
+    draw_menu();
 }
 
-void moveword(const Arg& arg) {
+void move_word(const Arg& arg) {
     if (arg.i < 0) { // move sp.cursor to the start of the word
         while (ctx.cursor > 0 && strchr(worddelimiters.c_str(), strings.input_text[nextrune(-1)])) {
             ctx.cursor = nextrune(-1);
@@ -262,10 +262,10 @@ void moveword(const Arg& arg) {
         }
     }
 
-    drawmenu();
+    draw_menu();
 }
 
-void movecursor(const Arg& arg) {
+void move_cursor(const Arg& arg) {
     if (arg.i < 0) {
         if (ctx.cursor > 0) {
             ctx.cursor = nextrune(-1);
@@ -276,7 +276,7 @@ void movecursor(const Arg& arg) {
         }
     }
 
-    drawmenu();
+    draw_menu();
 }
 
 void backspace(const Arg& arg) {
@@ -284,10 +284,10 @@ void backspace(const Arg& arg) {
         return;
 
     insert(nullptr, nextrune(-1) - ctx.cursor);
-    drawmenu();
+    draw_menu();
 }
 
-void markitem(const Arg& arg) {
+void mark_item(const Arg& arg) {
     if (!mark) return;
     if (selecteditem && is_selected(selecteditem->index)) {
         for (int i = 0; i < sel_size; i++) {
@@ -309,7 +309,7 @@ void markitem(const Arg& arg) {
     }
 }
 
-void selectitem(const Arg& arg) {
+void select_item(const Arg& arg) {
     char *selection;
 
     // print index
@@ -342,23 +342,23 @@ void selectitem(const Arg& arg) {
     exit(0);
 }
 
-void navhistory(const Arg& arg) {
+void navigate_history(const Arg& arg) {
     navigatehistfile(arg.i);
-    drawmenu();
+    draw_menu();
 }
 
-void restoresel(const Arg& arg) {
+void restore_selection(const Arg& arg) {
     strings.input_text[ctx.cursor] = '\0';
     match();
-    drawmenu();
+    draw_menu();
 }
 
 void clear(const Arg& arg) {
     insert(nullptr, 0 - ctx.cursor);
-    drawmenu();
+    draw_menu();
 }
 
-void clearins(const Arg& arg) {
+void clear_and_insert(const Arg& arg) {
     insert(nullptr, 0 - ctx.cursor);
 
     ctx.mode = 1;
@@ -366,7 +366,7 @@ void clearins(const Arg& arg) {
     strncpy(strings.mode_text, instext.c_str(), 15);
 
     calcoffsets();
-    drawmenu();
+    draw_menu();
 }
 
 void quit(const Arg& arg) {
@@ -374,34 +374,34 @@ void quit(const Arg& arg) {
     exit(0);
 }
 
-void setlineheight(const Arg& arg) {
+void set_line_height(const Arg& arg) {
     lineheight += arg.i;
     ctx.item_height = std::max(draw.get_font_manager().get_height(), draw.get_font_manager().get_height() + 2 + lineheight);
 
-    resizeclient();
-    drawmenu();
+    resize_client();
+    draw_menu();
 }
 
-void setimgsize(const Arg& arg) {
+void set_image_size(const Arg& arg) {
 #if IMAGE
     setimagesize(img.width + arg.i, img.height + arg.i);
-    drawmenu();
+    draw_menu();
 #endif
 }
 
-void flipimg(const Arg& arg) {
+void flip_image(const Arg& arg) {
 #if IMAGE
 
     if (!image) return;
 
     img.flip = img.flip ? 0 : arg.i ? 1 : 2;
 
-    drawmenu();
+    draw_menu();
 
 #endif
 }
 
-void setimgpos(const Arg& arg) {
+void set_image_position(const Arg& arg) {
 #if IMAGE
     if (!image || hideimage) return;
 
@@ -411,11 +411,11 @@ void setimgpos(const Arg& arg) {
         imageposition = 0;
     }
 
-    drawmenu();
+    draw_menu();
 #endif
 }
 
-void setimggaps(const Arg& arg) {
+void set_image_gaps(const Arg& arg) {
 #if IMAGE
     img.gaps += arg.i;
 
@@ -426,101 +426,101 @@ void setimggaps(const Arg& arg) {
     if (img.gaps > (ctx.win_width - 2 * img.gaps) / 3)
         img.gaps -= arg.i;
 
-    drawmenu();
+    draw_menu();
 #endif
 }
 
-void toggleinput(const Arg& arg) {
+void toggle_input(const Arg& arg) {
     hideinput = !hideinput;
-    drawmenu();
+    draw_menu();
 }
 
-void togglepretext(const Arg& arg) {
+void toggle_pretext(const Arg& arg) {
     hidepretext = !hidepretext;
-    drawmenu();
+    draw_menu();
 }
 
-void togglelarrow(const Arg& arg) {
+void toggle_left_arrow(const Arg& arg) {
     hidelarrow = !hidelarrow;
-    drawmenu();
+    draw_menu();
 }
 
-void togglerarrow(const Arg& arg) {
+void toggle_right_arrow(const Arg& arg) {
     hiderarrow = !hiderarrow;
-    drawmenu();
+    draw_menu();
 }
 
-void toggleitem(const Arg& arg) {
+void toggle_item(const Arg& arg) {
     hideitem = !hideitem;
-    drawmenu();
+    draw_menu();
 }
 
-void toggleprompt(const Arg& arg) {
+void toggle_prompt(const Arg& arg) {
     hideprompt = !hideprompt;
-    drawmenu();
+    draw_menu();
 }
 
-void togglecaps(const Arg& arg) {
+void toggle_caps(const Arg& arg) {
     hidecaps = !hidecaps;
-    drawmenu();
+    draw_menu();
 }
 
-void togglepowerline(const Arg& arg) {
+void toggle_powerline(const Arg& arg) {
     hidepowerline = !hidepowerline;
-    drawmenu();
+    draw_menu();
 }
 
-void togglecaret(const Arg& arg) {
+void toggle_caret(const Arg& arg) {
     hidecaret = !hidecaret;
-    drawmenu();
+    draw_menu();
 }
 
-void togglematchcount(const Arg& arg) {
+void toggle_match_count(const Arg& arg) {
     hidematchcount = !hidematchcount;
-    drawmenu();
+    draw_menu();
 }
 
-void togglemode(const Arg& arg) {
+void toggle_mode_indicator(const Arg& arg) {
     hidemode = !hidemode;
-    drawmenu();
+    draw_menu();
 }
 
-void togglehighlight(const Arg& arg) {
+void toggle_highlight(const Arg& arg) {
     hidehighlight = !hidehighlight;
-    drawmenu();
+    draw_menu();
 }
 
-void toggleregex(const Arg& arg) {
+void toggle_regex(const Arg& arg) {
     regex = !regex;
 
     match();
-    drawmenu();
+    draw_menu();
 }
 
-void togglefuzzy(const Arg& arg) {
+void toggle_fuzzy_matching(const Arg& arg) {
     fuzzy = !fuzzy;
 
     match();
-    drawmenu();
+    draw_menu();
 }
 
-void toggleimg(const Arg& arg) {
+void toggle_image(const Arg& arg) {
 #if IMAGE
 
     hideimage = !hideimage;
 
-    drawmenu();
+    draw_menu();
 
 #endif
 }
 
-void toggleimgtype(const Arg& arg) {
+void toggle_image_type(const Arg& arg) {
 #if IMAGE
     imagetype = !imagetype;
 #endif
 }
 
-void defaultimg(const Arg& arg) {
+void reset_image(const Arg& arg) {
 #if IMAGE
 
     if (hideimage || !image) return;
@@ -529,11 +529,11 @@ void defaultimg(const Arg& arg) {
     img.height = imageheight;
     img.gaps = imagegaps;
 
-    drawmenu();
+    draw_menu();
 #endif
 }
 
-void setlines(const Arg& arg) {
+void set_lines(const Arg& arg) {
     if (!overridelines || (hideprompt && hideinput && hidemode && hidematchcount && hidecaps)) return;
 
     insert(nullptr, 0 - ctx.cursor);
@@ -551,12 +551,12 @@ void setlines(const Arg& arg) {
         match();
     }
 
-    resizeclient();
+    resize_client();
     calcoffsets();
-    drawmenu();
+    draw_menu();
 }
 
-void setcolumns(const Arg& arg) {
+void set_columns(const Arg& arg) {
     if (!overridecolumns || (hideprompt && hideinput && hidemode && hidematchcount && hidecaps)) return;
 
     columns += arg.i;
@@ -569,30 +569,30 @@ void setcolumns(const Arg& arg) {
         match();
     }
 
-    resizeclient();
+    resize_client();
     calcoffsets();
-    drawmenu();
+    draw_menu();
 }
 
-void setx(const Arg& arg) {
+void set_x(const Arg& arg) {
     xpos += arg.i;
 
-    resizeclient();
-    drawmenu();
+    resize_client();
+    draw_menu();
 }
 
-void sety(const Arg& arg) {
+void set_y(const Arg& arg) {
     ypos += arg.i;
 
-    resizeclient();
-    drawmenu();
+    resize_client();
+    draw_menu();
 }
 
-void setw(const Arg& arg) {
+void set_w(const Arg& arg) {
     menuwidth += arg.i;
 
-    resizeclient();
-    drawmenu();
+    resize_client();
+    draw_menu();
 }
 
 void spawn(const Arg& arg) {
@@ -602,7 +602,7 @@ void spawn(const Arg& arg) {
         exit(0);
 }
 
-void setprofile(const Arg& arg) {
+void set_profile(const Arg& arg) {
     if (!system("command -v majorna_profile > /dev/null && majorna_profile --majorna-set-profile")) {
         die("majorna: failed to run profile menu\n");
     } else {
@@ -610,7 +610,7 @@ void setprofile(const Arg& arg) {
     }
 }
 
-void switchmode(const Arg& arg) {
+void toggle_mode(const Arg& arg) {
     if (forceinsertmode) {
         return;
     }
@@ -622,14 +622,14 @@ void switchmode(const Arg& arg) {
     ctx.allow_input = !ctx.mode;
 
     strncpy(strings.mode_text, ctx.mode ? instext.c_str() : normtext.c_str(), 15);
-    drawmenu();
+    draw_menu();
 }
 
-/* This function is basically a copy of the selectitem function.
- * The only difference is "selectitem" was replaced with "mouseitem" and tx.text output
+/* This function is basically a copy of the select_item function.
+ * The only difference is "select_item" was replaced with "mouseitem" and tx.text output
  * was removed.
  */
-void outputhover(const Arg& arg) {
+void output_hover(const Arg& arg) {
     char *selection;
 
     if (printindex && mouseitem && arg.i) {
@@ -656,20 +656,20 @@ void outputhover(const Arg& arg) {
     exit(0);
 }
 
-void selecthover(const Arg& arg) {
+void select_hover(const Arg& arg) {
     if (selecteditem != mouseitem) {
         selecteditem = mouseitem;
     } else {
         selecteditem = mouseitem;
-        outputhover(arg);
+        output_hover(arg);
 
         return;
     }
 
-    drawmenu();
+    draw_menu();
 }
 
-void markhover(const Arg& arg) {
+void mark_hover(const Arg& arg) {
     if (!mark) return;
     if (mouseitem && is_selected(mouseitem->index)) {
         for (int i = 0; i < sel_size; i++) {
@@ -690,7 +690,7 @@ void markhover(const Arg& arg) {
         sel_index[sel_size - 1] = mouseitem->index;
     }
 
-    drawmenu();
+    draw_menu();
 }
 
 void screenshot(const Arg& arg) {

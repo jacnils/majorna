@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <iostream>
 
-void readstdin() {
+void read_stdin() {
     char buf[sizeof strings.input_text], *p;
     size_t i, itemsiz = 0;
     unsigned int tmpmax = 0;
@@ -148,7 +148,7 @@ void readfile() {
 
             // prevents state->buffer from being nullptr
             if (!protocol) {
-                resizeclient();
+                resize_client();
             }
         }
     } else {

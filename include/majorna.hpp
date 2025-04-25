@@ -63,6 +63,8 @@ struct context {
     bool ignore_global_keys{}; // should be set in the config file, if 1, the Keys keys array is ignored
     bool ignore_conf_mouse{}; // same for mouse
     bool ignore_global_mouse{}; // same for mouse
+
+    bool initialized{false}; // after first draw
 };
 
 struct monitor {
@@ -148,7 +150,7 @@ void calcoffsets();
 void recalculatenumbers();
 void insert(const char *str, ssize_t n);
 void cleanup();
-void resizeclient();
+void resize_client();
 void get_width();
 void get_mh();
 void set_mode();
@@ -166,52 +168,52 @@ inline size_t listsize;
 
 #if X11
 inline std::vector<Key> keys{
-    { -1,      0,              XK_Return,    selectitem,      {.i = +1 } },
-    { -1,      Shift,          XK_Return,    selectitem,      {0} },
-    { -1,      Ctrl,           XK_Return,    markitem,        {0} },
+    { -1,      0,              XK_Return,    select_item,      {.i = +1 } },
+    { -1,      Shift,          XK_Return,    select_item,      {0} },
+    { -1,      Ctrl,           XK_Return,    mark_item,        {0} },
     { -1,      0,              XK_Tab,       complete,        {0} },
     { -1,      Ctrl,           XK_v,         paste,           {.i = 2  } },
     { -1,      0,              XK_BackSpace, backspace,       {0} },
-    { -1,      Ctrl,           XK_BackSpace, deleteword,      {0} },
-    { -1,      Ctrl|Shift,     XK_p,         setprofile,      {0} },
+    { -1,      Ctrl,           XK_BackSpace, delete_word,      {0} },
+    { -1,      Ctrl|Shift,     XK_p,         set_profile,      {0} },
     { -1,      0,              XK_Print,     screenshot,      {0} },
-    { -1,      Ctrl,           XK_equal,     setimgsize,      {.i = +10 } },
-    { -1,      Ctrl,           XK_minus,     setimgsize,      {.i = -10 } },
-    { -1,      0,              XK_Up,        moveup,          {0} },
-    { -1,      0,              XK_Down,      movedown,        {0} },
-    { -1,      0,              XK_Left,      moveleft,        {0} },
-    { -1,      0,              XK_Right,     moveright,       {0} },
-    { -1,      Ctrl,           XK_u,         moveup,          {.i = 5  } },
-    { -1,      Ctrl,           XK_d,         movedown,        {.i = 5  } },
-    { -1,      Shift,          XK_h,         viewhist,        {0} },
+    { -1,      Ctrl,           XK_equal,     set_image_size,      {.i = +10 } },
+    { -1,      Ctrl,           XK_minus,     set_image_size,      {.i = -10 } },
+    { -1,      0,              XK_Up,        move_up,          {0} },
+    { -1,      0,              XK_Down,      move_down,        {0} },
+    { -1,      0,              XK_Left,      move_left,        {0} },
+    { -1,      0,              XK_Right,     move_right,       {0} },
+    { -1,      Ctrl,           XK_u,         move_up,          {.i = 5  } },
+    { -1,      Ctrl,           XK_d,         move_down,        {.i = 5  } },
+    { -1,      Shift,          XK_h,         view_history,        {0} },
     { -1,      0,              XK_Escape,    quit,            {0} },
-    { -1,      Ctrl,           XK_p,         navhistory,      {.i = -1 } },
-    { -1,      Ctrl,           XK_n,         navhistory,      {.i = +1 } },
+    { -1,      Ctrl,           XK_p,         navigate_history,      {.i = -1 } },
+    { -1,      Ctrl,           XK_n,         navigate_history,      {.i = +1 } },
 };
 #endif
 #if WAYLAND
 inline std::vector<WlKey> wl_keys{
-    { -1,      WL_None,              XKB_KEY_Return,    selectitem,      {.i = +1 } },
-    { -1,      WL_Shift,             XKB_KEY_Return,    selectitem,      {0} },
-    { -1,      WL_Ctrl,              XKB_KEY_Return,    markitem,        {0} },
+    { -1,      WL_None,              XKB_KEY_Return,    select_item,      {.i = +1 } },
+    { -1,      WL_Shift,             XKB_KEY_Return,    select_item,      {0} },
+    { -1,      WL_Ctrl,              XKB_KEY_Return,    mark_item,        {0} },
     { -1,      WL_None,              XKB_KEY_Tab,       complete,        {0} },
     { -1,      WL_Ctrl,              XKB_KEY_v,         paste,           {.i = 2  } },
     { -1,      WL_None,              XKB_KEY_BackSpace, backspace,       {0} },
-    { -1,      WL_Ctrl,              XKB_KEY_BackSpace, deleteword,      {0} },
-    { -1,      WL_CtrlShift,         XKB_KEY_p,         setprofile,      {0} },
+    { -1,      WL_Ctrl,              XKB_KEY_BackSpace, delete_word,      {0} },
+    { -1,      WL_CtrlShift,         XKB_KEY_p,         set_profile,      {0} },
     { -1,      WL_None,              XKB_KEY_Print,     screenshot,      {0} },
-    { -1,      WL_Ctrl,              XKB_KEY_equal,     setimgsize,      {.i = +10 } },
-    { -1,      WL_Ctrl,              XKB_KEY_minus,     setimgsize,      {.i = -10 } },
-    { -1,      WL_None,              XKB_KEY_Up,        moveup,          {0} },
-    { -1,      WL_None,              XKB_KEY_Down,      movedown,        {0} },
-    { -1,      WL_None,              XKB_KEY_Left,      moveleft,        {0} },
-    { -1,      WL_None,              XKB_KEY_Right,     moveright,       {0} },
-    { -1,      WL_Ctrl,              XKB_KEY_u,         moveup,          {.i = 5  } },
-    { -1,      WL_Ctrl,              XKB_KEY_d,         movedown,        {.i = 5  } },
-    { -1,      WL_Shift,             XKB_KEY_h,         viewhist,        {0} },
+    { -1,      WL_Ctrl,              XKB_KEY_equal,     set_image_size,      {.i = +10 } },
+    { -1,      WL_Ctrl,              XKB_KEY_minus,     set_image_size,      {.i = -10 } },
+    { -1,      WL_None,              XKB_KEY_Up,        move_up,          {0} },
+    { -1,      WL_None,              XKB_KEY_Down,      move_down,        {0} },
+    { -1,      WL_None,              XKB_KEY_Left,      move_left,        {0} },
+    { -1,      WL_None,              XKB_KEY_Right,     move_right,       {0} },
+    { -1,      WL_Ctrl,              XKB_KEY_u,         move_up,          {.i = 5  } },
+    { -1,      WL_Ctrl,              XKB_KEY_d,         move_down,        {.i = 5  } },
+    { -1,      WL_Shift,             XKB_KEY_h,         view_history,        {0} },
     { -1,      WL_None,              XKB_KEY_Escape,    quit,            {0} },
-    { -1,      WL_Ctrl,              XKB_KEY_p,         navhistory,      {.i = -1 } },
-    { -1,      WL_Ctrl,              XKB_KEY_n,         navhistory,      {.i = +1 } },
+    { -1,      WL_Ctrl,              XKB_KEY_p,         navigate_history,      {.i = -1 } },
+    { -1,      WL_Ctrl,              XKB_KEY_n,         navigate_history,      {.i = +1 } },
 
 };
 #endif
@@ -219,24 +221,24 @@ inline std::vector<WlKey> wl_keys{
 inline std::vector<Mouse> buttons{
     { ClickInput,           Button1,         clear,        {0} },
     { ClickPrompt,          Button1,         clear,        {0} },
-    { ClickMode,            Button1,         switchmode,   {0} },
-    { ClickNumber,          Button1,         viewhist,     {0} },
-    { ClickItem,            Button1,         selecthover,  {0} },
-    { ClickItem,            Button2,         markhover,    {0} },
-    { ClickNone,            Button5,         movenext,     {0} },
-    { ClickNone,            Button4,         moveprev,     {0} },
+    { ClickMode,            Button1,         toggle_mode,   {0} },
+    { ClickNumber,          Button1,         view_history,     {0} },
+    { ClickItem,            Button1,         select_hover,  {0} },
+    { ClickItem,            Button2,         mark_hover,    {0} },
+    { ClickNone,            Button5,         move_next,     {0} },
+    { ClickNone,            Button4,         move_prev,     {0} },
 };
 #endif
 #if WAYLAND
 inline std::vector<WlMouse> wl_buttons{
     { ClickInput,           WL_Left,         clear,        {0} },
     { ClickPrompt,          WL_Left,         clear,        {0} },
-    { ClickMode,            WL_Left,         switchmode,   {0} },
-    { ClickNumber,          WL_Left,         viewhist,     {0} },
-    { ClickItem,            WL_Left,         selecthover,  {0} },
-    { ClickItem,            WL_Right,        markhover,    {0} },
-    { ClickNone,            WL_Down,         movenext,     {0} },
-    { ClickNone,            WL_Up,           moveprev,     {0} },
+    { ClickMode,            WL_Left,         toggle_mode,   {0} },
+    { ClickNumber,          WL_Left,         view_history,     {0} },
+    { ClickItem,            WL_Left,         select_hover,  {0} },
+    { ClickItem,            WL_Right,        mark_hover,    {0} },
+    { ClickNone,            WL_Down,         move_next,     {0} },
+    { ClickNone,            WL_Up,           move_prev,     {0} },
 };
 #endif
 
@@ -249,7 +251,7 @@ void cleanup();
 char* cistrstr(const char *h, const char *n);
 void insert(const char *str, ssize_t n);
 size_t nextrune(int inc);
-void resizeclient();
+void resize_client();
 void get_width();
 void get_mh();
 void set_mode();

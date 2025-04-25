@@ -17,76 +17,76 @@ struct Arg {
  *
  * movement
  */
-void moveup(const Arg& arg);
-void movedown(const Arg& arg);
-void moveleft(const Arg& arg);
-void moveright(const Arg& arg);
-void moveend(const Arg& arg);
-void movestart(const Arg& arg);
-void movenext(const Arg& arg);
-void moveprev(const Arg& arg);
-void moveitem(const Arg& arg);
-void moveword(const Arg& arg);
-void movecursor(const Arg& arg);
+void move_up(const Arg& arg);
+void move_down(const Arg& arg);
+void move_left(const Arg& arg);
+void move_right(const Arg& arg);
+void move_end(const Arg& arg);
+void move_start(const Arg& arg);
+void move_next(const Arg& arg);
+void move_prev(const Arg& arg);
+void move_item(const Arg& arg);
+void move_word(const Arg& arg);
+void move_cursor(const Arg& arg);
 
 /* input */
 void paste(const Arg& arg);
-void restoresel(const Arg& arg);
+void restore_selection(const Arg& arg);
 void clear(const Arg& arg);
-void clearins(const Arg& arg);
-void deleteword(const Arg& arg);
+void clear_and_insert(const Arg& arg);
+void delete_word(const Arg& arg);
 void backspace(const Arg& arg);
 void complete(const Arg& arg);
 
 /* history */
-void viewhist(const Arg& arg);
-void navhistory(const Arg& arg);
+void view_history(const Arg& arg);
+void navigate_history(const Arg& arg);
 
 /* selection */
-void markitem(const Arg& arg);
-void selectitem(const Arg& arg);
+void mark_item(const Arg& arg);
+void select_item(const Arg& arg);
 
 /* image */
-void setimgsize(const Arg& arg);
-void defaultimg(const Arg& arg);
-void flipimg(const Arg& arg);
-void setimgpos(const Arg& arg);
-void setimggaps(const Arg& arg);
+void set_image_size(const Arg& arg);
+void reset_image(const Arg& arg);
+void flip_image(const Arg& arg);
+void set_image_position(const Arg& arg);
+void set_image_gaps(const Arg& arg);
 
 /* lines/columns */
-void setlines(const Arg& arg);
-void setcolumns(const Arg& arg);
+void set_lines(const Arg& arg);
+void set_columns(const Arg& arg);
 
 /* misc */
 void spawn(const Arg& arg);
 void screenshot(const Arg& arg);
-void switchmode(const Arg& arg);
-void setprofile(const Arg& arg);
-void setlineheight(const Arg& arg);
-void setx(const Arg& arg);
-void sety(const Arg& arg);
-void setw(const Arg& arg);
+void toggle_mode(const Arg& arg);
+void set_profile(const Arg& arg);
+void set_line_height(const Arg& arg);
+void set_x(const Arg& arg);
+void set_y(const Arg& arg);
+void set_w(const Arg& arg);
 void quit(const Arg& arg);
 
 /* toggle */
-void toggleinput(const Arg& arg);
-void togglepretext(const Arg& arg);
-void togglelarrow(const Arg& arg);
-void togglerarrow(const Arg& arg);
-void toggleitem(const Arg& arg);
-void toggleprompt(const Arg& arg);
-void togglecaps(const Arg& arg);
-void togglepowerline(const Arg& arg);
-void togglecaret(const Arg& arg);
-void togglematchcount(const Arg& arg);
-void togglemode(const Arg& arg);
-void togglehighlight(const Arg& arg);
-void toggleregex(const Arg& arg);
-void togglefuzzy(const Arg& arg);
-void toggleimg(const Arg& arg);
-void toggleimgtype(const Arg& arg);
+void toggle_input(const Arg& arg);
+void toggle_pretext(const Arg& arg);
+void toggle_left_arrow(const Arg& arg);
+void toggle_right_arrow(const Arg& arg);
+void toggle_item(const Arg& arg);
+void toggle_prompt(const Arg& arg);
+void toggle_caps(const Arg& arg);
+void toggle_powerline(const Arg& arg);
+void toggle_caret(const Arg& arg);
+void toggle_match_count(const Arg& arg);
+void toggle_mode_indicator(const Arg& arg);
+void toggle_highlight(const Arg& arg);
+void toggle_regex(const Arg& arg);
+void toggle_fuzzy_matching(const Arg& arg);
+void toggle_image(const Arg& arg);
+void toggle_image_type(const Arg& arg);
 
 /* hover */
-void selecthover(const Arg& arg);
-void outputhover(const Arg& arg);
-void markhover(const Arg& arg);
+void select_hover(const Arg& arg);
+void output_hover(const Arg& arg);
+void mark_hover(const Arg& arg);

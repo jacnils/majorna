@@ -45,7 +45,7 @@ void cleanupimage() {
     }
 }
 
-void drawimage() {
+void draw_image() {
     int width = 0, height = 0;
     char *limg = nullptr;
 
@@ -396,7 +396,7 @@ void resizetoimageheight_x11(int imageheight) {
         jumptoindex(i);
     }
 
-    drawmenu();
+    draw_menu();
 }
 #endif
 
@@ -438,7 +438,7 @@ void resizetoimageheight_wl(int imageheight) {
     set_layer_size(&state, state.width, state.height);
     draw.initialize(state.data, state.width, state.height);
 
-    drawmenu();
+    draw_menu();
 
     wl_surface_set_buffer_scale(state.surface, 1);
     wl_surface_attach(state.surface, state.buffer, 0, 0);

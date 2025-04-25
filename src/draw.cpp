@@ -39,19 +39,6 @@ void drawhighlights(item *item, int x, int y, int w, int p, char *itemtext) {
 			highlight[strlen(ctext)] = '\0';
 
 			if (indent - (ctx.lrpad / 2) - 1 < w) {
-			    /*
-                draw_text(
-                    draw,
-                    x + indent - (sp.lrpad / 2) - 1,
-                    y,
-					MIN(w - indent, TEXTW(highlight) - sp.lrpad),
-                    sp.bh, 0, highlight, 0, False,
-                    item == selecteditem ? col_hlselfg : col_hlnormfg,
-                    item == selecteditem ? col_hlselbg : col_hlnormbg,
-                    item == selecteditem ? alpha_hlselfg : alpha_hlnormfg,
-                    item == selecteditem ? alpha_hlselbg : alpha_hlnormbg
-                );
-                */
 			    draw.draw_text({
 			        .x = x + indent - (ctx.lrpad / 2) - 1,
 			        .y = y,
@@ -346,7 +333,7 @@ int drawitemtext(item *item, int x, int y, int w) {
                     } else if (nextchar == 48) {
                         int r, g, b, c;
 
-                        c = strtoul(c_character + 1, NULL, 10);
+                        c = strtoul(c_character + 1, nullptr, 10);
 
                         if (c == 5) {
                             bgfg = 3;
@@ -866,7 +853,7 @@ int drawmode(int x, int y, int w) {
     return x;
 }
 
-int drawcaps(int x, int y, int w) {
+int draw_caps_indicator(int x, int y, int w) {
     if (!w) return x; // not caps lock
 
     if (!hidecaps) { // draw caps lock indicator
@@ -892,11 +879,6 @@ int drawcaps(int x, int y, int w) {
         // draw powerline for caps lock indicator
         if (!hidepowerline && powerlinecaps) {
             if (capspwlstyle == 2) {
-                /*
-                draw_circle(draw, x, y, sp.plw, sp.bh, 0,
-                        hidemode ? hidematchcount ? col_menu : col_numbg : col_modebg, col_capsbg,
-                        hidemode ? hidematchcount ? alpha_menu : alpha_numbg : alpha_modebg, alpha_capsbg);
-                        */
                 draw.draw_circle({
                     .x = x,
                     .y = y,
@@ -909,11 +891,6 @@ int drawcaps(int x, int y, int w) {
                     .next_alpha = alpha_capsbg,
                 });
             } else {
-                /*
-                draw_arrow(draw, x, y, sp.plw, sp.bh, 0, capspwlstyle,
-                        hidemode ? hidematchcount ? col_menu : col_numbg : col_modebg, col_capsbg,
-                        hidemode ? hidematchcount ? alpha_menu : alpha_numbg : alpha_modebg, alpha_capsbg);
-                        */
                 draw.draw_arrow({
                     .x = x,
                     .y = y,
@@ -935,18 +912,19 @@ int drawcaps(int x, int y, int w) {
 }
 
 std::atomic_flag running_flag = ATOMIC_FLAG_INIT;
-void drawmenu() {
+void draw_menu() {
     if (running_flag.test_and_set(std::memory_order_acquire))
         return;
 
-    ctx.is_drawing = 1;
+    ctx.initialized = true;
+    ctx.is_drawing = true;
 #if WAYLAND
     if (protocol) {
         if (!listfile.empty()) {
-            readstdin();
+            read_stdin();
 
             if (ctx.list_changed) {
-                resizeclient();
+                resize_client();
                 match();
 
                 for (int i = 0; i < ctx.item_number; i++) {
@@ -957,10 +935,10 @@ void drawmenu() {
             }
         }
 
-        drawmenu_layer();
+        draw_menu_layer();
 
 #if IMAGE
-        drawimage();
+        draw_image();
 #endif
 
         commit_drawable(&state);
@@ -968,7 +946,7 @@ void drawmenu() {
 #endif
 #if X11
         if (!listfile.empty()) {
-            readstdin();
+            read_stdin();
 
             if (ctx.list_changed) {
                 match();
@@ -981,10 +959,10 @@ void drawmenu() {
             }
         }
 
-        drawmenu_layer();
+        draw_menu_layer();
 
 #if IMAGE
-        drawimage();
+        draw_image();
 #endif
         draw.map(win);
 #endif
@@ -992,11 +970,11 @@ void drawmenu() {
     }
 #endif
 
-    ctx.is_drawing = 0;
+    ctx.is_drawing = false;
     running_flag.clear(std::memory_order_release);
 }
 
-void drawmenu_layer() {
+void draw_menu_layer() {
     int x = 0, y = 0, w = 0;
     ctx.powerline_width = hidepowerline ? 0 : draw.get_font_manager().get_height() / 2 + 1; // powerline size
 
@@ -1018,7 +996,7 @@ void drawmenu_layer() {
         .background = col_menu,
         .foreground_alpha = alpha_menu,
         .background_alpha = alpha_menu,
-        .filled = 1,
+        .filled = true,
     });
 
     int numberw = 0;
@@ -1089,7 +1067,7 @@ void drawmenu_layer() {
 
     if (!hidecaps) {
         w = capsw;
-        drawcaps(
+        draw_caps_indicator(
                 ctx.win_width - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh,
                 y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0),
                 w

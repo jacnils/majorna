@@ -214,7 +214,7 @@ size_t nextrune(int inc) {
     return rune;
 }
 
-void resizeclient() {
+void resize_client() {
 #if WAYLAND
     if (protocol) {
         resizeclient_wl(&state);
@@ -305,9 +305,9 @@ void handle() {
                 grabkeyboard_x11();
             }
 
-            readstdin();
+            read_stdin();
         } else {
-            readstdin();
+            read_stdin();
 
             if (grabkeyboard) {
                 grabkeyboard_x11();
@@ -341,7 +341,7 @@ void handle() {
         draw = limhamn::primitive::draw_manager();
         draw.initialize_font(font);
 
-        readstdin();
+        read_stdin();
         set_mode();
         init_appearance();
 

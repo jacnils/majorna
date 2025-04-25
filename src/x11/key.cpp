@@ -72,7 +72,7 @@ void keypress_x11(XEvent& e) {
             ctx.allow_input = !ctx.allow_input;
         }
 
-        drawmenu();
+        draw_menu();
     }
 }
 

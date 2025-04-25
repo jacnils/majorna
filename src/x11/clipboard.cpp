@@ -21,7 +21,7 @@ void pastesel_x11(void) {
     }
 
     // draw the menu
-    drawmenu();
+    draw_menu();
 }
 
 int paste_x11(int sel) {

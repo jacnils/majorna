@@ -140,7 +140,7 @@ void setupdisplay_x11() {
     std::atomic<bool> running = true;
     std::thread t([&running]() {
             while (running.load()) {
-                drawmenu();
+                draw_menu();
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
     });

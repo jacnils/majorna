@@ -114,7 +114,7 @@ void paste_wl() {
 
     insert(p, (q = strchr(p, '\n')) ? q - p : (ssize_t)strlen(p)); // insert selection
 
-    drawmenu();
+    draw_menu();
 }
 
 void keypress_wl(struct state *state, enum wl_keyboard_key_state key_state, xkb_keysym_t sym) {
@@ -171,7 +171,7 @@ void keypress_wl(struct state *state, enum wl_keyboard_key_state key_state, xkb_
         }
     }
 
-    drawmenu();
+    draw_menu();
 }
 
 void keyboard_modifiers(void *data, struct wl_keyboard *keyboard, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group) {
@@ -188,7 +188,7 @@ void keyboard_modifiers(void *data, struct wl_keyboard *keyboard, uint32_t seria
 
     if (ocapslockstate != ctx.caps_state) {
         strncpy(strings.caps_text, ctx.caps_state ? capslockontext.c_str() : capslockofftext.c_str(), 15);
-        drawmenu();
+        draw_menu();
     }
 }
 
@@ -496,7 +496,7 @@ void create_drawable(struct state *state) {
 
     draw.initialize(state->data, state->width, state->height);
 
-    drawmenu();
+    draw_menu();
 }
 
 void global_handler(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {

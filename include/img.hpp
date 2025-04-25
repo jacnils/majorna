@@ -10,7 +10,7 @@
 void setimagesize(int width, int height);
 void setimageopts();
 void cleanupimage();
-void drawimage();
+void draw_image();
 void flipimage();
 void loadimage(const char *file, int *width, int *height);
 void loadimagecache(const char *file, int *width, int *height);
