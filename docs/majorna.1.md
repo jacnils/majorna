@@ -757,72 +757,42 @@ background color.
 
 **Note: Background colors will used until a reset sequence is found.**
 
-## FIFO
+## Socket
 
-Majorna has support for FIFO. This means you can tell Majorna to perform certain
-actions while it is running. Majorna checks the FIFO every 0.1 seconds. To use it,
-simply append a valid name to the FIFO file, which by default is /tmp/majorna.fifo.
+Majorna exposes its functions to external programs through a socket. You can use e.g.
+`socat` to interact with it. The default file descriptor is `/tmp/majorna.sock`, and
+although it can be changed, it is highly recommended that you never do so.
 
-You must append **without** a newline. Otherwise it will be considered invalid.
-It is recommended that you sleep for 0.1 seconds after appending to the file
-for performance reasons.
+Although the features available are quite basic, it is highly extendable and is now
+on par with what the old named pipe (FIFO) method offers.
 
-| Name               | Description                                                                       |
-| :----------------- | :-------------------------------------------------------------------------------- |
-| drawmenu           | Draw the menu                                                                     |
-| match              | Match entries again, useful if you're loading items from file                     |
-| update             | Match and then draw the menu. Both drawmenu and match one after another           |
-| output             | Output selected item text                                                         |
-| output_index       | Output selected item index                                                        |
-| loadconfig         | Reload config                                                                     |
-| test               | Print out 'Test print' to standard output                                         |
-| die                | Print out 'FIFO told me to die.' using the die() function                         |
-| toggleinput        | Toggle input                                                                      |
-| togglepretext      | Toggle pretext                                                                    |
-| togglelarrow       | Toggle left arrow                                                                 |
-| togglerarrow       | Toggle right arrow                                                                |
-| toggleitem         | Toggle item                                                                       |
-| toggleprompt       | Toggle prompt                                                                     |
-| togglecaps         | Toggle caps lock indicator                                                        |
-| togglepowerline    | Toggle powerline                                                                  |
-| togglecaret        | Toggle caret                                                                      |
-| togglehighlight    | Toggle highlighting                                                               |
-| togglematchcount   | Toggle match count                                                                |
-| togglemode         | Toggle mode indicator                                                             |
-| toggleregex        | Toggle regex                                                                      |
-| togglefuzzy        | Toggle fuzzy                                                                      |
-| toggleimg          | Toggle images                                                                     |
-| toggleimgtype      | Toggle image type                                                                 |
-| screenshot         | Screenshot Majorna                                                                 |
-| setprofile         | Open profile menu                                                                 |
-| setlines+          | Increase lines by 1                                                               |
-| setlines-          | Decrease lines by 1                                                               |
-| setcolumns+        | Increase columns by 1                                                             |
-| setcolumns-        | Decrease columns by 1                                                             |
-| setx+              | Increase X position by 1                                                          |
-| setx-              | Decrease X position by 1                                                          |
-| sety+              | Increase Y position by 1                                                          |
-| sety-              | Decrease Y position by 1                                                          |
-| setw+              | Increase width by 1                                                               |
-| setw-              | Decrease width by 1                                                               |
-| moveup             | Move up one item                                                                  |
-| movedown           | Move down one item                                                                |
-| moveleft           | Move left one item                                                                |
-| moveright          | Move right one item                                                               |
-| movestart          | Move to the start                                                                 |
-| moveend            | Move to the end                                                                   |
-| movenext           | Move to the next page                                                             |
-| moveprev           | Move to the previous page                                                         |
-| moveword+          | Move caret to the next word                                                       |
-| moveword-          | Move caret to the previous word                                                   |
-| movecaret+         | Move caret to the next character                                                  |
-| movecaret-         | Move caret to the previous character                                              |
-| clear              | Clear input                                                                       |
-| viewhist           | View history buffer                                                               |
-| backspace          | Backspace                                                                         |
-| deleteword         | Remove one full word forward                                                      |
-| exit_0             | Exit with exit code 0                                                             |
-| exit_1             | Exit with exit code 1                                                             |
+Bash example:
+
+`echo '{"calls": [{"function": "toggle_prompt"}]}' | socat - UNIX-CONNECT:/tmp/majorna.sock`
+
+Python example:
+
+```python
+import socket
+import json
+
+data = {
+        "calls": [
+            {"function": "toggle_prompt"}
+        ]
+}
+
+json_data = json.dumps(data) + '\n'
+
+with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client_socket:
+    client_socket.connect("/tmp/majorna.sock")
+    client_socket.sendall(json_data.encode('utf-8'))
+    response = client_socket.recv(1024)
+
+    if response:
+        print(response.decode('utf-8'))
+
+```
 
 ## Pango markup and text formatting
 
