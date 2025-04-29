@@ -12,13 +12,13 @@ enum resource_type {
     Float = 2
 };
 
-struct ResourcePref {
+struct resource_pref {
     std::string name{};
     resource_type type{};
     std::any dst{};
 };
 
-static std::vector<ResourcePref> cols{
+static std::vector<resource_pref> cols{
     { "font",			             String,  &font },
     { "color10",                     String,  &col_caretfg },
     { "color0",                      String,  &col_caretbg },

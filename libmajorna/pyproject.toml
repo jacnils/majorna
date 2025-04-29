@@ -1,0 +1,11 @@
+[project]
+name = "libmajorna"
+version = "0.1.0"
+description = "Python interface for Majorna"
+authors = [{name = "Jacob Nilsson", email = "jacob@jacobnilsson.com"}]
+license = "MIT"
+keywords = ["python", "majorna", "interface"]
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
