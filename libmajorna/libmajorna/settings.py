@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, is_dataclass
 from enum import Enum
 from typing import List
 import json
@@ -115,15 +115,14 @@ class KeyBinding:
     modifier: str
     key: str
     function: str
-    argument: int
-
+    argument: int = 0
 
 @dataclass
 class MouseBinding:
     click: ClickType
     button: ButtonType
     function: str
-
+    argument: int = 0
 
 @dataclass
 class ImageDimensions:
@@ -180,3 +179,102 @@ def get_default_settings():
             "password": "*",
             "prompt": "",
             "pretext": "",
+            "input": "",
+            "normal_mode": "Normal",
+            "insert_mode": "Insert",
+            "regex_mode": "Regex",
+            "caps_lock_on": "Caps Lock",
+            "caps_lock_off": "",
+            "padding": 0,
+            "normal_item_padding": 0,
+            "selected_item_padding": 0,
+            "priority_item_padding": 0,
+        },
+        appearance={},
+        behavior={
+            "display": {
+                "sort": True,
+                "preselected": 0,
+            },
+            "matching": {
+                "case_sensitive": False,
+                "fuzzy_matching": True,
+                "regex_matching": False,
+            },
+            "permissions": {
+                "mark": True,
+                "typing": True,
+                "password": False,
+            },
+            "output": {
+                "print_index": False,
+                "incremental": False,
+            },
+            "miscellaneous": {
+                "fast": True,
+                "delimiters": " /?\\\\\"&[]",
+                "list_file": "",
+                "start_mode": Mode.Normal,
+                "force_insert_mode": True,
+                "scroll_distance": 512,
+            },
+            "pango": {
+                "item": True,
+                "prompt": True,
+                "input": True,
+                "pretext": True,
+                "left_arrow": False,
+                "right_arrow": False,
+                "match_counter": False,
+                "mode_indicator": False,
+                "caps_lock_indicator": False,
+                "password": False,
+            },
+        },
+        history={
+            "max_number_of_entries": 64,
+            "save_duplicates": False,
+        },
+        image={
+            "dimensions": {
+                "width": 200,
+                "height": 200,
+                "gaps": 0,
+                "position": ImagePosition.Top,
+                "type": ImageType.Image,
+                "cache": True,
+                "max_size_to_cache": 512,
+                "resize_to_fit": True,
+            },
+        },
+        filesystem={
+            "paths": {
+                "fifo": "/tmp/majorna.fifo",
+                "screenshot": "%h/Screenshots/majorna-%d-%t.png",
+                "image_cache_directory": "default",
+            }
+        },
+        keys=[
+            KeyBinding(KeyMode.Any, "None", "Enter", "selectitem", 1),
+            KeyBinding(KeyMode.Any, "Shift", "Enter", "selectitem", 0),
+        ],
+        mouse=[
+            MouseBinding(ClickType.Input, ButtonType.LeftClick, "clear"),
+            MouseBinding(ClickType.Prompt, ButtonType.LeftClick, "clear"),
+        ]
+    )
+
+def settings_to_json(settings, indent=2):
+    def enum_to_value(obj):
+        if isinstance(obj, Enum):
+            return obj.value
+        elif isinstance(obj, list):
+            return [enum_to_value(item) for item in obj]
+        elif isinstance(obj, dict):
+            return {key: enum_to_value(value) for key, value in obj.items()}
+        elif is_dataclass(obj):
+            return enum_to_value(asdict(obj))
+        else:
+            return obj
+
+    return json.dumps(enum_to_value(settings), indent=indent)
