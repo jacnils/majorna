@@ -320,7 +320,6 @@ void handle() {
 
         setupdisplay_x11(); // set up display and create window
         init_fifo();
-        initialize_socket();
         eventloop_x11(); // function is a loop which checks X11 events and calls other functions accordingly
 #endif
 #if WAYLAND
@@ -337,7 +336,6 @@ void handle() {
         borderwidth = 0;
         managed = 0;
 
-        // um???
         draw = limhamn::primitive::draw_manager();
         draw.initialize_font(font);
 
@@ -346,7 +344,6 @@ void handle() {
         init_appearance();
 
         init_fifo();
-        initialize_socket();
 
         handle_wl();
 #endif

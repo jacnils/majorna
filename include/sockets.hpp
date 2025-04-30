@@ -9,6 +9,7 @@
 #include <match.hpp>
 #include <majorna.hpp>
 #include <stream.hpp>
+#include <nlohmann/json.hpp>
 
 static inline std::unordered_map<std::string, std::function<void(const Arg& arg)>> arg_map {
     {"move_up", move_up},
@@ -80,4 +81,5 @@ static inline std::unordered_map<std::string, std::function<void()>> void_map {
 };
 
 void initialize_socket();
+void load_config(nlohmann::json&);
 std::string handler(const std::string&);

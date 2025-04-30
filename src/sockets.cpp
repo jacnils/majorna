@@ -8,8 +8,6 @@ using json = nlohmann::json;
 
 void initialize_socket() {
     std::thread t([&]{
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-
         if (std::filesystem::exists(socketfile)) {
             std::filesystem::remove(socketfile);
         }
@@ -18,6 +16,10 @@ void initialize_socket() {
     });
 
     t.detach();
+}
+
+void load_config(nlohmann::json& json) {
+    std::cerr << json.dump() << std::endl;
 }
 
 std::string handler(const std::string& input) {
@@ -30,6 +32,34 @@ std::string handler(const std::string& input) {
         return_json["error_str"] = "Invalid JSON.";
         return_json["error_type"] = "MAJORNA_INVALID_JSON";
         return return_json.dump();
+    }
+
+    if (input_json.contains("action") && input_json["action"].is_string()) {
+        const std::string& action = input_json["action"].get<std::string>();
+
+        if (action == "load_config") {
+            nlohmann::json return_json{};
+
+            if (input_json.contains("config_json") && input_json["config_json"].is_string()) {
+                try {
+                    nlohmann::json config_json = nlohmann::json::parse(input_json.at("config_json").get<std::string>());
+                    load_config(config_json);
+                } catch (const std::exception&) {
+                    return_json["error_str"] = "Invalid JSON.";
+                    return_json["error_type"] = "MAJORNA_INVALID_JSON";
+                    return return_json.dump();
+                }
+            } else {
+                return_json["error_str"] = "Invalid JSON.";
+                return_json["error_type"] = "MAJORNA_INVALID_JSON";
+                return return_json.dump();
+            }
+
+            return_json["actions_performed"] = nlohmann::json::array();
+            return_json["actions_performed"].push_back("load_config");
+
+            return return_json.dump();
+        }
     }
 
     nlohmann::json return_json{};

@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 #include <sort.hpp>
+#include <sockets.hpp>
+#include <thread>
 #ifndef LIMHAMN_ARGUMENT_MANAGER_IMPL
 #define LIMHAMN_ARGUMENT_MANAGER_IMPL
 #endif
@@ -92,6 +94,7 @@ void readargs(int argc, char** argv) {
     am.execute([](const std::string&) {});
 
 #if CONFIG
+    initialize_socket();
     conf_init();
 #endif
 
