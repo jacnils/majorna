@@ -50,11 +50,16 @@ pkg_check_modules(PANGO REQUIRED pango)
 pkg_check_modules(PANGOCAIRO REQUIRED pangocairo)
 find_library(M_LIB m)
 
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+find_package(pybind11 CONFIG REQUIRED)
+
 set(PROJECT_DEPENDENCIES
     ${CAIRO_LIBRARIES}
     ${PANGO_LIBRARIES}
     ${PANGOCAIRO_LIBRARIES}
     ${M_LIB}
+    ${Python3_LIBRARIES}
+    pybind11::embed
 )
 
 set(BUILD_ARGS
@@ -148,6 +153,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${OPENSSL_INCLUDE_DIRS}
     ${FRIBIDI_INCLUDE_DIRS}
     ${LIBCONFIG_INCLUDE_DIRS}
+    ${Python3_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_DEPENDENCIES})

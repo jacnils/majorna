@@ -11,5 +11,3 @@ import json
 # Check if Majorna is running or not.
 def is_running():
     return Path(socket_path).exists()
-
-
