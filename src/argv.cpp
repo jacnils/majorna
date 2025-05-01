@@ -38,22 +38,6 @@ void readargs(int argc, char** argv) {
     am.push_back("-ncfg|--no-load-config|/ncfg|/no-load-config|no-load-config", [](const limhamn::argument_manager::collection&) {
         loadconfig = 0;
     });
-    am.push_back("-ltm|--load-theme|/ltm|/load-theme|load-theme", [](const limhamn::argument_manager::collection&) {
-        loadtheme = 1;
-        theme_override = 1;
-    });
-    am.push_back("-nltm|--no-load-theme|/nltm|/no-load-theme|no-load-theme", [](const limhamn::argument_manager::collection&) {
-        loadtheme = 0;
-        theme_override = 1;
-    });
-    am.push_back("-lbi|--load-binds|/lbi|/load-binds|load-binds", [](const limhamn::argument_manager::collection&) {
-        loadbinds = 1;
-        binds_override = 1;
-    });
-    am.push_back("-nlbi|--no-load-binds|/nlbi|/no-load-binds|no-load-binds", [](const limhamn::argument_manager::collection&) {
-        loadbinds = 0;
-        binds_override = 1;
-    });
     am.push_back("-x11|--x11|/x11|/x11|x11", [](const limhamn::argument_manager::collection&) {
         protocol = 0;
         protocol_override = 1;
@@ -71,22 +55,6 @@ void readargs(int argc, char** argv) {
 
         configfile = strdup(collection.arguments.at(++collection.index).c_str());
     });
-    am.push_back("-bf|--bind-file|/bf|/bind-file|bind-file", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= collection.index + 1) {
-            std::cerr << "The -b/--bind flag requires a file to be specified.\n";
-            std::exit(EXIT_FAILURE);
-        }
-
-        bindsfile = strdup(collection.arguments.at(++collection.index).c_str());
-    });
-    am.push_back("-tm|--theme-file|/tm|/theme-file|theme-file", [](limhamn::argument_manager::collection& collection) {
-        if (collection.arguments.size() <= collection.index + 1) {
-            std::cerr << "The -t/--theme-file flag requires a file to be specified.\n";
-            std::exit(EXIT_FAILURE);
-        }
-
-        themefile = strdup(collection.arguments.at(++collection.index).c_str());
-    });
 #endif
 
 
@@ -103,15 +71,9 @@ void readargs(int argc, char** argv) {
     am.push_back("-v|--version|/v|/version|version", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-lcfg|--load-config|/lcfg|/load-config|load-config", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-ncfg|--no-load-config|/ncfg|/no-load-config|no-load-config", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-ltm|--load-theme|/ltm|/load-theme|load-theme", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-nltm|--no-load-theme|/nltm|/no-load-theme|no-load-theme", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-lbi|--load-binds|/lbi|/load-binds|load-binds", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-nlbi|--no-load-binds|/nlbi|/no-load-binds|no-load-binds", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-x11|--x11|/x11|/x11|x11", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-wl|--wayland|/wl|/wayland|wayland", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-cf|--config-file|/cf|/config-file|config-file", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-bf|--bind-file|/bf|/bind-file|bind-file", [](const limhamn::argument_manager::collection&) {});
-    am.push_back("-tm|--theme-file|/tm|/theme-file|theme-file", [](const limhamn::argument_manager::collection&) {});
     am.push_back("-xrdb|--xrdb|/xrdb|/xrdb|xrdb", [](const limhamn::argument_manager::collection&) {
         xresources = true;
     });

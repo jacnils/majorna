@@ -125,26 +125,7 @@ void keypress_wl(struct state *state, enum wl_keyboard_key_state key_state, xkb_
         return;
     }
 
-    if (xkb_keysym_to_lower(sym) == wlhkeys[0].keysym && !is_correct_modifier(state, wlhkeys[0].mod) && wlhkeys[0].func) {
-        wlhkeys[0].func(wlhkeys[0].arg);
-    }
-
     for (auto& it : wl_keys) {
-        if (ctx.ignore_global_keys) break;
-
-        if (xkb_keysym_to_lower(sym) == it.keysym && !is_correct_modifier(state, it.mod) && it.func) {
-            if ((it.mode && ctx.mode) || it.mode == -1) {
-                it.func(it.arg);
-                return;
-            } else if (!it.mode && !ctx.mode) {
-                it.func(it.arg);
-            }
-        }
-    }
-
-    for (auto& it : wl_ckeys) {
-        if (ctx.ignore_conf_keys) break;
-
         if (xkb_keysym_to_lower(sym) == it.keysym && !is_correct_modifier(state, it.mod) && it.func) {
             if ((it.mode && ctx.mode) || it.mode == -1) {
                 it.func(it.arg);
@@ -383,13 +364,6 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
     }
 
     for (auto& it : wl_buttons) {
-        if (ctx.ignore_global_mouse) break;
-        if ((click == it.click || it.click == ClickNone) && it.func && it.button == button)
-            it.func(it.arg);
-    }
-
-    for (auto& it : wl_cbuttons) {
-        if (ctx.ignore_conf_mouse) break;
         if ((click == it.click || it.click == ClickNone) && it.func && it.button == button)
             it.func(it.arg);
     }
@@ -515,13 +489,13 @@ void global_handler(void *data, struct wl_registry *registry, uint32_t name, con
 				&zwlr_layer_shell_v1_interface, 1));
 	} else if (strcmp(interface, wl_output_interface.name) == 0) {
 		struct output *output = static_cast<struct output*>(calloc(1, sizeof(struct output)));
-		output->output = static_cast<struct wl_output*>(wl_registry_bind(registry, name,
+		output->out = static_cast<struct wl_output*>(wl_registry_bind(registry, name,
 				&wl_output_interface, 4));
 		output->state = state;
 		output->scale = 1;
 
-		wl_output_set_user_data(output->output, output);
-		wl_output_add_listener(output->output, &output_listener, output);
+		wl_output_set_user_data(output->out, output);
+		wl_output_add_listener(output->out, &output_listener, output);
 	}
 }
 

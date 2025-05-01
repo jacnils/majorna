@@ -5,14 +5,12 @@
 /* majorna options */
 inline std::string window_class        = "majorna"; /* Class for majorna */
 inline int protocol                    = 1; /* Protocol to try first (0: X11, 1: Wayland) */
-inline int fast                        = 0; /* Grab keyboard first */
-inline int xresources                  = 1; /* Enable .Xresources support */
-inline int loadconfig                  = 1; /* Load configuration (~/.config/majorna/majorna.conf) on runtime */
-inline int loadtheme                   = 1; /* Load theme (~/.config/majorna/theme.conf) on runtime */
-inline int loadbinds                   = 1; /* Load keybind file (~/.config/majorna/binds.conf) on runtime */
+inline bool fast                       = false; /* Grab keyboard first */
+inline bool xresources                 = true; /* Enable .Xresources support */
+inline bool loadconfig                  = true; /* Load configuration (~/.config/majorna/majorna.conf) on runtime */
 inline int mon                         = -1; /* Monitor to run majorna on */
-inline int managed                     = 0; /* Let your window manager manage majorna? */
-inline int grabkeyboard                = 1; /* Grab keyboard/general input */
+inline bool managed                     = false; /* Let your window manager manage majorna? */
+inline bool grabkeyboard                = true; /* Grab keyboard/general input */
 
 /* Wayland options */
 inline int scrolldistance              = 512; /* Distance to scroll for a scroll action to count */
@@ -20,12 +18,10 @@ inline int scrolldistance              = 512; /* Distance to scroll for a scroll
 /* Config file options */
 #if CONFIG
 inline std::string configfile                = {}; /* Config file path. Default is ~/.config/majorna/majorna.conf */
-inline std::string themefile                 = {}; /* Theme file path. Default is ~/.config/majorna/theme.conf */
-inline std::string bindsfile                 = {}; /* Keybind file path. Default is ~/.config/majorna/binds.conf */
 #endif
 
 /* Window options */
-inline int alpha                       = 1; /* Enable alpha */
+inline bool alpha                       = true; /* Enable alpha */
 inline int menuposition                = 2; /* Position of the menu (0: Bottom, 1: Top, 2: Center */
 inline int menupaddingv                = 0; /* Vertical padding inside the menu (px) */
 inline int menupaddingh                = 0; /* Horizontal padding inside the menu (px) */
@@ -38,11 +34,11 @@ inline int xpos                        = 0; /* X position to offset majorna */
 inline int ypos                        = 0; /* Y position to offset majorna */
 
 /* Powerline options */
-inline int powerlineprompt             = 1; /* Enable powerline for the prompt */
-inline int powerlinecount              = 1; /* Enable powerline for the match count */
-inline int powerlinemode               = 1; /* Enable powerline for the mode indicator */
-inline int powerlinecaps               = 1; /* Enable powerline for the caps lock indicator */
-inline int powerlineitems              = 1; /* Enable powerline for the items */
+inline bool powerlineprompt             = true; /* Enable powerline for the prompt */
+inline bool powerlinecount              = true; /* Enable powerline for the match count */
+inline bool powerlinemode               = true; /* Enable powerline for the mode indicator */
+inline bool powerlinecaps               = true; /* Enable powerline for the caps lock indicator */
+inline bool powerlineitems              = true; /* Enable powerline for the items */
 inline int promptpwlstyle              = 2; /* Prompt powerline style (0: Arrow, 1: Slash, 2: Rounded) */
 inline int matchcountpwlstyle          = 2; /* Match count powerline style (0: Arrow, 1: Slash, 2: Rounded) */
 inline int modepwlstyle                = 2; /* Mode indicator powerline style (0: Arrow, 1: Slash, 2: Rounded) */
@@ -50,16 +46,16 @@ inline int capspwlstyle                = 2; /* Caps lock indicator powerline sty
 inline int itempwlstyle                = 2; /* Item powerline style (0: Arrow, 1: Slash, 2: Rounded)) */
 
 /* Window properties */
-inline int dockproperty                = 1; /* Set _NET_WM_WINDOW_TYPE_DOCK */
+inline bool dockproperty                = true; /* Set _NET_WM_WINDOW_TYPE_DOCK */
 
 /* Image options */
 inline int imagewidth                  = 200; /* Default image width (px) */
 inline int imageheight                 = 200; /* Default image height (px) */
-inline int imageresize                 = 1; /* Allow the majorna window to resize itself to fit the image (0/1) */
+inline bool imageresize                 = true; /* Allow the majorna window to resize itself to fit the image (0/1) */
 inline int imagegaps                   = 0; /* Image gaps */
 inline int imageposition               = 0; /* Image position (0: Top, 1: Bottom, 2: Center, 3: Top center) */
 inline int imagetype                   = 1; /* Image type (0: Icon, 1: Image) */
-inline int generatecache               = 1; /* Generate image cache by default */
+inline bool generatecache               = true; /* Generate image cache by default */
 inline int maxcache                    = 512; /* Max image size to cache */
 inline std::string cachedir            = "default"; /* Cache directory. Default means majorna will determine automatically */
 
@@ -70,13 +66,11 @@ inline std::string fifofile                  = "/tmp/majorna.fifo"; /* majorna F
 inline std::string socketfile = "/tmp/majorna.sock";
 
 /* Screenshot options */
-inline std::string screenshotfile            = {}; /* Screenshot file path. If set to nullptr, the default path will be used. */
-inline std::string screenshotname            = {}; /* Screenshot file name. If set to nullptr, the default name will be used. */
-inline std::string screenshotdir             = {}; /* Screenshot file directory. If set to nullptr, the default directory will be used. */
+inline std::string screenshotfile            = "%h/Screenshots/majorna-%d-%t.png"; /* Screenshot file path. If set to default, the default path will be used. */
 
 /* Mode options */
-inline int mode                        = 0; /* Mode to start speedwm in (0: Normal mode, 1: Insert mode) */
-inline bool forceinsertmode             = 1; /* Force insert mode, meaning normal mode will be disabled (0/1) */
+inline int mode                        = 0; /* Mode to start Majorna in (0: Normal mode, 1: Insert mode) */
+inline bool forceinsertmode             = true; /* Force insert mode, meaning normal mode will be disabled (0/1) */
 inline std::string normtext                  = "Normal"; /* Text to display for normal mode */
 inline std::string instext                   = "Insert"; /* Text to display for insert mode */
 inline std::string regextext                 = "Regex"; /* Text to display for insert mode when regex is enabled */
@@ -102,14 +96,14 @@ inline std::string input                     = {}; /* Default input text */
 inline std::string pretext                   = {}; /* Default pretext */
 
 /* Match options */
-inline int type                        = 1; /* Allow typing into majorna or only allow keybinds. */
-inline int passwd                      = 0; /* Replace input with another character and don't read stdin */
-inline int sortmatches                 = 1; /* Sort matches (0/1) */
-inline int casesensitive               = 0; /* Case-sensitive by default? (0/1) */
-inline int mark                        = 1; /* Enable marking items (multi selection) (0/1) */
+inline bool type                        = true; /* Allow typing into majorna or only allow keybinds. */
+inline bool passwd                      = false; /* Replace input with another character and don't read stdin */
+inline bool sortmatches                 = true; /* Sort matches (0/1) */
+inline bool casesensitive               = false; /* Case-sensitive by default? (0/1) */
+inline bool mark                        = true; /* Enable marking items (multi selection) (0/1) */
 inline int preselected                 = 0; /* Which line should majorna preselect? */
-inline int fuzzy                       = 1; /* Whether to enable fuzzy matching by default */
-inline int regex                       = 0; /* Whether to enable regex matching by default */
+inline bool fuzzy                       = true; /* Whether to enable fuzzy matching by default */
+inline bool regex                       = false; /* Whether to enable regex matching by default */
 inline std::string listfile                  = {}; /* File to read entries from instead of stdin. nullptr means read from stdin instead. */
 
 /* Line options */
@@ -117,17 +111,17 @@ inline int itemposition                = 0; /* Item position (0: Bottom, 1: Top)
 inline int lineheight                  = 1; /* Line height (0: Calculate automatically) */
 inline int lines                       = 0; /* Default number of lines */
 inline int columns                     = 10; /* Default number of columns */
-inline int overridelines               = 1; /* Allow overriding lines using keybinds */
-inline int overridecolumns             = 1; /* Allow overriding columns using keybinds */
+inline bool overridelines               = true; /* Allow overriding lines using keybinds */
+inline bool overridecolumns             = true; /* Allow overriding columns using keybinds */
 inline int minlines                    = 0; /* Minimum number of lines allowed */
 
 /* History options */
 inline std::string histfile                  = {}; /* History file, nullptr means no history file */
 inline int maxhist                     = 64; /* Max number of history entries */
-inline int histdup                     = 0;	/* If 1, record repeated histories */
+inline bool histdup                     = false;	/* If 1, record repeated histories */
 
 /* Prompt options */
-inline int indentitems                 = 0; /* Indent items to prompt width? (0/1) */
+inline bool indentitems                 = false; /* Indent items to prompt width? (0/1) */
 
 /* Caret options */
 inline int caretwidth                  = 0; /* Caret width (0: Calculate automatically) */
@@ -135,19 +129,19 @@ inline int caretheight                 = 0; /* Caret height (0: Calculate automa
 inline int caretpadding                = 0; /* Caret padding (px) */
 
 /* Hide options */
-inline int hideinput                   = 0; /* Hide input (0/1) */
-inline int hidepretext                 = 0; /* Hide pretext (0/1) */
-inline int hidelarrow                  = 0; /* Hide left arrow (0/1) */
-inline int hiderarrow                  = 0; /* Hide right arrow (0/1) */
-inline int hideitem                    = 0; /* Hide item (0/1) */
-inline int hideprompt                  = 0; /* Hide prompt (0/1) */
-inline int hidecaps                    = 0; /* Hide caps lock indicator (0/1) */
-inline int hidepowerline               = 0; /* Hide powerline (0/1) */
-inline int hidecaret                   = 0; /* Hide caret (0/1) */
-inline int hidehighlight               = 0; /* Hide highlight (0/1) */
-inline int hidematchcount              = 0; /* Hide match count (0/1) */
-inline int hidemode                    = 0; /* Hide mode (0/1) */
-inline int hideimage                   = 0; /* Hide image (0/1) */
+inline bool hideinput                   = false; /* Hide input (0/1) */
+inline bool hidepretext                 = false; /* Hide pretext (0/1) */
+inline bool hidelarrow                  = false; /* Hide left arrow (0/1) */
+inline bool hiderarrow                  = false; /* Hide right arrow (0/1) */
+inline bool hideitem                    = false; /* Hide item (0/1) */
+inline bool hideprompt                  = false; /* Hide prompt (0/1) */
+inline bool hidecaps                    = false; /* Hide caps lock indicator (0/1) */
+inline bool hidepowerline               = false; /* Hide powerline (0/1) */
+inline bool hidecaret                   = false; /* Hide caret (0/1) */
+inline bool hidehighlight               = false; /* Hide highlight (0/1) */
+inline bool hidematchcount              = false; /* Hide match count (0/1) */
+inline bool hidemode                    = false; /* Hide mode (0/1) */
+inline bool hideimage                   = false; /* Hide image (0/1) */
 
 /* Color options
  *
@@ -158,6 +152,8 @@ inline std::string col_itemnormfg2          = "#bbbbbb"; /* Normal foreground it
 inline std::string col_itemnormbg2          = "#110f1f"; /* Normal background item colors for the next item */
 inline std::string col_itemselfg            = "#110f1f"; /* Selected foreground item color */
 inline std::string col_itemselbg            = "#8e93c2"; /* Selected background item color */
+inline std::string col_itemselfg2           = "#110f1f"; /* Selected foreground item colors for the next item */
+inline std::string col_itemselbg2           = "#8e93c2"; /* Selected background item colors for the next item */
 inline std::string col_itemmarkedfg         = "#110f1f"; /* Marked foreground item color */
 inline std::string col_itemmarkedbg         = "#8e93c2"; /* Marked background item color */
 inline std::string col_itemnormprifg        = "#bbbbbb"; /* Normal foreground item (high priority) color */
@@ -238,6 +234,8 @@ inline int alpha_itemnormfg2           = 255; /* Alpha for next normal item fore
 inline int alpha_itemnormbg2           = 222; /* Alpha for next normal item background (0-255) */
 inline int alpha_itemselfg             = 255; /* Alpha for selected item foreground (0-255) */
 inline int alpha_itemselbg             = 222; /* Alpha for selected item background (0-255) */
+inline int alpha_itemselfg2            = 255; /* Alpha for next selected item foreground (0-255) */
+inline int alpha_itemselbg2            = 222; /* Alpha for next selected item background (0-255) */
 inline int alpha_itemmarkedfg          = 255; /* Alpha for marked item foreground (0-255) */
 inline int alpha_itemmarkedbg          = 222; /* Alpha for marked item background (0-255) */
 inline int alpha_itemnormprifg         = 255; /* alpha for normal priority item foreground (0-255) */
@@ -270,21 +268,21 @@ inline int alpha_capsfg                = 255; /* Alpha for the caps lock indicat
 inline int alpha_capsbg                = 222; /* Alpha for the caps lock indicator background (0-255) */
 
 /* Pango options */
-inline int pango_item                  = 1; /* Enable support for pango markup for the items */
-inline int pango_prompt                = 1; /* Enable support for pango markup for the prompt */
-inline int pango_caps                  = 1; /* Enable support for pango markup for the caps lock indicator */
-inline int pango_input                 = 1; /* Enable support for pango markup for the user input */
-inline int pango_pretext               = 1; /* Enable support for pango markup for the pretext */
-inline int pango_leftarrow             = 0; /* Enable support for pango markup for the left arrow */
-inline int pango_rightarrow            = 0; /* Enable support for pango markup for the right arrow */
-inline int pango_numbers               = 0; /* Enable support for pango markup for the match count */
-inline int pango_mode                  = 0; /* Enable support for pango markup for the mode indicator */
-inline int pango_password              = 0; /* Enable support for pango markup for the password text */
+inline bool pango_item                  = true; /* Enable support for pango markup for the items */
+inline bool pango_prompt                = true; /* Enable support for pango markup for the prompt */
+inline bool pango_caps                  = true; /* Enable support for pango markup for the caps lock indicator */
+inline bool pango_input                 = true; /* Enable support for pango markup for the user input */
+inline bool pango_pretext               = true; /* Enable support for pango markup for the pretext */
+inline bool pango_leftarrow             = false; /* Enable support for pango markup for the left arrow */
+inline bool pango_rightarrow            = false; /* Enable support for pango markup for the right arrow */
+inline bool pango_numbers               = false; /* Enable support for pango markup for the match count */
+inline bool pango_mode                  = false; /* Enable support for pango markup for the mode indicator */
+inline bool pango_password              = false; /* Enable support for pango markup for the password text */
 
 /* Misc */
-inline int printindex                  = 0; /* Print index instead of the text itself (0/1) */
-inline int requirematch                = 0; /* Require input text to match an item (0/1) */
-inline int incremental                 = 0; /* Print text every time a key is pressed (0/1) */
-inline int coloritems                  = 1; /* Color items (0/1) */
-inline int sgr                         = 1; /* Support SGR sequences (0/1) */
+inline bool printindex                  = false; /* Print index instead of the text itself (0/1) */
+inline bool requirematch                = false; /* Require input text to match an item (0/1) */
+inline bool incremental                 = false; /* Print text every time a key is pressed (0/1) */
+inline bool coloritems                  = true; /* Color items (0/1) */
+inline bool sgr                         = true; /* Support SGR sequences (0/1) */
 inline std::string worddelimiters            = " /?\"&[]"; /* Word delimiters used for keybinds that change words, Space is default. */

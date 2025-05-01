@@ -119,10 +119,17 @@ int drawitemtext(item *item, int x, int y, int w) {
 
     // memcpy the correct scheme
     if (item == selecteditem) {
-        bgcol = strdup(col_itemselbg.c_str());
-        fgcol = strdup(col_itemselfg.c_str());
-        bga = alpha_itemselbg;
-        fga = alpha_itemselfg;
+        if (itemn) {
+            bgcol = strdup(col_itemselbg2.c_str());
+            fgcol = strdup(col_itemselfg2.c_str());
+            bga = alpha_itemselbg2;
+            fga = alpha_itemselfg2;
+        } else {
+            bgcol = strdup(col_itemselbg.c_str());
+            fgcol = strdup(col_itemselfg.c_str());
+            bga = alpha_itemselbg;
+            fga = alpha_itemselfg;
+        }
 
         if (item->high_priority) {
             priitem = 1;

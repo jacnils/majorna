@@ -24,6 +24,3 @@ void updatenumlockmask();
 void keypress_x11(XEvent& e);
 void grabkeyboard_x11();
 void getcapsstate();
-
-inline std::vector<Key> ckeys;
-inline Key hkeys[1] = { { -1, Ctrl|Alt, XK_Delete, quit, {0} } };

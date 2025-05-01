@@ -36,25 +36,7 @@ void keypress_x11(XEvent& e) {
     KeySym keysym_case = NoSymbol;
     XConvertCase(ksym, &keysym, &keysym_case);
 
-    // this makes sure we always have a way to exit if we unbind our quit key
-    if (keysym == hkeys[0].keysym && CLEANMASK(hkeys[0].mod) == CLEANMASK(ev->state) && hkeys[0].func) hkeys[0].func(hkeys[0].arg);
-
     for (auto& it : keys) {
-        if (ctx.ignore_global_keys) break;
-
-        if (keysym == it.keysym && CLEANMASK(it.mod) == CLEANMASK(ev->state) && it.func) {
-            if ((it.mode && ctx.mode) || it.mode == -1) {
-                it.func(it.arg);
-                return;
-            } else if (!it.mode && !ctx.mode) {
-                it.func(it.arg);
-            }
-        }
-    }
-
-    for (auto& it : ckeys) {
-        if (ctx.ignore_conf_keys) break;
-
         if (keysym == it.keysym && CLEANMASK(it.mod) == CLEANMASK(ev->state) && it.func) {
             if ((it.mode && ctx.mode) || it.mode == -1) {
                 it.func(it.arg);

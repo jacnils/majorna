@@ -699,6 +699,7 @@ void screenshot(const Arg& arg) {
     time_t time_ = time(nullptr);
     struct tm t = *localtime(&time_);
 
+    /*
     if (screenshotfile.empty()) {
         if (!(home = getenv("HOME"))) {
             fprintf(stderr, "majorna: failed to determine home directory\n");
@@ -737,6 +738,7 @@ void screenshot(const Arg& arg) {
 
         sprintf(file, "%s", screenshotfile.c_str());
     }
+    */
 
     draw.save_screen(file);
 

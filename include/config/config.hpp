@@ -45,73 +45,63 @@ struct FuncList {
     std::function<void(Arg&)> func{};
 };
 
-struct ButtonType {
-    std::string click;
-    unsigned int button;
-};
-
-struct ClickType {
-    std::string tclick;
-    unsigned int click;
-};
-
 inline FuncList fl[] = {
-    { "moveup",           move_up },
-    { "movedown",         move_down },
-    { "moveleft",         move_left },
-    { "moveright",        move_right },
-    { "moveend",          move_end },
-    { "movestart",        move_start },
-    { "movenext",         move_next },
-    { "moveprev",         move_prev },
-    { "moveitem",         move_item },
+    { "move_up",           move_up },
+    { "move_down",         move_down },
+    { "move_left",         move_left },
+    { "move_right",        move_right },
+    { "move_end",          move_end },
+    { "move_start",        move_start },
+    { "move_next",         move_next },
+    { "move_prev",         move_prev },
+    { "move_item",         move_item },
     { "paste",            paste },
-    { "restoresel",       restore_selection },
+    { "restore_selection",       restore_selection },
     { "clear",            clear },
-    { "clearins",         clear_and_insert },
-    { "viewhist",         view_history },
-    { "moveword",         move_word },
-    { "deleteword",       delete_word },
-    { "movecursor",       move_cursor },
-    { "navhistory",       navigate_history },
+    { "clear_and_insert",         clear_and_insert },
+    { "view_history",         view_history },
+    { "move_word",         move_word },
+    { "delete_word",       delete_word },
+    { "move_cursor",       move_cursor },
+    { "navigate_history",       navigate_history },
     { "backspace",        backspace },
-    { "selectitem",       select_item },
-    { "markitem",         mark_item },
+    { "select_item",       select_item },
+    { "mark_item",         mark_item },
     { "quit",             quit },
     { "complete",         complete },
-    { "setimgsize",       set_image_size },
-    { "defaultimg",       reset_image },
-    { "flipimg",          flip_image },
-    { "setimgpos",        set_image_position },
-    { "setimggaps",       set_image_gaps },
-    { "setlines",         set_lines },
+    { "set_image_size",       set_image_size },
+    { "reset_image",       reset_image },
+    { "flip_image",          flip_image },
+    { "set_image_position",        set_image_position },
+    { "set_image_gaps",       set_image_gaps },
+    { "set_lines",         set_lines },
     { "screenshot",       screenshot },
-    { "setcolumns",       set_columns },
-    { "setx",             set_x },
-    { "sety",             set_y },
-    { "setw",             set_w },
-    { "toggleinput",      toggle_input },
-    { "togglepretext",    toggle_pretext },
-    { "togglelarrow",     toggle_left_arrow },
-    { "togglerarrow",     toggle_right_arrow },
-    { "toggleitem",       toggle_item },
-    { "toggleprompt",     toggle_prompt },
-    { "togglecaps",       toggle_caps },
-    { "togglepowerline",  toggle_powerline },
-    { "togglecaret",      toggle_caret },
-    { "togglehighlight",  toggle_highlight },
-    { "togglematchcount", toggle_match_count },
-    { "togglemode",       toggle_mode_indicator },
-    { "toggleregex",      toggle_regex },
-    { "togglefuzzy",      toggle_fuzzy_matching },
-    { "toggleimg",        toggle_image },
-    { "toggleimgtype",    toggle_image_type },
-    { "setprofile",       set_profile },
-    { "setlineheight",    set_line_height },
-    { "switchmode",       toggle_mode },
-    { "outputhover",      output_hover },
-    { "selecthover",      select_hover },
-    { "markhover",        mark_hover },
+    { "set_columns",       set_columns },
+    { "set_x",             set_x },
+    { "set_y",             set_y },
+    { "set_w",             set_w },
+    { "toggle_input",      toggle_input },
+    { "toggle_pretext",    toggle_pretext },
+    { "toggle_left_arrow",     toggle_left_arrow },
+    { "toggle_right_arrow",     toggle_right_arrow },
+    { "toggle_item",       toggle_item },
+    { "toggle_prompt",     toggle_prompt },
+    { "toggle_caps",       toggle_caps },
+    { "toggle_powerline",  toggle_powerline },
+    { "toggle_caret",      toggle_caret },
+    { "toggle_highlight",  toggle_highlight },
+    { "toggle_match_count", toggle_match_count },
+    { "toggle_mode_indicator",       toggle_mode_indicator },
+    { "toggle_regex",      toggle_regex },
+    { "toggle_fuzzy_matching",      toggle_fuzzy_matching },
+    { "toggle_image",        toggle_image },
+    { "toggle_image_type",    toggle_image_type },
+    { "set_profile",       set_profile },
+    { "set_line_height",    set_line_height },
+    { "toggle_mode",       toggle_mode },
+    { "output_hover",      output_hover },
+    { "select_hover",      select_hover },
+    { "mark_hover",        mark_hover },
     { "spawn",            spawn },
 };
 
@@ -369,39 +359,39 @@ inline std::vector<WlKeyList> wkl{
 #endif
 
 #if X11
-inline std::vector<ButtonType> btp{
-    { "Left Click",   Button1 },
-    { "Middle Click", Button2 },
-    { "Right Click",  Button3 },
-    { "Scroll Up",    Button4 },
-    { "Scroll Down",  Button5 },
+enum class XButtonType {
+    LeftClick = Button1,
+    MiddleClick = Button2,
+    RightClick = Button3,
+    ScrollUp = Button4,
+    ScrollDown = Button5,
 };
 #endif
 
 #if WAYLAND
-inline std::vector<ButtonType> w_btp{
-    { "Left Click",   WL_Left },
-    { "Middle Click", WL_Middle },
-    { "Right Click",  WL_Right },
-    { "Scroll Up",    WL_Up },
-    { "Scroll Down",  WL_Down },
+enum class WlButtonType {
+    LeftClick = WL_Left,
+    MiddleClick = WL_Middle,
+    RightClick = WL_Right,
+    ScrollUp = WL_Up,
+    ScrollDown = WL_Down,
 };
 #endif
 
-inline std::vector<ClickType> ctp{
-    { "ClickWindow",  ClickWindow },
-    { "ClickPrompt",  ClickPrompt },
-    { "ClickInput",   ClickInput },
-    { "ClickLArrow",  ClickLArrow },
-    { "ClickItem",    ClickItem },
-    { "ClickRArrow",  ClickRArrow },
-    { "ClickNumber",  ClickNumber },
-    { "ClickCaps",    ClickCaps },
-    { "ClickMode",    ClickMode },
+enum class ClickType {
+    ClickWindow = 0,
+    ClickPrompt = 1,
+    ClickInput = 2,
+    ClickLeftArrow = 3,
+    ClickRightArrow = 4,
+    ClickItem = 5,
+    ClickMatchCounter = 6,
+    ClickCapsLockIndicator = 7,
+    ClickModeIndicator = 8,
 #if IMAGE
-    { "ClickImage",   ClickImage },
+    ClickImage = 9,
 #endif
-    { "None",         ClickNone },
+    ClickNone = 10,
 };
 
 void conf_init();

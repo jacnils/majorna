@@ -59,11 +59,6 @@ struct context {
 
     std::size_t cursor{}; // cursor width
 
-    bool ignore_conf_keys{}; // can be set globally if you don't want to override keybinds with config file keys
-    bool ignore_global_keys{}; // should be set in the config file, if 1, the Keys keys array is ignored
-    bool ignore_conf_mouse{}; // same for mouse
-    bool ignore_global_mouse{}; // same for mouse
-
     bool initialized{false}; // after first draw
 };
 

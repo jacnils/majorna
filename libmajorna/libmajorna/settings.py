@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field, asdict, is_dataclass
-from typing import List, Dict, Union, Any
+from typing import List, Any
 from enum import Enum
 import json
 
@@ -91,22 +91,22 @@ class X11:
 @dataclass
 class ColorItem:
     normal_foreground: str = "#bbbbbb"
-    normal_background: str = "#110flf"
+    normal_background: str = "#110f1f"
     normal_foreground_second: str = "#bbbbbb"
-    normal_background_second: str = "#110flf"
-    selected_foreground: str = "#110flf"
+    normal_background_second: str = "#110f1f"
+    selected_foreground: str = "#110f1f"
     selected_background: str = "#8e93c2"
-    selected_foreground_second: str = "#110flf"
+    selected_foreground_second: str = "#110f1f"
     selected_background_second: str = "#8e93c2"
-    marked_foreground: str = "#110flf"
+    marked_foreground: str = "#110f1f"
     marked_background: str = "#8e93c2"
     normal_foreground_priority: str = "#bbbbbb"
-    normal_background_priority: str = "#110flf"
-    selected_foreground_priority: str = "#110flf"
+    normal_background_priority: str = "#110f1f"
+    selected_foreground_priority: str = "#110f1f"
     selected_background_priority: str = "#8e93c2"
 
 @dataclass
-class TransparencyItem:
+class ItemTransparency:
     normal_foreground: int = 255
     normal_background: int = 222
     normal_foreground_second: int = 255
@@ -123,19 +123,133 @@ class TransparencyItem:
     selected_background_priority: int = 222
 
 @dataclass
+class InputTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class PretextTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class PromptTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class LeftArrowTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class RightArrowTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class HighlightTransparency:
+    normal_foreground: int = 255
+    normal_background: int = 222
+    selected_foreground: int = 255
+    selected_background: int = 222
+
+@dataclass
+class MatchCounterTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class ModeIndicatorTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class CapsLockIndicatorTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class CaretTransparency:
+    foreground: int = 255
+    background: int = 222
+
+@dataclass
+class GeneralTransparency:
+    menu: int = 255
+    border: int = 255
+
+@dataclass
+class InputColor:
+    foreground: str = "#eeeeee"
+    background: str = "#110f1f"
+
+@dataclass
+class PretextColor:
+    foreground: str = "#999888"
+    background: str = "#110f1f"
+
+@dataclass
+class PromptColor:
+    foreground: str = "#110f1f"
+    background: str = "#c66e5b"
+
+@dataclass
+class LeftArrowColor:
+    foreground: str = "#bbbbbb"
+    background: str = "#110f1f"
+
+@dataclass
+class RightArrowColor:
+    foreground: str = "#bbbbbb"
+    background: str = "#110f1f"
+
+@dataclass
+class HighlightColor:
+    normal_foreground: str = "#ffffff"
+    normal_background: str = "#000000"
+    selected_foreground: str = "#ffffff"
+    selected_background: str = "#000000"
+
+@dataclass
+class MatchCounterColor:
+    foreground: str = "#110f1f"
+    background: str = "#eba62a"
+
+@dataclass
+class ModeIndicatorColor:
+    foreground: str = "#110f1f"
+    background: str = "#92c94b"
+
+@dataclass
+class CapsLockIndicatorColor:
+    foreground: str = "#110f1f"
+    background: str = "#f8d3e6"
+
+@dataclass
+class CaretColor:
+    foreground: str = "#ffffff"
+    background: str = "#110f1f"
+
+@dataclass
+class GeneralColor:
+    menu: str = "#110f1f"
+    border: str = "#8e93c2"
+
+@dataclass
 class AppearanceColor:
     item: ColorItem = field(default_factory=ColorItem)
-    input: Dict[str, str] = field(default_factory=lambda: {"foreground": "#eeeeee", "background": "#110flf"})
-    pretext: Dict[str, str] = field(default_factory=lambda: {"foreground": "#999888", "background": "#110flf"})
-    prompt: Dict[str, str] = field(default_factory=lambda: {"foreground": "#110flf", "background": "#c66e5b"})
-    left_arrow: Dict[str, str] = field(default_factory=lambda: {"foreground": "#bbbbbb", "background": "#110flf"})
-    right_arrow: Dict[str, str] = field(default_factory=lambda: {"foreground": "#bbbbbb", "background": "#110flf"})
-    highlighting: Dict[str, str] = field(default_factory=lambda: {"normal_foreground": "#ffffff", "normal_background": "#000000", "selected_foreground": "#ffffff", "selected_background": "#000000"})
-    match_counter: Dict[str, str] = field(default_factory=lambda: {"foreground": "#110flf", "background": "#eba62a"})
-    mode_indicator: Dict[str, str] = field(default_factory=lambda: {"foreground": "#110flf", "background": "#92c94b"})
-    caps_lock_indicator: Dict[str, str] = field(default_factory=lambda: {"foreground": "#110flf", "background": "#f8d3e6"})
-    caret: Dict[str, str] = field(default_factory=lambda: {"foreground": "#ffffff", "background": "#110flf"})
-    general: Dict[str, str] = field(default_factory=lambda: {"menu": "#110flf", "border": "#8e93c2"})
+    input: InputColor = field(default_factory=InputColor)
+    pretext: PretextColor = field(default_factory=PretextColor)
+    prompt: PromptColor = field(default_factory=PromptColor)
+    left_arrow: LeftArrowColor = field(default_factory=LeftArrowColor)
+    right_arrow: RightArrowColor = field(default_factory=RightArrowColor)
+    highlighting: HighlightColor = field(default_factory=HighlightColor)
+    match_counter: MatchCounterColor = field(default_factory=MatchCounterColor)
+    mode_indicator: ModeIndicatorColor = field(default_factory=ModeIndicatorColor)
+    caps_lock_indicator: CapsLockIndicatorColor = field(default_factory=CapsLockIndicatorColor)
+    caret: CaretColor = field(default_factory=CaretColor)
+    general: GeneralColor = field(default_factory=GeneralColor)
     sgr: List[str] = field(default_factory=lambda: [
         "#20201d", "#d73737", "#60ac39", "#cfb017", "#6684e1", "#b854d4", "#1fad83", "#a6a28c",
         "#7d7a68", "#d73737", "#60ac39", "#cfb017", "#6684e1", "#b854d4", "#1fad83", "#fefbec"
@@ -143,18 +257,18 @@ class AppearanceColor:
 
 @dataclass
 class Transparency:
-    item: TransparencyItem = field(default_factory=TransparencyItem)
-    input: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    pretext: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    prompt: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    left_arrow: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    right_arrow: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    highlighting: Dict[str, int] = field(default_factory=lambda: {"normal_foreground": 255, "normal_background": 222, "selected_foreground": 255, "selected_background": 222})
-    match_counter: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    mode_indicator: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    caps_lock_indicator: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    caret: Dict[str, int] = field(default_factory=lambda: {"foreground": 255, "background": 222})
-    general: Dict[str, int] = field(default_factory=lambda: {"menu": 222, "border": 255})
+    item: ItemTransparency = field(default_factory=ItemTransparency)
+    input: InputTransparency = field(default_factory=InputTransparency)
+    pretext: PretextTransparency = field(default_factory=PretextTransparency)
+    prompt: PromptTransparency = field(default_factory=PromptTransparency)
+    left_arrow: LeftArrowTransparency = field(default_factory=LeftArrowTransparency)
+    right_arrow: RightArrowTransparency = field(default_factory=RightArrowTransparency)
+    highlighting: HighlightTransparency = field(default_factory=HighlightTransparency)
+    match_counter: MatchCounterTransparency = field(default_factory=MatchCounterTransparency)
+    mode_indicator: ModeIndicatorTransparency = field(default_factory=ModeIndicatorTransparency)
+    caps_lock_indicator: CapsLockIndicatorTransparency = field(default_factory=CapsLockIndicatorTransparency)
+    caret: CaretTransparency = field(default_factory=CaretTransparency)
+    general: GeneralTransparency = field(default_factory=GeneralTransparency)
 
 @dataclass
 class PowerlineStyling:
@@ -165,17 +279,33 @@ class PowerlineStyling:
     item_style: PowerlineStyle = PowerlineStyle.HalfCircle
 
 @dataclass
+class PowerlineEnable:
+    prompt: bool = True
+    match_counter: bool = True
+    mode_indicator: bool = True
+    caps_lock_indicator: bool = True
+    item: bool = True
+
+@dataclass
+class Hide:
+    input: bool = False
+    pretext: bool = False
+    prompt: bool = False
+    left_arrow: bool = False
+    right_arrow: bool = False
+    items: bool = False
+    powerline: bool = False
+    caret: bool = False
+    highlighting: bool = False
+    match_counter: bool = False
+    mode_indicator: bool = False
+    caps_lock_indicator: bool = False
+    images: bool = False
+
+@dataclass
 class Powerline:
     style: PowerlineStyling = field(default_factory=PowerlineStyling)
-    enable: Dict[str, bool] = field(default_factory=lambda: {
-        "prompt": True, "match_counter": True, "mode_indicator_style": True,
-        "caps_lock_indicator_style": True, "item_style": True
-    })
-    hide: Dict[str, bool] = field(default_factory=lambda: {
-        "input": False, "pretext": False, "prompt": False, "left_arrow": False, "right_arrow": False,
-        "items": False, "powerline": False, "caret": False, "highlighting": False, "match_counter": False,
-        "mode_indicator": False, "caps_lock_indicator": False, "images": False
-    })
+    enable: PowerlineEnable = field(default_factory=PowerlineEnable)
 
 @dataclass
 class Line:
@@ -197,32 +327,73 @@ class Caret:
     dimensions: CaretDimensions = field(default_factory=CaretDimensions)
 
 @dataclass
+class Input:
+    width: float = 0.3
+
+@dataclass
 class Appearance:
     color: AppearanceColor = field(default_factory=AppearanceColor)
     transparency: Transparency = field(default_factory=Transparency)
+    hide: Hide = field(default_factory=Hide)
     powerline: Powerline = field(default_factory=Powerline)
     line: Line = field(default_factory=Line)
-    input: Dict[str, float] = field(default_factory=lambda: {"width": 0.3})
+    input: Input = field(default_factory=Input)
     caret: Caret = field(default_factory=Caret)
     color_items: bool = True
     enable_sgr_sequences: bool = True
 
 @dataclass
+class Display:
+    sort: bool = True
+    preselected: int = 0
+
+@dataclass
+class Matching:
+    case_sensitive: bool = False
+    fuzzy_matching: bool = True
+    regex_matching: bool = False
+
+@dataclass
+class Permissions:
+    mark: bool = True
+    typing: bool = True
+    password: bool = False
+
+@dataclass
+class Output:
+    print_index: bool = False
+    incremental: bool = False
+
+@dataclass
+class Miscellaneous:
+    fast: bool = True
+    delimiters: str = " /?\\\"&[]"
+    list_file: str = ""
+    start_mode: Mode = Mode.Normal
+    force_insert_mode: bool = True
+    scroll_distance: int = 512
+
+@dataclass
+class Pango:
+    item: bool = True
+    prompt: bool = True
+    input: bool = True
+    pretext: bool = True
+    left_arrow: bool = False
+    right_arrow: bool = False
+    match_counter: bool = False
+    mode_indicator: bool = False
+    caps_lock_indicator: bool = False
+    password: bool = False
+
+@dataclass
 class Behavior:
-    display: Dict[str, Union[bool, int]] = field(default_factory=lambda: {"sort": True, "preselected": 0})
-    matching: Dict[str, Union[bool, str]] = field(default_factory=lambda: {
-        "case_sensitive": False, "fuzzy_matching": True, "regex_matching": False
-    })
-    permissions: Dict[str, bool] = field(default_factory=lambda: {"mark": True, "typing": True, "password": False})
-    output: Dict[str, bool] = field(default_factory=lambda: {"print_index": False, "incremental": False})
-    miscellaneous: Dict[str, Union[bool, int, str]] = field(default_factory=lambda: {
-        "fast": True, "delimiters": " /?\\\"&[]", "list_file": "", "start_mode": "Normal",
-        "force_insert_mode": True, "scroll_distance": 512
-    })
-    pango: Dict[str, bool] = field(default_factory=lambda: {
-        "item": True, "prompt": True, "input": True, "pretext": True, "left_arrow": False, "right_arrow": False,
-        "match_counter": False, "mode_indicator": False, "caps_lock_indicator": False, "password": False
-    })
+    display: Display = field(default_factory=Display)
+    matching: Matching = field(default_factory=Matching)
+    permissions: Permissions = field(default_factory=Permissions)
+    output: Output = field(default_factory=Output)
+    miscellaneous: Miscellaneous = field(default_factory=Miscellaneous)
+    pango: Pango = field(default_factory=Pango)
 
 @dataclass
 class History:
@@ -234,15 +405,15 @@ class ImageDimensions:
     width: int = 200
     height: int = 200
     gaps: int = 0
+
+@dataclass
+class Image:
+    dimensions: ImageDimensions = field(default_factory=ImageDimensions)
     position: ImagePosition = ImagePosition.Top
     type: ImageType = ImageType.Image
     cache: bool = True
     max_size_to_cache: int = 512
     resize_to_fit: bool = True
-
-@dataclass
-class Image:
-    dimensions: ImageDimensions = field(default_factory=ImageDimensions)
 
 @dataclass
 class FilesystemPaths:
@@ -269,52 +440,66 @@ class Mouse:
     function: str
 
 @dataclass
+class Text:
+    font: str = "Noto Sans Mono 10"
+    left_arrow: str = "<"
+    right_arrow: str = ">"
+    password: str = "*"
+    prompt: str = ""
+    pretext: str = ""
+    input: str = ""
+    normal_mode: str = "Normal"
+    insert_mode: str = "Insert"
+    regex_mode: str = "Regex"
+    caps_lock_on: str = "Caps Lock"
+    caps_lock_off: str = ""
+    padding: int = 0
+    normal_item_padding: int = 0
+    selected_item_padding: int = 0
+    priority_item_padding: int = 0
+
+@dataclass
 class Settings:
     window: Window = field(default_factory=Window)
     x11: X11 = field(default_factory=X11)
-    text: Dict[str, Union[str, int]] = field(default_factory=lambda: {
-        "font": "Noto Sans Mono 10", "left_arrow": "<", "right_arrow": ">", "password": "*", "prompt": "",
-        "pretext": "", "input": "", "normal_mode": "Normal", "insert_mode": "Insert", "regex_mode": "Regex",
-        "caps_lock_on": "Caps Lock", "caps_lock_off": "", "padding": 0, "normal_item_padding": 0,
-        "selected_item_padding": 0, "priority_item_padding": 0
-    })
+    text: Text = field(default_factory=Text)
     appearance: Appearance = field(default_factory=Appearance)
     behavior: Behavior = field(default_factory=Behavior)
     history: History = field(default_factory=History)
     image: Image = field(default_factory=Image)
     filesystem: Filesystem = field(default_factory=Filesystem)
     keys: List[Key] = field(default_factory=lambda: [
-        Key(mode=KeyMode.Any, modifier="None", key="Enter", function="selectitem", argument=1),
-        Key(mode=KeyMode.Any, modifier="Shift", key="Enter", function="selectitem", argument=0),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="Enter", function="markitem", argument=0),
+        Key(mode=KeyMode.Any, modifier="None", key="Enter", function="select_item", argument=1),
+        Key(mode=KeyMode.Any, modifier="Shift", key="Enter", function="select_item", argument=0),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="Enter", function="mark_item", argument=0),
         Key(mode=KeyMode.Any, modifier="None", key="Tab", function="complete", argument=0),
         Key(mode=KeyMode.Any, modifier="Ctrl", key="v", function="paste", argument=2),
         Key(mode=KeyMode.Any, modifier="None", key="Backspace", function="backspace", argument=0),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="Backspace", function="deleteword", argument=0),
-        Key(mode=KeyMode.Any, modifier="Ctrl+Shift", key="p", function="setprofile", argument=0),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="=", function="setimgsize", argument=10),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="-", function="setimgsize", argument=-10),
-        Key(mode=KeyMode.Any, modifier="None", key="Up", function="moveup", argument=0),
-        Key(mode=KeyMode.Any, modifier="None", key="Down", function="movedown", argument=0),
-        Key(mode=KeyMode.Any, modifier="None", key="Left", function="moveleft", argument=0),
-        Key(mode=KeyMode.Any, modifier="None", key="Right", function="moveright", argument=0),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="u", function="moveup", argument=5),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="d", function="movedown", argument=5),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="h", function="viewhist", argument=0),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="Backspace", function="delete_word", argument=0),
+        Key(mode=KeyMode.Any, modifier="Ctrl+Shift", key="p", function="set_profile", argument=0),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="=", function="set_image_size", argument=10),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="-", function="set_image_size", argument=-10),
+        Key(mode=KeyMode.Any, modifier="None", key="Up", function="move_up", argument=0),
+        Key(mode=KeyMode.Any, modifier="None", key="Down", function="move_down", argument=0),
+        Key(mode=KeyMode.Any, modifier="None", key="Left", function="move_left", argument=0),
+        Key(mode=KeyMode.Any, modifier="None", key="Right", function="move_right", argument=0),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="u", function="move_up", argument=5),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="d", function="move_down", argument=5),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="h", function="view_history", argument=0),
         Key(mode=KeyMode.Any, modifier="None", key="Esc", function="quit", argument=0),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="p", function="navhistory", argument=-1),
-        Key(mode=KeyMode.Any, modifier="Ctrl", key="n", function="navhistory", argument=1),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="p", function="navigate_history", argument=-1),
+        Key(mode=KeyMode.Any, modifier="Ctrl", key="n", function="navigate_history", argument=1),
         Key(mode=KeyMode.Any, modifier="None", key="PrintScr", function="screenshot", argument=0),
     ])
     mouse: List[Mouse] = field(default_factory=lambda: [
         Mouse(click=ClickType.Input, button=ButtonType.LeftClick, function="clear"),
         Mouse(click=ClickType.Prompt, button=ButtonType.LeftClick, function="clear"),
-        Mouse(click=ClickType.ModeIndicator, button=ButtonType.LeftClick, function="switchmode"),
-        Mouse(click=ClickType.MatchCounter, button=ButtonType.LeftClick, function="viewhist"),
-        Mouse(click=ClickType.Item, button=ButtonType.LeftClick, function="selecthover"),
-        Mouse(click=ClickType.Item, button=ButtonType.RightClick, function="markhover"),
-        Mouse(click=ClickType.Any, button=ButtonType.ScrollUp, function="moveprev"),
-        Mouse(click=ClickType.Any, button=ButtonType.ScrollDown, function="movenext"),
+        Mouse(click=ClickType.ModeIndicator, button=ButtonType.LeftClick, function="toggle_mode"),
+        Mouse(click=ClickType.MatchCounter, button=ButtonType.LeftClick, function="view_history"),
+        Mouse(click=ClickType.Item, button=ButtonType.LeftClick, function="select_hover"),
+        Mouse(click=ClickType.Item, button=ButtonType.RightClick, function="mark_hover"),
+        Mouse(click=ClickType.Any, button=ButtonType.ScrollUp, function="move_prev"),
+        Mouse(click=ClickType.Any, button=ButtonType.ScrollDown, function="move_next"),
     ])
 
 def get_default_config() -> Settings:

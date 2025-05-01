@@ -8,11 +8,10 @@
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 #include <functional>
 #include <string>
-#include <vector>
 
 struct output {
     struct state *state{};
-    wl_output* output{};
+    wl_output* out{};
 
     int32_t scale{};
 };
@@ -31,9 +30,6 @@ struct WlMouse {
     std::function<void(Arg&)> func{};
     Arg arg{};
 };
-
-inline std::vector<WlKey> wl_ckeys;
-inline std::vector<WlMouse> wl_cbuttons;
 
 #define WL_CtrlShift "CtrlShift"
 #define WL_CtrlShiftSuper "CtrlShiftSuper"
@@ -59,8 +55,6 @@ inline std::vector<WlMouse> wl_cbuttons;
 #define WL_Task	0x117
 #define WL_Up 1
 #define WL_Down 0
-
-inline WlKey wlhkeys[1] = { { static_cast<int>(-1), WL_CtrlAlt, XKB_KEY_Delete, quit, {0} } };
 
 struct state {
     struct output *output;
