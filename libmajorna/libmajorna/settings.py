@@ -89,23 +89,6 @@ class X11:
     xresources: bool = True
 
 @dataclass
-class ColorItem:
-    normal_foreground: str = "#bbbbbb"
-    normal_background: str = "#110f1f"
-    normal_foreground_second: str = "#bbbbbb"
-    normal_background_second: str = "#110f1f"
-    selected_foreground: str = "#110f1f"
-    selected_background: str = "#8e93c2"
-    selected_foreground_second: str = "#110f1f"
-    selected_background_second: str = "#8e93c2"
-    marked_foreground: str = "#110f1f"
-    marked_background: str = "#8e93c2"
-    normal_foreground_priority: str = "#bbbbbb"
-    normal_background_priority: str = "#110f1f"
-    selected_foreground_priority: str = "#110f1f"
-    selected_background_priority: str = "#8e93c2"
-
-@dataclass
 class ItemTransparency:
     normal_foreground: int = 255
     normal_background: int = 222
@@ -176,8 +159,25 @@ class CaretTransparency:
 
 @dataclass
 class GeneralTransparency:
-    menu: int = 255
-    border: int = 255
+    menu: int = 222
+    border: int = 222
+
+@dataclass
+class ColorItem:
+    normal_foreground: str = "#bbbbbb"
+    normal_background: str = "#110f1f"
+    normal_foreground_second: str = "#bbbbbb"
+    normal_background_second: str = "#110f1f"
+    selected_foreground: str = "#110f1f"
+    selected_background: str = "#8e93c2"
+    selected_foreground_second: str = "#110f1f"
+    selected_background_second: str = "#8e93c2"
+    marked_foreground: str = "#110f1f"
+    marked_background: str = "#8e93c2"
+    normal_foreground_priority: str = "#bbbbbb"
+    normal_background_priority: str = "#110f1f"
+    selected_foreground_priority: str = "#110f1f"
+    selected_background_priority: str = "#8e93c2"
 
 @dataclass
 class InputColor:
