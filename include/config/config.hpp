@@ -357,40 +357,4 @@ inline std::vector<WlKeyList> wkl{
 };
 #endif
 
-#if X11
-enum class XButtonType {
-    LeftClick = Button1,
-    MiddleClick = Button2,
-    RightClick = Button3,
-    ScrollUp = Button4,
-    ScrollDown = Button5,
-};
-#endif
-
-#if WAYLAND
-enum class WlButtonType {
-    LeftClick = WL_Left,
-    MiddleClick = WL_Middle,
-    RightClick = WL_Right,
-    ScrollUp = WL_Up,
-    ScrollDown = WL_Down,
-};
-#endif
-
-enum class ClickType {
-    ClickWindow = 0,
-    ClickPrompt = 1,
-    ClickInput = 2,
-    ClickLeftArrow = 3,
-    ClickRightArrow = 4,
-    ClickItem = 5,
-    ClickMatchCounter = 6,
-    ClickCapsLockIndicator = 7,
-    ClickModeIndicator = 8,
-#if IMAGE
-    ClickImage = 9,
-#endif
-    ClickNone = 10,
-};
-
 void conf_init();

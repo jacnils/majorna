@@ -242,7 +242,7 @@ void keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, uint32_t forma
 	state->xkb_state = xkb_state_new(state->xkb_keymap);
 }
 
-void buttonpress_wl(uint32_t button, double ex, double ey) {
+void buttonpress_wl(WlButtonType button, double ex, double ey) {
     int x = 0;
     int y = 0;
     int w;
@@ -250,7 +250,8 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
     int xpad = 0;
     int item_num = 0;
     int yp = 0;
-    unsigned int i, click;
+    unsigned int i{};
+    ClickType click{};
     struct item *item;
 
     if (ex == 0 && ey == 0) {
@@ -288,17 +289,17 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
         yp = 1;
     }
 
-    click = ClickWindow; // Clicking anywhere, we use this and override it if we clicked on something specific
+    click = ClickType::ClickWindow; // Clicking anywhere, we use this and override it if we clicked on something specific
 
     // Check click position and override the value of click
     if (yp && ex < x + ctx.prompt_width + powerlineprompt ? ctx.powerline_width : 0) {
-        click = ClickPrompt;
+        click = ClickType::ClickPrompt;
     } else if (yp && (ex > ctx.win_width - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh) && !hidecaps && capsw) {
-        click = ClickCaps;
+        click = ClickType::ClickCapsLockIndicator;
     } else if (yp && ex > ctx.win_width - modew - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh) {
-        click = ClickMode;
+        click = ClickType::ClickModeIndicator;
     } else if (yp && ex > ctx.win_width - modew - numberw - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh) {
-        click = ClickNumber;
+        click = ClickType::ClickMatchCounter;
     } else if (yp && !hideinput) {
         w = (lines > 0 || !matches) ? ctx.win_width - x : ctx.input_width;
 
@@ -306,7 +307,7 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
                     ((!previousitem || !currentitem->left) ? larroww : 0)) ||
                 (lines > 0 && ey >= y && ey <= y + h)) {
 
-            click = ClickInput;
+            click = ClickType::ClickInput;
         }
     }
 
@@ -336,11 +337,11 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
             y += h;
 
             if (ey >= y && ey <= (y + h) && ex >= x + (powerlineitems ? ctx.powerline_width : 0) && ex <= (x + w / columns) + (powerlineitems ? ctx.powerline_width : 0)) {
-                click = ClickItem;
+                click = ClickType::ClickItem;
                 mouseitem = item;
 #if IMAGE
             } else if (ey >= y && ey <= (y + h) && ex >= x + (powerlineitems ? ctx.powerline_width : 0) - MAX((img.gaps * 2) + img.width, indentitems ? ctx.prompt_width : 0) && ex <= (x - MAX((img.gaps * 2) + img.width, indentitems ? ctx.prompt_width : 0) + w / columns) + (powerlineitems ? ctx.powerline_width : 0)) {
-                click = ClickImage;
+                click = ClickType::ClickImage;
                 mouseitem = item;
 #endif
             }
@@ -351,7 +352,7 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
 
         if (previousitem && currentitem->left) {
             if (ex >= x && ex <= x + w) {
-                click = ClickLArrow;
+                click = ClickType::ClickLeftArrow;
             }
         }
 
@@ -359,12 +360,12 @@ void buttonpress_wl(uint32_t button, double ex, double ey) {
         x = ctx.win_width - w;
 
         if (nextitem && ex >= x && ex <= x + w) {
-            click = ClickRArrow;
+            click = ClickType::ClickRightArrow;
         }
     }
 
     for (auto& it : wl_buttons) {
-        if ((click == it.click || it.click == ClickNone) && it.func && it.button == button)
+        if ((click == it.click || it.click == ClickType::ClickNone) && it.func && it.button == button)
             it.func(it.arg);
     }
 }
@@ -388,7 +389,7 @@ void pointer_axis_handler(void *data, struct wl_pointer *pointer, uint32_t time,
 
     mouse_scroll = 1;
 
-    buttonpress_wl(mouse_scroll_direction, mouse_x, mouse_y);
+    buttonpress_wl(static_cast<WlButtonType>(mouse_scroll_direction), mouse_x, mouse_y);
 
     mouse_scroll = 0;
     mouse_scroll_direction = -1;
@@ -399,7 +400,7 @@ void pointer_button_handler(void *data, struct wl_pointer *pointer, uint32_t ser
         return; // We don't want a release event to count as a click, only the initial press.
     }
 
-    buttonpress_wl(button, mouse_x, mouse_y);
+    buttonpress_wl(static_cast<WlButtonType>(button), mouse_x, mouse_y);
 }
 
 void seat_capabilities(void *data, struct wl_seat *seat, uint32_t caps) {

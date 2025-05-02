@@ -10,20 +10,6 @@
 #include <x11/mouse.hpp>
 #include <wl/wayland.hpp>
 
-enum {
-    ClickWindow,
-    ClickPrompt,
-    ClickInput,
-    ClickLArrow,
-    ClickItem,
-    ClickRArrow,
-    ClickNumber,
-    ClickCaps,
-    ClickMode,
-    ClickImage,
-    ClickNone,
-};
-
 struct item {
     char *raw_text{};
     char *text_without_sequences{};
@@ -212,28 +198,30 @@ inline std::vector<WlKey> wl_keys{
 
 };
 #endif
+
 #if X11
 inline std::vector<Mouse> buttons{
-    { ClickInput,           Button1,         clear,        {0} },
-    { ClickPrompt,          Button1,         clear,        {0} },
-    { ClickMode,            Button1,         toggle_mode,   {0} },
-    { ClickNumber,          Button1,         view_history,     {0} },
-    { ClickItem,            Button1,         select_hover,  {0} },
-    { ClickItem,            Button2,         mark_hover,    {0} },
-    { ClickNone,            Button5,         move_next,     {0} },
-    { ClickNone,            Button4,         move_prev,     {0} },
+    { ClickType::ClickInput,           XButtonType::LeftClick,         clear,        {0} },
+    { ClickType::ClickPrompt,          XButtonType::LeftClick,         clear,        {0} },
+    { ClickType::ClickModeIndicator,   XButtonType::LeftClick,         toggle_mode,  {0} },
+    { ClickType::ClickMatchCounter,    XButtonType::LeftClick,         view_history, {0} },
+    { ClickType::ClickItem,            XButtonType::LeftClick,         select_hover, {0} },
+    { ClickType::ClickItem,            XButtonType::RightClick,         mark_hover,   {0} },
+    { ClickType::ClickNone,            XButtonType::ScrollDown,         move_next,    {0} },
+    { ClickType::ClickNone,            XButtonType::ScrollUp,         move_prev,    {0} },
 };
 #endif
+
 #if WAYLAND
 inline std::vector<WlMouse> wl_buttons{
-    { ClickInput,           WL_Left,         clear,        {0} },
-    { ClickPrompt,          WL_Left,         clear,        {0} },
-    { ClickMode,            WL_Left,         toggle_mode,   {0} },
-    { ClickNumber,          WL_Left,         view_history,     {0} },
-    { ClickItem,            WL_Left,         select_hover,  {0} },
-    { ClickItem,            WL_Right,        mark_hover,    {0} },
-    { ClickNone,            WL_Down,         move_next,     {0} },
-    { ClickNone,            WL_Up,           move_prev,     {0} },
+    { ClickType::ClickInput,           WlButtonType::LeftClick,         clear,        {0} },
+    { ClickType::ClickPrompt,          WlButtonType::LeftClick,         clear,        {0} },
+    { ClickType::ClickModeIndicator,   WlButtonType::LeftClick,         toggle_mode,   {0} },
+    { ClickType::ClickMatchCounter,    WlButtonType::LeftClick,         view_history,     {0} },
+    { ClickType::ClickItem,            WlButtonType::LeftClick,         select_hover,  {0} },
+    { ClickType::ClickItem,            WlButtonType::RightClick,        mark_hover,    {0} },
+    { ClickType::ClickNone,            WlButtonType::ScrollDown,         move_next,     {0} },
+    { ClickType::ClickNone,            WlButtonType::ScrollUp,           move_prev,     {0} },
 };
 #endif
 

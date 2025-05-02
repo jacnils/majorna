@@ -13,7 +13,8 @@ void buttonpress_x11(XEvent& e) {
     XButtonPressedEvent *ev = &e.xbutton;
 
     int x = 0, y = 0, h = ctx.item_height, w, item_num = 0;
-    unsigned int i, click;
+    unsigned int i{};
+    ClickType click{};
     int yp = 0;
 
     x += menumarginh;
@@ -45,17 +46,17 @@ void buttonpress_x11(XEvent& e) {
 
     if (ev->window != win) return; // if incorrect or wrong window, return
 
-    click = ClickWindow; // clicking anywhere, we use this and override it if we clicked on something specific
+    click = ClickType::ClickWindow; // clicking anywhere, we use this and override it if we clicked on something specific
 
     // check click position and override the value of click
     if (yp && ev->x < x + ctx.prompt_width + powerlineprompt ? ctx.powerline_width : 0) { // prompt
-        click = ClickPrompt;
+        click = ClickType::ClickPrompt;
     } else if (yp && (ev->x > ctx.win_width - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh) && !hidecaps && capsw) { // caps lock indicator
-        click = ClickCaps;
+        click = ClickType::ClickCapsLockIndicator;
     } else if (yp && ev->x > ctx.win_width - modew - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh) { // mode indicator
-        click = ClickMode;
+        click = ClickType::ClickModeIndicator;
     } else if (yp && ev->x > ctx.win_width - modew - numberw - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh) { // match count
-        click = ClickNumber;
+        click = ClickType::ClickMatchCounter;
     } else if (yp && !hideinput) { // input
         w = (lines > 0 || !matches) ? ctx.win_width - x : ctx.input_width;
 
@@ -63,7 +64,7 @@ void buttonpress_x11(XEvent& e) {
                     ((!previousitem || !currentitem->left) ? larroww : 0)) ||
                 (lines > 0 && ev->y >= y && ev->y <= y + h)) {
 
-            click = ClickInput;
+            click = ClickType::ClickInput;
         }
     }
 
@@ -94,11 +95,11 @@ void buttonpress_x11(XEvent& e) {
 
             // ClickSelItem, called function doesn't matter
             if (ev->y >= y && ev->y <= (y + h) && ev->x >= x + (powerlineitems ? ctx.powerline_width : 0) && ev->x <= (x + w / columns) + (powerlineitems ? ctx.powerline_width : 0)) {
-                click = ClickItem;
+                click = ClickType::ClickItem;
                 mouseitem = item;
 #if IMAGE
             } else if (ev->y >= y && ev->y <= (y + h) && ev->x >= x + (powerlineitems ? ctx.powerline_width : 0) - MAX((img.gaps * 2) + img.width, indentitems ? ctx.prompt_width : 0) && ev->x <= (x - MAX((img.gaps * 2) + img.width, indentitems ? ctx.prompt_width : 0) + w / columns) + (powerlineitems ? ctx.powerline_width : 0)) {
-                click = ClickImage;
+                click = ClickType::ClickImage;
                 mouseitem = item;
 #endif
             }
@@ -109,7 +110,7 @@ void buttonpress_x11(XEvent& e) {
 
         if (previousitem && currentitem->left) {
             if (ev->x >= x && ev->x <= x + w) {
-                click = ClickLArrow;
+                click = ClickType::ClickLeftArrow;
             }
         }
 
@@ -117,13 +118,13 @@ void buttonpress_x11(XEvent& e) {
         w = rarroww;
         x = ctx.win_width - w;
         if (nextitem && ev->x >= x && ev->x <= x + w) {
-            click = ClickRArrow;
+            click = ClickType::ClickRightArrow;
         }
     }
 
     // go through mouse button array and run function
     for (auto& it : buttons) {
-        if ((click == it.click || it.click == ClickNone) && it.func && it.button == ev->button) {
+        if ((click == it.click || it.click == ClickType::ClickNone) && it.func && it.button == static_cast<XButtonType>(ev->button)) {
             it.func(it.arg);
         }
     }

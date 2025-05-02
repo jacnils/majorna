@@ -8,28 +8,7 @@
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 #include <functional>
 #include <string>
-
-struct output {
-    struct state *state{};
-    wl_output* out{};
-
-    int32_t scale{};
-};
-
-struct WlKey {
-    int mode{};
-    std::string mod{};
-    xkb_keysym_t keysym{};
-    std::function<void(Arg&)> func{};
-    Arg arg{};
-};
-
-struct WlMouse {
-    unsigned int click{};
-    unsigned int button{};
-    std::function<void(Arg&)> func{};
-    Arg arg{};
-};
+#include <mouse.hpp>
 
 #define WL_CtrlShift "CtrlShift"
 #define WL_CtrlShiftSuper "CtrlShiftSuper"
@@ -55,6 +34,36 @@ struct WlMouse {
 #define WL_Task	0x117
 #define WL_Up 1
 #define WL_Down 0
+
+enum class WlButtonType {
+    LeftClick = WL_Left,
+    MiddleClick = WL_Middle,
+    RightClick = WL_Right,
+    ScrollUp = WL_Up,
+    ScrollDown = WL_Down,
+};
+
+struct output {
+    struct state *state{};
+    wl_output* out{};
+
+    int32_t scale{};
+};
+
+struct WlKey {
+    int mode{};
+    std::string mod{};
+    xkb_keysym_t keysym{};
+    std::function<void(Arg&)> func{};
+    Arg arg{};
+};
+
+struct WlMouse {
+    ClickType click{};
+    WlButtonType button{};
+    std::function<void(Arg&)> func{};
+    Arg arg{};
+};
 
 struct state {
     struct output *output;
@@ -124,7 +133,7 @@ void keypress_wl(struct state *state, enum wl_keyboard_key_state key_state, xkb_
 void pointer_button_handler(void *data, struct wl_pointer *pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state);
 void pointer_motion_handler(void *data, struct wl_pointer *pointer, uint32_t time, wl_fixed_t x, wl_fixed_t y);
 void pointer_axis_handler(void *data, struct wl_pointer *pointer, uint32_t time, uint32_t axis, wl_fixed_t value);
-void buttonpress_wl(uint32_t button, double ex, double ey);
+void buttonpress_wl(WlButtonType button, double ex, double ey);
 int is_correct_modifier(struct state *state, const std::string& modifier);
 int roundtrip(struct state *state);
 int init_disp(struct state *state);

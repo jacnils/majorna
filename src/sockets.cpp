@@ -245,37 +245,37 @@ void handle_mouse(nlohmann::json& json) {
 
         if (it.contains("button") && it.at("button").is_number_integer()) {
 #if X11
-            mouse.button = it.at("button").get<int>();
+            mouse.button = static_cast<XButtonType>(it.at("button").get<unsigned int>());
 #endif
 #if WAYLAND
-            wl_mouse.button = it.at("button").get<int>();
+            wl_mouse.button = static_cast<WlButtonType>(it.at("button").get<unsigned int>());
 #endif
         } else if (it.contains("button") && it.at("button").is_array() &&
                    it.at("button").size() == 1 && it.at("button").at(0).is_number_integer())
         {
 #if X11
-            mouse.button = it.at("button").at(0).get<int>();
+	    mouse.button = static_cast<XButtonType>(it.at("button").get<unsigned int>());
 #endif
 #if WAYLAND
-            wl_mouse.button = it.at("button").at(0).get<int>();
+            wl_mouse.button = static_cast<WlButtonType>(it.at("button").get<unsigned int>());
 #endif
         }
 
         if (it.contains("click") && it.at("click").is_number_integer()) {
 #if X11
-            mouse.click = it.at("click").get<int>();
+            mouse.click = static_cast<ClickType>(it.at("click").get<unsigned int>());
 #endif
 #if WAYLAND
-            wl_mouse.click = it.at("click").get<int>();
+            wl_mouse.click = static_cast<ClickType>(it.at("click").get<unsigned int>());
 #endif
         } else if (it.contains("click") && it.at("click").is_array() &&
                    it.at("click").size() == 1 && it.at("click").at(0).is_number_integer())
         {
 #if X11
-            mouse.click = it.at("click").at(0).get<int>();
+            mouse.click = static_cast<ClickType>(it.at("click").get<unsigned int>());
 #endif
 #if WAYLAND
-            wl_mouse.click = it.at("click").at(0).get<int>();
+            wl_mouse.click = static_cast<ClickType>(it.at("click").get<unsigned int>());
 #endif
         }
 
