@@ -1,6 +1,5 @@
 #pragma once
 
-
 enum class ClickType : int {
     ClickWindow = 0,
     ClickPrompt = 1,

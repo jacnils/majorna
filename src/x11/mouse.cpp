@@ -6,7 +6,7 @@
 #include <options.hpp>
 #include <majorna.hpp>
 #include <macros.hpp>
-#include <cstring>
+#include <iostream>
 
 void buttonpress_x11(XEvent& e) {
     item *item;

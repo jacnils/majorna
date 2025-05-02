@@ -156,16 +156,20 @@ void handle_keys(nlohmann::json& json) {
         }
 
         if (it.contains("modifier") && it.at("modifier").is_string()) {
+#if X11
             for (const auto& _it : ml) {
                 if (_it.mod == it.at("modifier").get<std::string>()) {
-#if X11
                     key.mod = _it.modifier;
-#endif
-#if WAYLAND
-                    wl_key.mod = _it.modifier;
-#endif
                 }
             }
+#endif
+#if WAYLAND
+            for (const auto& _it : wml) {
+                if (_it.mod == it.at("modifier").get<std::string>()) {
+                    wl_key.mod = _it.modifier;
+                }
+            }
+#endif
         }
 
 #if X11
@@ -192,10 +196,10 @@ void handle_mouse(nlohmann::json& json) {
     // iterate through the array
     for (const auto& it : json.at("mouse")) {
 #if X11
-        Mouse mouse;
+        Mouse mouse{};
 #endif
 #if WAYLAND
-        WlMouse wl_mouse;
+        WlMouse wl_mouse{};
 #endif
 
         if (it.contains("argument")) {
@@ -242,36 +246,36 @@ void handle_mouse(nlohmann::json& json) {
                 }
             }
         } else {
-	    throw std::runtime_error{"Invalid defined mouse binding in config file"};
-	}
+            throw std::runtime_error{"Invalid defined mouse binding in config file"};
+        }
 
         if (it.contains("button") && it.at("button").is_number_integer()) {
 #if X11
-	    if (x_button_list.size() >= it.at("button").get<int>()) {
-		    mouse.button = x_button_list.at(it.at("button").get<int>());
-	    }
+            if (x_button_list.size() >= it.at("button").get<int>()) {
+                mouse.button = x_button_list.at(it.at("button").get<int>());
+            }
 #endif
 #if WAYLAND
-	    if (wl_button_list.size() >= it.at("button").get<int>()) {
-		    wl_mouse.button = wl_button_list.at(it.at("button").get<int>());
-	    }
+            if (wl_button_list.size() >= it.at("button").get<int>()) {
+                wl_mouse.button = wl_button_list.at(it.at("button").get<int>());
+            }
 #endif
         } else if (it.contains("button") && it.at("button").is_array() &&
                    it.at("button").size() == 1 && it.at("button").at(0).is_number_integer())
         {
 #if X11
-	    if (x_button_list.size() >= it.at("button").at(0).get<int>()) {
-		    mouse.button = x_button_list.at(it.at("button").at(0).get<int>());
-	    }
+            if (x_button_list.size() >= it.at("button").at(0).get<int>()) {
+                mouse.button = x_button_list.at(it.at("button").at(0).get<int>());
+            }
 #endif
 #if WAYLAND
-	    if (wl_button_list.size() >= it.at("button").at(0).get<int>()) {
-		    wl_mouse.button = wl_button_list.at(it.at("button").at(0).get<int>());
-	    }
+            if (wl_button_list.size() >= it.at("button").at(0).get<int>()) {
+                wl_mouse.button = wl_button_list.at(it.at("button").at(0).get<int>());
+            }
 #endif
         } else {
-	    throw std::runtime_error{"Invalid defined mouse binding in config file"};
-	}
+	        throw std::runtime_error{"Invalid defined mouse binding in config file"};
+	    }
 
         if (it.contains("click") && it.at("click").is_number_integer()) {
 #if X11
@@ -281,17 +285,17 @@ void handle_mouse(nlohmann::json& json) {
             wl_mouse.click = static_cast<ClickType>(it.at("click").get<int>());
 #endif
         } else if (it.contains("click") && it.at("click").is_array() &&
-                   it.at("click").size() == 1 && it.at("click").at(0).is_number_integer())
+               it.at("click").size() == 1 && it.at("click").at(0).is_number_integer())
         {
 #if X11
-            mouse.click = static_cast<ClickType>(it.at("click").get<int>());
+            mouse.click = static_cast<ClickType>(it.at("click").at(0).get<int>());
 #endif
 #if WAYLAND
-            wl_mouse.click = static_cast<ClickType>(it.at("click").get<int>());
+            wl_mouse.click = static_cast<ClickType>(it.at("click").at(0).get<int>());
 #endif
         } else {
-	    throw std::runtime_error{"Invalid defined mouse binding in config file"};
-	}
+            throw std::runtime_error{"Invalid defined mouse binding in config file"};
+        }
 
 #if X11
         buttons.push_back(mouse);
