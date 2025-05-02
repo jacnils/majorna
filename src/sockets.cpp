@@ -32,7 +32,6 @@ void get_template(json& j, const std::string& path, T& obj) {
     json* current = &j;
     for (const auto& key : split_path(path)) {
         if (!current->contains(key)) {
-            std::cerr << "missing: " << path << std::endl;
             return;
         }
         current = &(*current)[key];
@@ -40,19 +39,11 @@ void get_template(json& j, const std::string& path, T& obj) {
     if (!current->is_null()) {
         if (current->is_array() && current->size() == 1) {
             obj = current->at(0).get<T>();
-            std::cerr << "loaded array as single: " << path << std::endl;
             return;
         }
         try {
             obj = current->get<T>();
-            if constexpr (requires { std::cerr << obj; }) {
-                std::cerr << "loaded: " << path << " with value: " << obj << std::endl;
-            } else {
-                std::cerr << "loaded: " << path << std::endl;
-            }
-        } catch (...) {
-            std::cerr << "failed: " << path << std::endl;
-        }
+        } catch (...) {}
     }
 };
 
@@ -73,8 +64,12 @@ void handle_keys(nlohmann::json& json) {
         return;
     }
 
+#if X11
     keys.clear();
+#endif
+#if WAYLAND
     wl_keys.clear();
+#endif
 
     // iterate through the array
     for (const auto& it : json.at("keys")) {
@@ -294,8 +289,6 @@ void handle_mouse(nlohmann::json& json) {
 }
 
 void load_config(nlohmann::json& json) {
-    std::cerr << json.dump(2) << std::endl;
-
     get_template<int>(json, "/appearance/caret/dimensions/height", caretheight);
     get_template<int>(json, "/appearance/caret/dimensions/width", caretwidth);
     get_template<int>(json, "/appearance/caret/dimensions/padding", caretpadding);

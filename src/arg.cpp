@@ -6,6 +6,7 @@
 #include <img.hpp>
 #include <history.hpp>
 #include <x11/clipboard.hpp>
+#include <chrono>
 
 void move_left(const Arg& arg) {
     struct item *tmpsel;
@@ -694,55 +695,40 @@ void mark_hover(const Arg& arg) {
 }
 
 void screenshot(const Arg& arg) {
-    char *file = nullptr;
-    char *home = nullptr;
-    time_t time_ = time(nullptr);
-    struct tm t = *localtime(&time_);
+    std::string filename = screenshotfile;
 
-    /*
-    if (screenshotfile.empty()) {
-        if (!(home = getenv("HOME"))) {
+    if (filename.find("%h") != std::string::npos) {
+        std::string home;
+        home = getenv("HOME");
+        if (home.empty()) {
             fprintf(stderr, "majorna: failed to determine home directory\n");
             return;
         }
+        filename.replace(filename.find("%h"), 2, home);
+    }
+    if (filename.find("%d") != std::string::npos) {
+        auto now = std::chrono::system_clock::now();
+        auto today = floor<std::chrono::days>(now);
+        std::chrono::year_month_day ymd = std::chrono::year_month_day{today};
 
-        if (screenshotdir.empty() && screenshotname.empty()) { // default
-            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s-%02d-%02d-%02d%s", home, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
-                die("majorna: failed to malloc screenshot file");
-            }
-
-            sprintf(file, "%s/%s-%02d-%02d-%02d%s", home, "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png");
-        } else if (screenshotdir.empty() && !screenshotname.empty()) { // no dir but name
-            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", home, screenshotname.c_str()) + 1)))) {
-                die("majorna: failed to malloc screenshot file");
-            }
-
-            sprintf(file, "%s/%s", home, screenshotname.c_str());
-        } else if (!screenshotdir.empty() && screenshotname.empty()) { // dir but no name
-            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s-%02d-%02d-%02d%s", screenshotdir.c_str(), "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png") + 1)))) {
-                die("majorna: failed to malloc screenshot file");
-            }
-
-            sprintf(file, "%s/%s-%02d-%02d-%02d%s", screenshotdir.c_str(), "majorna-screenshot", t.tm_hour, t.tm_min, t.tm_sec, ".png");
-        } else { // dir and name
-            if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s/%s", screenshotdir.c_str(), screenshotname.c_str()) + 1)))) {
-                die("majorna: failed to malloc screenshot file");
-            }
-
-            sprintf(file, "%s/%s", screenshotdir.c_str(), screenshotname.c_str());
+        std::string date = std::format("{:%F}", ymd);
+        if (date.empty()) {
+            fprintf(stderr, "majorna: failed to determine date\n");
+            return;
         }
-    } else { // custom file
-        if (!(file = static_cast<char*>(malloc(snprintf(nullptr, 0, "%s", screenshotfile.c_str()) + 1)))) {
-            die("majorna: failed to malloc screenshot file");
+        filename.replace(filename.find("%d"), 2, date);
+    }
+    if (filename.find("%t") != std::string::npos) {
+        auto now = std::chrono::zoned_time{std::chrono::current_zone(), std::chrono::system_clock::now()};
+        std::string time = std::format("{:%H_%M_%S}", now);
+
+        if (time.empty()) {
+            fprintf(stderr, "majorna: failed to determine time\n");
+            return;
         }
 
-        sprintf(file, "%s", screenshotfile.c_str());
+        filename.replace(filename.find("%t"), 2, time);
     }
-    */
 
-    draw.save_screen(file);
-
-    if (file) {
-        free(file);
-    }
+    draw.save_screen(filename);
 }
