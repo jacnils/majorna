@@ -16,9 +16,7 @@ inline bool grabkeyboard                = true; /* Grab keyboard/general input *
 inline int scrolldistance              = 512; /* Distance to scroll for a scroll action to count */
 
 /* Config file options */
-#if CONFIG
-inline std::string configfile                = {}; /* Config file path. Default is ~/.config/majorna/majorna.conf */
-#endif
+inline std::string configfile                = {}; /* Config file path. Default is ~/.config/majorna/majorna.py */
 
 /* Window options */
 inline bool alpha                       = true; /* Enable alpha */

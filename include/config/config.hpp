@@ -6,7 +6,6 @@
 #include <majorna.hpp>
 #include <functional>
 
-#if CONFIG
 #if X11
 struct KeyList {
     std::string key{};
@@ -394,7 +393,4 @@ enum class ClickType {
     ClickNone = 10,
 };
 
-void conf_init();
 void theme_load();
-int bind_init();
-#endif

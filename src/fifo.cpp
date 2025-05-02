@@ -58,9 +58,7 @@ void execute_fifo_cmd() {
         close(fd);
         die("FIFO told me to die.");
     } else if (fifot == "loadconfig") {
-#if CONFIG
         conf_init();
-#endif
     } else if (fifot == "output") {
         if (selecteditem) {
             for (int i = 0; i < sel_size; i++) {

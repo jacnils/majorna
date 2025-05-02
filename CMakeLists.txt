@@ -11,7 +11,6 @@ option(IMLIB2 "Enable Imlib2 support" ON)
 option(OPENSSL "Enable OpenSSL support" ON)
 option(FRIBIDI "Enable Fribidi support" ON)
 option(XINERAMA "Enable Xinerama support" ON)
-option(LIBCONFIG "Enable Libconfig support" ON)
 
 include_directories(include)
 include_directories(libs/limhamn/include)
@@ -128,12 +127,6 @@ if(XINERAMA AND X11)
     list(APPEND BUILD_ARGS -DXINERAMA)
 endif()
 
-if(LIBCONFIG)
-    pkg_check_modules(LIBCONFIG REQUIRED libconfig)
-    list(APPEND PROJECT_DEPENDENCIES ${LIBCONFIG_LIBRARIES})
-    list(APPEND BUILD_ARGS -DCONFIG)
-endif()
-
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CAIRO_INCLUDE_DIRS}
@@ -147,7 +140,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${IMLIB2_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIRS}
     ${FRIBIDI_INCLUDE_DIRS}
-    ${LIBCONFIG_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_DEPENDENCIES})

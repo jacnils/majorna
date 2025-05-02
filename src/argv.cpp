@@ -46,7 +46,6 @@ void readargs(int argc, char** argv) {
         protocol = 1;
         protocol_override = 1;
     });
-#if CONFIG
     am.push_back("-cf|--config-file|/cf|/config-file|config-file", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
             std::cerr << "The -c/--config flag requires a file to be specified.\n";
@@ -55,16 +54,13 @@ void readargs(int argc, char** argv) {
 
         configfile = strdup(collection.arguments.at(++collection.index).c_str());
     });
-#endif
 
 
     // do nothing, since we'll have further parsing to do
     am.execute([](const std::string&) {});
 
-#if CONFIG
     initialize_socket();
     conf_init();
-#endif
 
     am = limhamn::argument_manager::argument_manager(argc, argv);
     am.push_back("-h|--help|/h|/help|help", [](const limhamn::argument_manager::collection&) {});
