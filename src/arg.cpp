@@ -701,8 +701,7 @@ void screenshot(const Arg& arg) {
         std::string home;
         home = getenv("HOME");
         if (home.empty()) {
-            fprintf(stderr, "majorna: failed to determine home directory\n");
-            return;
+            throw std::runtime_error{"failed to get home directory"};
         }
         filename.replace(filename.find("%h"), 2, home);
     }
@@ -713,8 +712,7 @@ void screenshot(const Arg& arg) {
 
         std::string date = std::format("{:%F}", ymd);
         if (date.empty()) {
-            fprintf(stderr, "majorna: failed to determine date\n");
-            return;
+            throw std::runtime_error{"failed to get date"};
         }
         filename.replace(filename.find("%d"), 2, date);
     }
@@ -723,8 +721,7 @@ void screenshot(const Arg& arg) {
         std::string time = std::format("{:%H_%M_%S}", now);
 
         if (time.empty()) {
-            fprintf(stderr, "majorna: failed to determine time\n");
-            return;
+            throw std::runtime_error{"failed to get time"};
         }
 
         filename.replace(filename.find("%t"), 2, time);
