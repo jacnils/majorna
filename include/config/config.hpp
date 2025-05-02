@@ -393,4 +393,4 @@ enum class ClickType {
     ClickNone = 10,
 };
 
-void theme_load();
+void conf_init();
