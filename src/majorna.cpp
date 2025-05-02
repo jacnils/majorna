@@ -336,7 +336,6 @@ void handle() {
         borderwidth = 0;
         managed = 0;
 
-        draw = limhamn::primitive::draw_manager();
         draw.initialize_font(font);
 
         read_stdin();

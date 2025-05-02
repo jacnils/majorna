@@ -137,9 +137,9 @@ void setupdisplay_x11() {
 
     match();
 
-    std::atomic<bool> running = true;
-    std::thread t([&running]() {
-            while (running.load()) {
+    auto running = std::make_shared<std::atomic<bool>>(true);
+    std::thread t([running]() {
+            while (running->load()) {
                 draw_menu();
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
