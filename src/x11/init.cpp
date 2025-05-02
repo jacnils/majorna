@@ -160,8 +160,6 @@ void prepare_window_size_x11() {
 
     ctx.lrpad = draw.get_font_manager().get_height() + textpadding;
     get_mh();
-
-    return;
 }
 
 Display * opendisplay_x11(char *disp) {
@@ -201,7 +199,9 @@ void handle_x11() {
 }
 
 void cleanup_x11(Display *disp) {
-    XUngrabKey(disp, AnyKey, AnyModifier, root);
-    XSync(disp, False);
-    XCloseDisplay(disp);
+    if (disp) {
+        XUngrabKey(disp, AnyKey, AnyModifier, root);
+        XSync(disp, False);
+        disp = nullptr;
+    }
 }

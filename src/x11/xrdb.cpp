@@ -43,9 +43,8 @@ void resource_load(XrmDatabase db, const std::string& name, resource_type rtype,
 }
 
 void load_xresources() {
-    Display* display = XOpenDisplay(nullptr);
-
-    char* resm = XResourceManagerString(display);
+    Display* disp = XOpenDisplay(nullptr);
+    char* resm = XResourceManagerString(disp);
 
     if (!resm || !xresources)
         return;
@@ -55,8 +54,6 @@ void load_xresources() {
     for (auto& it : cols) {
         resource_load(db, it.name, it.type, it.dst);
     }
-
-    XCloseDisplay(display);
 }
 
 #endif

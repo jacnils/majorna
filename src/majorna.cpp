@@ -137,7 +137,9 @@ void cleanup() {
 #endif
 
     for (i = 0; i < hplength; ++i)
-        free(hpitems[i]);
+        if (hpitems[i]) {
+            free(hpitems[i]);
+        }
 
 #if X11
     if (!protocol) {
@@ -147,7 +149,9 @@ void cleanup() {
 
     std::filesystem::remove(fifofile);
 
-    free(sel_index);
+    if (sel_index) {
+        free(sel_index);
+    }
 }
 
 char * cistrstr(const char *h, const char *n) {
