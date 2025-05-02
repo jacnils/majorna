@@ -241,43 +241,57 @@ void handle_mouse(nlohmann::json& json) {
 #endif
                 }
             }
-        }
+        } else {
+	    throw std::runtime_error{"Invalid defined mouse binding in config file"};
+	}
 
         if (it.contains("button") && it.at("button").is_number_integer()) {
 #if X11
-            mouse.button = static_cast<XButtonType>(it.at("button").get<unsigned int>());
+	    if (x_button_list.size() >= it.at("button").get<int>()) {
+		    mouse.button = x_button_list.at(it.at("button").get<int>());
+	    }
 #endif
 #if WAYLAND
-            wl_mouse.button = static_cast<WlButtonType>(it.at("button").get<unsigned int>());
+	    if (wl_button_list.size() >= it.at("button").get<int>()) {
+		    wl_mouse.button = wl_button_list.at(it.at("button").get<int>());
+	    }
 #endif
         } else if (it.contains("button") && it.at("button").is_array() &&
                    it.at("button").size() == 1 && it.at("button").at(0).is_number_integer())
         {
 #if X11
-	    mouse.button = static_cast<XButtonType>(it.at("button").get<unsigned int>());
+	    if (x_button_list.size() >= it.at("button").at(0).get<int>()) {
+		    mouse.button = x_button_list.at(it.at("button").at(0).get<int>());
+	    }
 #endif
 #if WAYLAND
-            wl_mouse.button = static_cast<WlButtonType>(it.at("button").get<unsigned int>());
+	    if (wl_button_list.size() >= it.at("button").at(0).get<int>()) {
+		    wl_mouse.button = wl_button_list.at(it.at("button").at(0).get<int>());
+	    }
 #endif
-        }
+        } else {
+	    throw std::runtime_error{"Invalid defined mouse binding in config file"};
+	}
 
         if (it.contains("click") && it.at("click").is_number_integer()) {
 #if X11
-            mouse.click = static_cast<ClickType>(it.at("click").get<unsigned int>());
+            mouse.click = static_cast<ClickType>(it.at("click").get<int>());
 #endif
 #if WAYLAND
-            wl_mouse.click = static_cast<ClickType>(it.at("click").get<unsigned int>());
+            wl_mouse.click = static_cast<ClickType>(it.at("click").get<int>());
 #endif
         } else if (it.contains("click") && it.at("click").is_array() &&
                    it.at("click").size() == 1 && it.at("click").at(0).is_number_integer())
         {
 #if X11
-            mouse.click = static_cast<ClickType>(it.at("click").get<unsigned int>());
+            mouse.click = static_cast<ClickType>(it.at("click").get<int>());
 #endif
 #if WAYLAND
-            wl_mouse.click = static_cast<ClickType>(it.at("click").get<unsigned int>());
+            wl_mouse.click = static_cast<ClickType>(it.at("click").get<int>());
 #endif
-        }
+        } else {
+	    throw std::runtime_error{"Invalid defined mouse binding in config file"};
+	}
 
 #if X11
         buttons.push_back(mouse);

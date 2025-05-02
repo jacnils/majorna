@@ -357,4 +357,24 @@ inline std::vector<WlKeyList> wkl{
 };
 #endif
 
+#ifdef X11
+static const std::vector<XButtonType> x_button_list {
+	XButtonType::LeftClick,
+	XButtonType::RightClick,
+	XButtonType::MiddleClick,
+	XButtonType::ScrollUp,
+	XButtonType::ScrollDown,
+};
+#endif
+
+#ifdef WAYLAND
+static const std::vector<WlButtonType> wl_button_list {
+	WlButtonType::LeftClick,
+	WlButtonType::RightClick,
+	WlButtonType::MiddleClick,
+	WlButtonType::ScrollUp,
+	WlButtonType::ScrollDown,
+};
+#endif
+
 void conf_init();
