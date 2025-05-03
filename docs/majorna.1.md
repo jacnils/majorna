@@ -393,24 +393,6 @@ in the config files.
 `-ncfg, --no-load-config`
 :   Don't load majorna.configuration (~/.config/majorna/majorna.conf) on runtime
 
-`-bf, --bind-file file`
-:   Set bind file to load to file
-
-`-lbi, --load-binds`
-:   Exclusively load binds from file (~/.config/majorna/binds.conf) on runtime
-
-`-nlbi, --no-load-binds`
-:   Don't exclusively load binds from file (~/.config/majorna/binds.conf) on runtime
-
-`-tm, --theme theme`
-:   Load theme 'theme' on runtime
-
-`-ltm, --load-theme`
-:   Load theme (~/.config/majorna/theme.conf) on runtime
-
-`-nltm, --no-load-theme`
-:   Don't load theme (~/.config/majorna/theme.conf) on runtime
-
 `-x11, --x11`
 :   Run Majorna in X11 mode
 
@@ -619,7 +601,7 @@ There are two modes. Normal mode and Insert mode. These modes are of
 course similar to Vim.
 
 Normal mode is the mode Majorna starts in unless a mode argument is specified
-or another mode is set in the configuration file. Note that if `forceinsertmode`
+or another mode is set in the configuration file. Note that if `force_insert_mode`
 is enabled, Normal mode cannot be used and Majorna will start in Insert mode
 instead.
 
@@ -794,6 +776,9 @@ with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client_socket:
 
 ```
 
+The built-in libmajorna uses this socket. If you can use Python, it is strongly
+recommended that you use the API instead.
+
 ## Pango markup and text formatting
 
 Because Majorna uses Pango and Cairo for text drawing, Pango markup can be used
@@ -847,19 +832,10 @@ See [this page](https://docs.gtk.org/Pango/pango_markup.html) for more informati
 ## Configuration
 
 Unlike dmenu, Majorna has a configuration file which can be edited by hand. It
-is located in ~/.config/majorna/majorna.conf, but you can override this by
+is located in ~/.config/majorna/majorna.py, but you can override this by
 exporting `$XDG_CONFIG_HOME`.
 
-When Majorna is installed, it copies a sample configuration
-to /usr/share/majorna/majorna.conf. You can copy this to your `.config/Majorna` directory.
-This configuration file is loaded on startup.
-
-You can also include other configuration files in the configuration file using
-`@include "path/to/config"`, useful if you wish to split your config file up
-into multiple segments.
-
-Note that Majorna also has a `binds.conf` configuration file, which isn't used
-very much.
+This configuration file is a Python file, and any Python code can be used.
 
 ## Keybinds
 
@@ -1022,27 +998,6 @@ are read by Majorna, these alter the font and colorscheme Majorna uses.
 | color13            | sgr13         |
 | color14            | sgr14         |
 | color15            | sgr15         |
-
-## Themes
-
-You could just `@include` themes from the aforementioned `majorna.conf`, but
-it's kind of inconvenient. For this reason, Majorna reads `.config/majorna/theme.conf`
-on startup as well. To apply a basic theme,
-you simply replace theme.conf with the theme you want to use.
-
-There is a [Git repository](https://github.com/jacnils/majorna-themes) which contains
-a bunch of themes written for Majorna, and you can use them as a template
-when making your own themes. You may also contribute to this repository
-if you have a theme to show.
-
-Do however note that the theme file is **not** the same as the config file.
-There are quite a lot of differences, and many options are not available.
-This is by design, as these options should be set by the user, not the theme.
-
-Having a single theme file is not very convenient if you have many themes
-because you constantly have to replace your theme file, so theme managers
-exist to make this a bit easier. [majornify](https://github.com/jacnils/majornify)
-is the official theme manager, but you could use another one or write your own.
 
 ## List of all configurable functions
 
