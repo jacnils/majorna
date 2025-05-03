@@ -137,15 +137,19 @@ void setupdisplay_x11() {
 
     match();
 
-    auto running = std::make_shared<std::atomic<bool>>(true);
-    std::thread t([running]() {
-            while (running->load()) {
-                draw_menu();
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            }
-    });
+    if (!listfile.empty()) {
+	    auto running = std::make_shared<std::atomic<bool>>(true);
+	    std::thread t([running]() {
+		    while (running->load()) {
+			draw_menu();
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		    }
+	    });
 
-    t.detach();
+	    t.detach();
+    } else {
+	    draw_menu();
+    }
 }
 
 void prepare_window_size_x11() {
