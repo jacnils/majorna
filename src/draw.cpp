@@ -982,103 +982,112 @@ void draw_menu() {
 }
 
 void draw_menu_layer() {
-    int x = 0, y = 0, w = 0;
-    ctx.powerline_width = hidepowerline ? 0 : draw.get_font_manager().get_height() / 2 + 1; // powerline size
+    if (!no_print_standard) {
+        int x = 0, y = 0, w = 0;
+        ctx.powerline_width = hidepowerline ? 0 : draw.get_font_manager().get_height() / 2 + 1; // powerline size
 
-    sp_strncpy(strings.mode_text, ctx.mode ? instext.c_str() : normtext.c_str(), sizeof(strings.mode_text));
+        sp_strncpy(strings.mode_text, ctx.mode ? instext.c_str() : normtext.c_str(), sizeof(strings.mode_text));
 
-    if (regex && !regextext.empty() && ctx.mode) {
-        sp_strncpy(strings.mode_text, regextext.c_str(), sizeof(strings.mode_text));
+        if (regex && !regextext.empty() && ctx.mode) {
+            sp_strncpy(strings.mode_text, regextext.c_str(), sizeof(strings.mode_text));
+        }
+
+        // draw menu first using menu scheme
+        //draw_rect(draw, 0, 0, sp.mw, sp.mh, 1, 1, col_menu, col_menu, alpha_menu, alpha_menu);
+        draw.draw_rect({
+            .x = 0,
+            .y = 0,
+            .w = ctx.win_width,
+            .h = ctx.win_height,
+        }, {
+            .foreground = col_menu,
+            .background = col_menu,
+            .foreground_alpha = alpha_menu,
+            .background_alpha = alpha_menu,
+            .filled = true,
+        });
+
+        int numberw = 0;
+        int modew = 0;
+        int capsw = 0;
+
+        // add width
+        if (!hidemode) modew = pango_mode ? TEXTWM(strings.mode_text) : TEXTW(strings.mode_text);
+        if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.caps_text) : TEXTW(strings.caps_text);
+
+        if (!strcmp(strings.caps_text, ""))
+            capsw = 0;
+
+        // calculate match count
+        if (!hidematchcount) {
+            recalculatenumbers();
+            numberw = TEXTW(strings.number_text);
+        }
+
+        x += menumarginh;
+        y += menumarginv;
+
+        calcoffsets();
+        get_mh();
+
+        int nh = 1;
+
+        // sp.bh must be removed from menu height resizing later
+        if ((hideprompt && hideinput && hidemode && hidematchcount && hidecaps) && lines) {
+            y -= ctx.item_height;
+            nh = 0;
+        }
+
+        if (!hidemode) {
+            modew = pango_mode ? TEXTWM(strings.mode_text) : TEXTW(strings.mode_text);
+        }
+
+        if (!hideprompt) {
+            w = ctx.prompt_width;
+            x = drawprompt(x, y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0), w);
+        }
+
+        w = (lines > 0 || !matches) ? ctx.win_width - x : ctx.input_width;
+        x = drawinput(x, y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0), w);
+
+        // draw the items, this function also calls drawrarrow() and drawlarrow()
+        if (!hideitem) {
+            drawitem(x, y - (nh ? lines ? itemposition ? ctx.item_height : 0 : 0 : 0), w);
+        }
+
+        if (!hidematchcount) {
+            w = numberw;
+            drawnumber(
+                    ctx.win_width - numberw - modew - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh,
+                    y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0),
+                    w
+            );
+        }
+
+        if (!hidemode) {
+            w = modew;
+            drawmode(
+                    ctx.win_width - modew - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh,
+                    y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0),
+                    w
+            );
+        }
+
+        if (!hidecaps) {
+            w = capsw;
+            draw_caps_indicator(
+                    ctx.win_width - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh,
+                    y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0),
+                    w
+            );
+        }
     }
 
-    // draw menu first using menu scheme
-    //draw_rect(draw, 0, 0, sp.mw, sp.mh, 1, 1, col_menu, col_menu, alpha_menu, alpha_menu);
-    draw.draw_rect({
-        .x = 0,
-        .y = 0,
-        .w = ctx.win_width,
-        .h = ctx.win_height,
-    }, {
-        .foreground = col_menu,
-        .background = col_menu,
-        .foreground_alpha = alpha_menu,
-        .background_alpha = alpha_menu,
-        .filled = true,
-    });
-
-    int numberw = 0;
-    int modew = 0;
-    int capsw = 0;
-
-    // add width
-    if (!hidemode) modew = pango_mode ? TEXTWM(strings.mode_text) : TEXTW(strings.mode_text);
-    if (!hidecaps) capsw = pango_caps ? TEXTWM(strings.caps_text) : TEXTW(strings.caps_text);
-
-    if (!strcmp(strings.caps_text, ""))
-        capsw = 0;
-
-    // calculate match count
-    if (!hidematchcount) {
-        recalculatenumbers();
-        numberw = TEXTW(strings.number_text);
+    for (auto& it : rect_prop) {
+        draw.draw_rect(it.pos, it.props);
     }
-
-    x += menumarginh;
-    y += menumarginv;
-
-    calcoffsets();
-    get_mh();
-
-    int nh = 1;
-
-    // sp.bh must be removed from menu height resizing later
-    if ((hideprompt && hideinput && hidemode && hidematchcount && hidecaps) && lines) {
-        y -= ctx.item_height;
-        nh = 0;
-    }
-
-    if (!hidemode) {
-        modew = pango_mode ? TEXTWM(strings.mode_text) : TEXTW(strings.mode_text);
-    }
-
-    if (!hideprompt) {
-        w = ctx.prompt_width;
-        x = drawprompt(x, y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0), w);
-    }
-
-    w = (lines > 0 || !matches) ? ctx.win_width - x : ctx.input_width;
-    x = drawinput(x, y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0), w);
-
-    // draw the items, this function also calls drawrarrow() and drawlarrow()
-    if (!hideitem) {
-        drawitem(x, y - (nh ? lines ? itemposition ? ctx.item_height : 0 : 0 : 0), w);
-    }
-
-    if (!hidematchcount) {
-        w = numberw;
-        drawnumber(
-                ctx.win_width - numberw - modew - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh,
-                y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0),
-                w
-        );
-    }
-
-    if (!hidemode) {
-        w = modew;
-        drawmode(
-                ctx.win_width - modew - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh,
-                y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0),
-                w
-        );
-    }
-
-    if (!hidecaps) {
-        w = capsw;
-        draw_caps_indicator(
-                ctx.win_width - capsw - 2 * ctx.hpadding - 2 * borderwidth - menumarginh,
-                y + (nh ? lines ? itemposition ? (ctx.win_height - ctx.item_height) : 0 : 0 : 0),
-                w
-        );
+    for (auto& it : text_prop) {
+        it.new_x = draw.draw_text(it.pos, it.padding, it.input_text, it.markup, it.props);
     }
 }
 

@@ -2,6 +2,29 @@
 
 #pragma once
 
+#include <limhamn/primitive/primitive.hpp>
+
+struct RectDrawProperty {
+    limhamn::primitive::draw_position pos{};
+    limhamn::primitive::draw_properties props{};
+    std::string key{};
+    int new_x{};
+};
+
+struct TextDrawProperty {
+    limhamn::primitive::draw_position pos{};
+    int padding{};
+    std::string input_text{};
+    bool markup{};
+    limhamn::primitive::draw_properties props{};
+    std::string key{};
+    int new_x{};
+};
+
+inline std::vector<RectDrawProperty> rect_prop;
+inline std::vector<TextDrawProperty> text_prop;
+inline bool no_print_standard{false};
+
 void drawhighlights(struct item *item, int x, int y, int w, int p, char *itemtext);
 char* get_text_n_sgr(struct item *item);
 int drawitemtext(struct item *item, int x, int y, int w);
