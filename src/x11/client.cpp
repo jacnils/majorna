@@ -59,26 +59,22 @@ void set_window_x11() {
     // set border and class
     XSetWindowBorder(dpy, win, col.pixel);
     XSetClassHint(dpy, win, &ch);
-
-    return;
 }
 
-void set_prop_x11(void) {
-    // set properties indicating what majorna handles
+void set_prop_x11() {
     clip = XInternAtom(dpy, "CLIPBOARD",   False);
     utf8 = XInternAtom(dpy, "UTF8_STRING", False);
     types = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
 
-    // set dock property
     if (dockproperty) {
         dock = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
         XChangeProperty(dpy, win, types, XA_ATOM, 32, PropModeReplace, (unsigned char *) &dock, 1); // set dock property
     }
 }
 
-void resizeclient_x11(void) {
+void resizeclient_x11() {
     int x, y;
-    struct item *item;
+    item *item;
     int ic = 0; // item count
 
     // walk through all items

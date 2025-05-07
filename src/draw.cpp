@@ -380,11 +380,10 @@ int drawitemtext(item *item, int x, int y, int w) {
 
     // now draw any non-colored text
     apply_fribidi(buffer);
-    //int ret = draw_text(draw, x, y, w, sp.bh, leftpadding, buffer, 0, pango_item ? True : False, fgcol, bgcol, fga, bga);
     int ret = draw.draw_text({
         .x = x,
         .y = y,
-        .w = static_cast<int>(w),
+        .w = w,
         .h = ctx.item_height,
     }, leftpadding, buffer, pango_item ? true : false, {
         .foreground = fgcol,
@@ -399,7 +398,6 @@ int drawitemtext(item *item, int x, int y, int w) {
 
     if (!hidepowerline && powerlineitems) {
         if (itempwlstyle == 2) {
-            //draw_circle(draw, ret, y, sp.plw, sp.bh, 1, col_menu, obgcol, alpha_menu, obga);
             draw.draw_circle({
                 .x = ret,
                 .y = y,
@@ -412,7 +410,6 @@ int drawitemtext(item *item, int x, int y, int w) {
                 .next_alpha = obga,
             });
         } else {
-            //draw_arrow(draw, ret, y, sp.plw, sp.bh, 1, itempwlstyle, col_menu, obgcol, alpha_menu, obga);
             draw.draw_arrow({
                 .x = ret,
                 .y = y,
@@ -427,9 +424,11 @@ int drawitemtext(item *item, int x, int y, int w) {
         }
     }
 
+    if (fgcol) free(fgcol);
+    if (bgcol) free(bgcol);
+
     return ret;
 }
-
 
 int drawitem(int x, int y, int w) {
     int numberw = 0;
