@@ -78,7 +78,7 @@ struct x11 {
     int numlockmask{};
     bool use_argb{};
     int depth{};
-    char *embed{};
+    std::string embed{};
     int screen{};
     Visual *visual{};
     Colormap cmap{};

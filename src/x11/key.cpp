@@ -60,7 +60,7 @@ void keypress_x11(XEvent& e) {
 
 void grabkeyboard_x11() {
     constexpr timespec ts = { .tv_sec = 0, .tv_nsec = 1000000  };
-    if (x11.embed || managed) {
+    if (!x11.embed.empty() || managed) {
         return;
     }
 

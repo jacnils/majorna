@@ -12,7 +12,6 @@
 #include <string>
 #include <sort.hpp>
 #include <sockets.hpp>
-#include <thread>
 #ifndef LIMHAMN_ARGUMENT_MANAGER_IMPL
 #define LIMHAMN_ARGUMENT_MANAGER_IMPL
 #endif
@@ -33,10 +32,10 @@ void readargs(int argc, char** argv) {
         exit(EXIT_SUCCESS);
     });
     am.push_back("-lcfg|--load-config|/lcfg|/load-config|load-config", [](const limhamn::argument_manager::collection&) {
-        loadconfig = 1;
+        loadconfig = true;
     });
     am.push_back("-ncfg|--no-load-config|/ncfg|/no-load-config|no-load-config", [](const limhamn::argument_manager::collection&) {
-        loadconfig = 0;
+        loadconfig = false;
     });
     am.push_back("-x11|--x11|/x11|/x11|x11", [](const limhamn::argument_manager::collection&) {
         protocol = 0;
@@ -52,7 +51,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        configfile = strdup(collection.arguments.at(++collection.index).c_str());
+        configfile = collection.arguments.at(++collection.index);
     });
 
 
@@ -180,7 +179,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        cachedir = strdup(collection.arguments.at(++collection.index).c_str());
+        cachedir = collection.arguments.at(++collection.index);
     });
     am.push_back("-ix|--print-index|/ix|/print-index|print-index", [](limhamn::argument_manager::collection&) {
         printindex = true;
@@ -233,7 +232,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        prompt = strdup(collection.arguments.at(++collection.index).c_str());
+        prompt = collection.arguments.at(++collection.index);
     });
     am.push_back("-pt|--pretext|/pt|/pretext|pretext", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -241,7 +240,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        pretext = strdup(collection.arguments.at(++collection.index).c_str());
+        pretext = collection.arguments.at(++collection.index);
     });
     am.push_back("-It|--input|/It|/input|input", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -249,7 +248,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        input = strdup(collection.arguments.at(++collection.index).c_str());
+        input = collection.arguments.at(++collection.index);
     });
     am.push_back("-ip|--indent|/ip|/indent|indent", [](limhamn::argument_manager::collection&) {
         indentitems = true;
@@ -331,7 +330,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        normtext = strdup(collection.arguments.at(++collection.index).c_str());
+        normtext = collection.arguments.at(++collection.index);
     });
     am.push_back("-imt|--insert-mode-text|/imt|/insert-mode-text|insert-mode-text", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -339,7 +338,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        instext = strdup(collection.arguments.at(++collection.index).c_str());
+        instext = collection.arguments.at(++collection.index);
     });
     am.push_back("-clon|--caps-lock-on-text|/clon|/caps-lock-on-text|caps-lock-on-text", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -347,7 +346,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        capslockontext = strdup(collection.arguments.at(++collection.index).c_str());
+        capslockontext = collection.arguments.at(++collection.index);
     });
     am.push_back("-clof|--caps-lock-off-text|/clof|/caps-lock-off-text|caps-lock-off-text", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -355,7 +354,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        capslockofftext = strdup(collection.arguments.at(++collection.index).c_str());
+        capslockofftext = collection.arguments.at(++collection.index);
     });
     am.push_back("-bw|--border-width|/bw|/border-width|border-width", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -390,7 +389,7 @@ void readargs(int argc, char** argv) {
             hpitems[i] = strdup(items.at(i).c_str());
         }
 
-        hplength = length;
+        hplength = static_cast<int>(length);
     });
     am.push_back("-s|--case-sensitive|/s|/case-sensitive|case-sensitive", [](limhamn::argument_manager::collection&) {
         casesensitive = true;
@@ -556,7 +555,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        x11.embed = strdup(collection.arguments.at(++collection.index).c_str());
+        x11.embed = collection.arguments.at(++collection.index);
     });
     am.push_back("-H|--hist-file|/H|/hist-file|hist-file", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -564,7 +563,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        histfile = strdup(collection.arguments.at(++collection.index).c_str());
+        histfile = collection.arguments.at(++collection.index);
     });
     am.push_back("-lf|--list-file|/lf|/list-file|list-file", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -572,7 +571,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        listfile = strdup(collection.arguments.at(++collection.index).c_str());
+        listfile = collection.arguments.at(++collection.index);
     });
     am.push_back("-ig|--image-gaps|/ig|/image-gaps|image-gaps", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -628,7 +627,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        leftarrow = strdup(collection.arguments.at(++collection.index).c_str());
+        leftarrow = collection.arguments.at(++collection.index);
     });
     am.push_back("-ra|--right-arrow-symbol|/ra|/right-arrow-symbol|right-arrow-symbol", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -636,7 +635,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        rightarrow = strdup(collection.arguments.at(++collection.index).c_str());
+        rightarrow = collection.arguments.at(++collection.index);
     });
     am.push_back("-is|--image-size|/is|/image-size|image-size", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -700,7 +699,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        font = strdup(collection.arguments.at(++collection.index).c_str());
+        font = collection.arguments.at(++collection.index);
     });
     am.push_back("-nif|--normal-item-foreground|/nif|/normal-item-foreground|normal-item-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -708,7 +707,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemnormfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemnormfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-nib|--normal-item-background|/nib|/normal-item-background|normal-item-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -716,7 +715,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemnormbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemnormbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-nnif|--normal-next-item-foreground|/nnif|/normal-next-item-foreground|normal-next-item-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -724,7 +723,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemnormfg2 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemnormfg2 = collection.arguments.at(++collection.index);
     });
     am.push_back("-nnib|--normal-next-item-background|/nnib|/normal-next-item-background|normal-next-item-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -732,7 +731,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemnormbg2 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemnormbg2 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sif|--selected-item-foreground|/sif|/selected-item-foreground|selected-item-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -740,7 +739,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemselfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemselfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-sib|--selected-item-background|/sib|/selected-item-background|selected-item-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -748,7 +747,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemselbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemselbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-npf|--normal-item-priority-foreground|/npf|/normal-item-priority-foreground|normal-item-priority-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -756,7 +755,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemnormprifg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemnormprifg = collection.arguments.at(++collection.index);
     });
     am.push_back("-npb|--normal-item-priority-background|/npb|/normal-item-priority-background|normal-item-priority-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -764,7 +763,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemnormpribg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemnormpribg = collection.arguments.at(++collection.index);
     });
     am.push_back("-spf|--selected-item-priority-foreground|/spf|/selected-item-priority-foreground|selected-item-priority-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -772,7 +771,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemselprifg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemselprifg = collection.arguments.at(++collection.index);
     });
     am.push_back("-spb|--selected-item-priority-background|/spb|/selected-item-priority-background|selected-item-priority-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -780,7 +779,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemselpribg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemselpribg = collection.arguments.at(++collection.index);
     });
     am.push_back("-pfg|--prompt-foreground|/pfg|/prompt-foreground|prompt-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -788,7 +787,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_promptfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_promptfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-pbg|--prompt-background|/pbg|/prompt-background|prompt-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -796,7 +795,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_promptbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_promptbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-ifg|--input-foreground|/ifg|/input-foreground|input-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -804,7 +803,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_inputfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_inputfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-ibg|--input-background|/ibg|/input-background|input-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -812,7 +811,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_inputbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_inputbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-ptfg|--pretext-foreground|/ptfg|/pretext-foreground|pretext-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -820,7 +819,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_pretextfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_pretextfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-ptbg|--pretext-background|/ptbg|/pretext-background|pretext-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -828,7 +827,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_pretextbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_pretextbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-mnbg|--menu-background|/mnbg|/menu-background|menu-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -836,7 +835,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_menu = strdup(collection.arguments.at(++collection.index).c_str());
+        col_menu = collection.arguments.at(++collection.index);
     });
     am.push_back("-nhf|--normal-highlight-foreground|/nhf|/normal-highlight-foreground|normal-highlight-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -844,7 +843,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_hlnormfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_hlnormfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-nhb|--normal-highlight-background|/nhb|/normal-highlight-background|normal-highlight-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -852,7 +851,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_hlnormbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_hlnormbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-shf|--selected-highlight-foreground|/shf|/selected-highlight-foreground|selected-highlight-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -860,7 +859,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_hlselfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_hlselfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-shb|--selected-highlight-background|/shb|/selected-highlight-background|selected-highlight-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -868,7 +867,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_hlselbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_hlselbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-nfg|--number-foreground|/nfg|/number-foreground|number-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -876,7 +875,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_numfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_numfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-nbg|--number-background|/nbg|/number-background|number-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -884,7 +883,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_numbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_numbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-mfg|--mode-foreground|/mfg|/mode-foreground|mode-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -892,7 +891,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_modefg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_modefg = collection.arguments.at(++collection.index);
     });
     am.push_back("-mbg|--mode-background|/mbg|/mode-background|mode-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -900,7 +899,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_modebg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_modebg = collection.arguments.at(++collection.index);
     });
     am.push_back("-laf|--left-arrow-foreground|/laf|/left-arrow-foreground|left-arrow-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -908,7 +907,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_larrowfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_larrowfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-raf|--right-arrow-foreground|/raf|/right-arrow-foreground|right-arrow-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -916,7 +915,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_rarrowfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_rarrowfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-lab|--left-arrow-background|/lab|/left-arrow-background|left-arrow-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -924,7 +923,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_larrowbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_larrowbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-rab|--right-arrow-background|/rab|/right-arrow-background|right-arrow-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -932,7 +931,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_rarrowbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_rarrowbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-cfc|--caret-foreground|/cfc|/caret-foreground|caret-foreground", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -940,7 +939,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_caretfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_caretfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-cbc|--caret-background|/cbc|/caret-background|caret-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -948,7 +947,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_caretbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_caretbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-bc|--border-background|/bc|/border-background|border-background", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -956,7 +955,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_border = strdup(collection.arguments.at(++collection.index).c_str());
+        col_border = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr0|--sgr0|/sgr0|/sgr0|sgr0", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -964,7 +963,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr1 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr1 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr1|--sgr1|/sgr1|/sgr1|sgr1", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -972,7 +971,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr1 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr1 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr2|--sgr2|/sgr2|/sgr2|sgr2", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -980,7 +979,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr2 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr2 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr3|--sgr3|/sgr3|/sgr3|sgr3", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -988,7 +987,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr3 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr3 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr4|--sgr4|/sgr4|/sgr4|sgr4", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -996,7 +995,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr4 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr4 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr5|--sgr5|/sgr5|/sgr5|sgr5", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1004,7 +1003,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr5 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr5 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr6|--sgr6|/sgr6|/sgr6|sgr6", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1012,7 +1011,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr6 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr6 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr7|--sgr7|/sgr7|/sgr7|sgr7", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1020,7 +1019,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr7 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr7 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr8|--sgr8|/sgr8|/sgr8|sgr8", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1028,7 +1027,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr8 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr8 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr9|--sgr9|/sgr9|/sgr9|sgr9", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1036,7 +1035,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr9 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr9 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr10|--sgr10|/sgr10|/sgr10|sgr10", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1044,7 +1043,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr10 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr10 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr11|--sgr11|/sgr11|/sgr11|sgr11", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1052,7 +1051,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr11 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr11 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr12|--sgr12|/sgr12|/sgr12|sgr12", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1060,7 +1059,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr12 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr12 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr13|--sgr13|/sgr13|/sgr13|sgr13", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1068,7 +1067,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr13 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr13 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr14|--sgr14|/sgr14|/sgr14|sgr14", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1076,7 +1075,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr14 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr14 = collection.arguments.at(++collection.index);
     });
     am.push_back("-sgr15|--sgr15|/sgr15|/sgr15|sgr15", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1084,7 +1083,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_sgr15 = strdup(collection.arguments.at(++collection.index).c_str());
+        col_sgr15 = collection.arguments.at(++collection.index);
     });
     am.push_back("-S", [](limhamn::argument_manager::collection&) {
         sortmatches = false;
@@ -1100,7 +1099,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_menu = strdup(collection.arguments.at(++collection.index).c_str());
+        col_menu = collection.arguments.at(++collection.index);
     });
     am.push_back("-nf", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1108,7 +1107,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemnormfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemnormfg = collection.arguments.at(++collection.index);
     });
     am.push_back("-sb", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1116,7 +1115,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemselbg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemselbg = collection.arguments.at(++collection.index);
     });
     am.push_back("-sf", [](limhamn::argument_manager::collection& collection) {
         if (collection.arguments.size() <= collection.index + 1) {
@@ -1124,7 +1123,7 @@ void readargs(int argc, char** argv) {
             std::exit(EXIT_FAILURE);
         }
 
-        col_itemselfg = strdup(collection.arguments.at(++collection.index).c_str());
+        col_itemselfg = collection.arguments.at(++collection.index);
     });
 
     am.execute([](const std::string& arg) {
