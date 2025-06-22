@@ -603,10 +603,6 @@ std::string handler(const std::string& input) {
 
             return return_json.dump();
         } else if (action == "draw_rect") {
-            while (!ctx.initialized) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-
             RectDrawProperty p{};
             if (input_json.contains("rect") && input_json["rect"].is_object()) {
                 const auto& rect = input_json["rect"];
@@ -621,12 +617,12 @@ std::string handler(const std::string& input) {
                     throw std::runtime_error{"Invalid defined rectangle in config file"};
                 }
                 if (rect.contains("width") && rect["width"].is_number_integer()) {
-                    p.pos.w = rect["width"].get<int>();
+                    p.pos.w = rect["w"].get<int>();
                 } else {
                     throw std::runtime_error{"Invalid defined rectangle in config file"};
                 }
                 if (rect.contains("height") && rect["height"].is_number_integer()) {
-                    p.pos.h = rect["height"].get<int>();
+                    p.pos.h = rect["h"].get<int>();
                 } else {
                     throw std::runtime_error{"Invalid defined rectangle in config file"};
                 }
@@ -669,14 +665,9 @@ std::string handler(const std::string& input) {
             return_json["y"] = p.pos.y + p.pos.h;
             return_json["width"] = p.pos.w;
             return_json["height"] = p.pos.h;
-            return_json["key"] = p.key;
             return_json["actions_performed"].push_back("draw_rect");
             return return_json.dump();
         } else if (action == "rm_rect") {
-            while (!ctx.initialized) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-
             if (input_json.contains("key") && input_json["key"].is_string()) {
                 const std::string& key = input_json["key"].get<std::string>();
                 auto it = std::remove_if(rect_prop.begin(), rect_prop.end(), [&key](const RectDrawProperty& p) {
@@ -694,10 +685,6 @@ std::string handler(const std::string& input) {
             return_json["actions_performed"].push_back("rm_rect");
             return return_json.dump();
         } else if (action == "clear_rect") {
-            while (!ctx.initialized) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-
             if (input_json.contains("no_print_standard") && input_json["no_print_standard"].is_boolean()) {
                 no_print_standard = input_json["no_print_standard"].get<bool>();
             }
@@ -707,10 +694,6 @@ std::string handler(const std::string& input) {
             return_json["actions_performed"].push_back("clear_rect");
             return return_json.dump();
         } else if (action == "draw_text") {
-            while (!ctx.initialized) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-
             TextDrawProperty p{};
             if (input_json.contains("rect") && input_json["rect"].is_object()) {
                 const auto& rect = input_json["rect"];
@@ -725,12 +708,12 @@ std::string handler(const std::string& input) {
                     throw std::runtime_error{"Invalid defined rectangle in config file"};
                 }
                 if (rect.contains("width") && rect["width"].is_number_integer()) {
-                    p.pos.w = rect["width"].get<int>();
+                    p.pos.w = rect["w"].get<int>();
                 } else {
                     throw std::runtime_error{"Invalid defined rectangle in config file"};
                 }
                 if (rect.contains("height") && rect["height"].is_number_integer()) {
-                    p.pos.h = rect["height"].get<int>();
+                    p.pos.h = rect["h"].get<int>();
                 } else {
                     throw std::runtime_error{"Invalid defined rectangle in config file"};
                 }
@@ -797,7 +780,6 @@ std::string handler(const std::string& input) {
             return_json["y"] = p.pos.y;
             return_json["width"] = width;
             return_json["height"] = p.pos.h;
-            return_json["key"] = p.key;
             return_json["actions_performed"].push_back("draw_text");
 
             text_prop.push_back(p);
@@ -805,10 +787,6 @@ std::string handler(const std::string& input) {
             return return_json.dump();
 
         } else if (action == "rm_text") {
-            while (!ctx.initialized) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-
             if (input_json.contains("key") && input_json["key"].is_string()) {
                 const std::string& key = input_json["key"].get<std::string>();
                 auto it = std::remove_if(text_prop.begin(), text_prop.end(), [&key](const TextDrawProperty& p) {
@@ -822,18 +800,7 @@ std::string handler(const std::string& input) {
                 throw std::runtime_error{"Invalid defined key in config file"};
             }
         } else if (action == "draw_menu") {
-            while (!ctx.initialized) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-
-            if (input_json.contains("no_print_standard") && input_json["no_print_standard"].is_boolean()) {
-                no_print_standard = input_json["no_print_standard"].get<bool>();
-            }
-
             draw_menu();
-
-            return_json["actions_performed"].push_back("draw_menu");
-            return return_json.dump();
         }
     }
 
@@ -842,10 +809,6 @@ std::string handler(const std::string& input) {
         for (const auto& call : input_json["calls"]) {
             if (!call.is_object()) continue;
             if (!call.contains("function") || !call["function"].is_string()) continue;
-
-            while (!ctx.initialized) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
 
             const std::string& fn = call["function"].get<std::string>();
 

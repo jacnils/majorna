@@ -34,26 +34,8 @@ class MajornaPipe:
             response = self.client_socket.recv(1024)
             return response.decode('utf-8') if response else None
         except (socket.error, BrokenPipeError):
+            # Retry connect once, then try sending again
             self.connect()
-            self.client_socket.sendall(send_str.encode('utf-8'))
-            response = self.client_socket.recv(1024)
-            return response.decode('utf-8') if response else None
-
-    import socket
-
-    def send_string_no_timeout(self, send_str):
-        try:
-            if not self.client_socket:
-                self.connect()
-
-            self.client_socket.settimeout(None)
-            self.client_socket.sendall(send_str.encode('utf-8'))
-
-            response = self.client_socket.recv(1024)
-            return response.decode('utf-8') if response else None
-        except (socket.error, BrokenPipeError):
-            self.connect()
-            self.client_socket.settimeout(None)
             self.client_socket.sendall(send_str.encode('utf-8'))
             response = self.client_socket.recv(1024)
             return response.decode('utf-8') if response else None
